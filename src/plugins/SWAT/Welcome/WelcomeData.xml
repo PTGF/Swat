@@ -1,0 +1,21 @@
+<WelcomeData>
+  <Tutorials>
+  <Link title="Getting Started with STAT" description="a video showing the basics of STAT usage" type="video" priority="8" url="http://youtu.be/Lv8rR03ez04?hd=1"/>
+  <Link title="STAT Quick Start Guide" description="a short PDF to get you started quickly" type="text" priority="16" url="https://outreach.scidac.gov/docman/view.php/99/38/stat_quickstart.pdf"/>
+  <Link title="STAT User's Guide" description="a link to the STAT user manual" type="text" priority="16" url="https://outreach.scidac.gov/docman/view.php/99/37/stat_userguide.pdf"/>
+  </Tutorials>
+  <Examples>
+  </Examples>
+  <Support>
+  </Support>
+  <LatestNews>
+  </LatestNews>
+  <TipsAndTricks>
+  <Tip text="STAT gathers and merges stack traces from a parallel application's processes."/>
+  <Tip text="STAT's 2D spatial call prefix tree represents a single snapshot of the entire application."/>
+  <Tip text="STAT's 3D spatial-temporal call prefix tree represents a series of snapshots from the application taken over time."/>
+  <Tip text="STAT is capable of gathering stack traces with more fine-grained information, such as the program counter or the source file and line number of each frame."/>
+  <Tip text="STAT can extract the loop ordering variable from the application processes and further delineate tasks by execution progress."/>
+  <Tip text="STAT's merging algorithm, its core operation, scales very well up to 208K tasks on BG/L, taking under half a second at that scale."/>
+  </TipsAndTricks>
+</WelcomeData>

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/SWAT">
+        <file alias="app.gif">Logo_70.gif</file>
+        <file alias="logo_150.gif">Logo_150.gif</file>
+    </qresource>
+</RCC>

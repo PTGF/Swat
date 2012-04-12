@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Plugins::SWAT::SettingPage</class>
+ <widget class="QWidget" name="Plugins::SWAT::SettingPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>561</width>
+    <height>346</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

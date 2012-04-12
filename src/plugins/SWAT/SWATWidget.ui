@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Plugins::SWAT::SWATWidget</class>
+ <widget class="QTabWidget" name="Plugins::SWAT::SWATWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>686</width>
+    <height>459</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SWAT</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/swat/app.gif</normaloff>:/swat/app.gif</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QStackedWidget {
+  background-color: rgba(0,0,0, 5%);
+  background-image: url(\&quot;:/SWAT/logo_150.gif\&quot;);
+  background-repeat: none;
+  background-position: center center;
+  border-radius: 5px;
+  margin: 4 3 2 4;
+}</string>
+  </property>
+  <property name="documentMode">
+   <bool>true</bool>
+  </property>
+  <property name="tabsClosable">
+   <bool>true</bool>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
