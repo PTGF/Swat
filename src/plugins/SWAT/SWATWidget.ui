@@ -25,7 +25,9 @@
   background-position: center center;
   border-radius: 5px;
   margin: 4 3 2 4;
-}</string>
+}
+
+</string>
   </property>
   <property name="documentMode">
    <bool>true</bool>

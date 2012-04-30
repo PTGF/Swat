@@ -1,7 +1,7 @@
 /*!
-   \file
+   \file 
    \author Dane Gardner <dane.gardner@gmail.com>
-   \version
+   \version 
    
    \section LICENSE
    This file is part of the StackWalker Analysis Tool (SWAT)
@@ -26,39 +26,28 @@
    
  */
 
-#ifndef IADAPTER_H
-#define IADAPTER_H
+#ifndef JOBCONTROLDIALOG_H
+#define JOBCONTROLDIALOG_H
 
-#include <QObject>
-#include <QMetaType>
-#include "ConnectionManagerLibrary.h"
+#include <QDialog>
 
-namespace Plugins {
-namespace SWAT {
+namespace Ui {
+class JobControlDialog;
+}
 
-class CONNECTIONMANAGER_EXPORT IAdapter : public QObject
+class JobControlDialog : public QDialog
 {
     Q_OBJECT
-
+    
 public:
-    explicit IAdapter(QObject *parent = 0);
+    explicit JobControlDialog(QWidget *parent = 0);
+    ~JobControlDialog();
+    
+    enum Types { Type_Attach, Type_Launch };
+    void setType(Types);
 
-    virtual void attach() = 0;
-    virtual void reAttach() = 0;
-    virtual void detach() = 0;
-    virtual void pause() = 0;
-    virtual void resume() = 0;
-    virtual void sample() = 0;
-    virtual void sampleMultiple() = 0;
-
+private:
+    Ui::JobControlDialog *ui;
 };
 
-} // namespace SWAT
-} // namespace Plugins
-
-//! We do this so that we can use the pointer in a QVariant
-Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *);
-
-Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1");
-
-#endif // IADAPTER_H
+#endif // JOBCONTROLDIALOG_H

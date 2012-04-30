@@ -32,7 +32,8 @@ SOURCES      += SWATPlugin.cpp \
                 AboutDialog.cpp \
                 Settings/SettingPage.cpp \
                 Welcome/WelcomeData.cpp \
-    ConnectionManager/IAdapter.cpp
+                ConnectionManager/IAdapter.cpp \
+    JobControlDialog.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -40,17 +41,20 @@ HEADERS      += SWATPlugin.h \
                 SWATLibrary.h \
                 Settings/SettingPage.h \
                 Welcome/WelcomeData.h \
-    ConnectionManager/IAdapter.h
+                ConnectionManager/ConnectionManagerLibrary.h \
+                ConnectionManager/IAdapter.h \
+    JobControlDialog.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \
-                Settings/SettingPage.ui
+                Settings/SettingPage.ui \
+    JobControlDialog.ui
 
 RESOURCES    += Resources/SWAT.qrc
 
 QT           += xml
 
-DEFINES      += SWAT_LIBRARY
+DEFINES      += SWAT_LIBRARY CONNECTIONMANAGER_LIBRARY
 
 OTHER_FILES += Welcome/WelcomeData.xml
 win32: welcomeData.path = /swat/

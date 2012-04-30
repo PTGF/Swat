@@ -1,7 +1,7 @@
 /*!
-   \file
+   \file ConnectionManagerLibrary.h
    \author Dane Gardner <dane.gardner@gmail.com>
-   \version
+   \version 
    
    \section LICENSE
    This file is part of the StackWalker Analysis Tool (SWAT)
@@ -26,39 +26,15 @@
    
  */
 
-#ifndef IADAPTER_H
-#define IADAPTER_H
+#ifndef CONNECTIONMANAGERLIBRARY_H
+#define CONNECTIONMANAGERLIBRARY_H
 
-#include <QObject>
-#include <QMetaType>
-#include "ConnectionManagerLibrary.h"
+#include <QtCore/QtGlobal>
 
-namespace Plugins {
-namespace SWAT {
+#if defined(CONNECTIONMANAGER_LIBRARY)
+#  define CONNECTIONMANAGER_EXPORT Q_DECL_EXPORT
+#else
+#  define CONNECTIONMANAGER_EXPORT Q_DECL_IMPORT
+#endif
 
-class CONNECTIONMANAGER_EXPORT IAdapter : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit IAdapter(QObject *parent = 0);
-
-    virtual void attach() = 0;
-    virtual void reAttach() = 0;
-    virtual void detach() = 0;
-    virtual void pause() = 0;
-    virtual void resume() = 0;
-    virtual void sample() = 0;
-    virtual void sampleMultiple() = 0;
-
-};
-
-} // namespace SWAT
-} // namespace Plugins
-
-//! We do this so that we can use the pointer in a QVariant
-Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *);
-
-Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1");
-
-#endif // IADAPTER_H
+#endif // CONNECTIONMANAGERLIBRARY_H

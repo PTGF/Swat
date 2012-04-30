@@ -83,6 +83,17 @@ QList<Link> WelcomeData::actions()
     QList<SWATWidget *> swatWidgets = pluginManager.getObjects<SWATWidget>();
     if(swatWidgets.count() == 1) {
         SWATWidget *swatWidget = swatWidgets.at(0);
+
+        list.append(Link(tr("SWAT Attach"),
+                         tr("attach to already running job"),
+                         Link::Type_None, 128,
+                         swatWidget, SLOT(attachJob())));
+
+        list.append(Link(tr("SWAT Launch"),
+                         tr("launch a new job and attach"),
+                         Link::Type_None, 128,
+                         swatWidget, SLOT(launchJob())));
+
     }
 
     return list;

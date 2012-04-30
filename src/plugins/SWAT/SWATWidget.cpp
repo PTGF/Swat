@@ -29,6 +29,8 @@
 #include "SWATWidget.h"
 #include "ui_SWATWidget.h"
 
+#include "JobControlDialog.h"
+
 namespace Plugins {
 namespace SWAT {
 
@@ -118,6 +120,21 @@ void SWATWidget::tabTitleChanged()
     }
 }
 
+void SWATWidget::attachJob()
+{
+    //Prompt user for finding and attaching to a running job
+    JobControlDialog *dialog = new JobControlDialog(this);
+    dialog->setType(JobControlDialog::Type_Attach);
+    dialog->show();
+}
+
+void SWATWidget::launchJob()
+{
+    //Prompt user for launching and attaching to a new job
+    JobControlDialog *dialog = new JobControlDialog(this);
+    dialog->setType(JobControlDialog::Type_Launch);
+    dialog->show();
+}
 
 
 } // namespace SWAT

@@ -50,6 +50,8 @@ public:
     ~SWATWidget();
 
 public slots:
+    void attachJob();
+    void launchJob();
 
 protected:
     void tabInserted(int index);
