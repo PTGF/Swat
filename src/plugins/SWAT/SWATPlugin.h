@@ -30,14 +30,18 @@
 #define SWATPLUGIN_H
 
 #include <QtCore>
-#include <MainWindow/MainWindow.h>
+#include <QtGui>
+#include <QtPlugin>
+
 #include <PluginManager/IPlugin.h>
 #include <SettingManager/ISettingPageFactory.h>
-#include "SWATWidget.h"
+
 #include "Welcome/WelcomeData.h"
 
 namespace Plugins {
 namespace SWAT {
+
+class SWATWidget;
 
 class SWATPlugin :
         public QObject,

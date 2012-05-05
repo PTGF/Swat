@@ -29,6 +29,8 @@
 #include "SWATWidget.h"
 #include "ui_SWATWidget.h"
 
+#include <MainWindow/MainWindow.h>
+
 #include "JobControlDialog.h"
 
 namespace Plugins {

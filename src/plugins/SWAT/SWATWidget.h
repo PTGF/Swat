@@ -29,9 +29,9 @@
 #ifndef SWATWIDGET_H
 #define SWATWIDGET_H
 
-#include <QTabWidget>
-#include <QAction>
-#include <MainWindow/MainWindow.h>
+#include <QtCore>
+#include <QtGui>
+
 #include "SWATLibrary.h"
 
 namespace Plugins {

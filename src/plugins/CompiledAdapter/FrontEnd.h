@@ -29,7 +29,7 @@
 #ifndef FRONTEND_H
 #define FRONTEND_H
 
-#include <QObject>
+#include <QtCore>
 
 #include <STAT_FrontEnd.h>
 

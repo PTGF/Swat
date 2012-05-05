@@ -30,7 +30,9 @@
 #define COMPILEDADAPTERPLUGIN_H
 
 #include <QtCore>
+
 #include <PluginManager/IPlugin.h>
+
 #include "CompiledAdapter.h"
 
 namespace Plugins {

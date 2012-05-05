@@ -28,10 +28,8 @@
 
 #include "WelcomeData.h"
 
-#include <QFile>
-#include <QFileInfo>
-#include <QApplication>
 #include <PluginManager/PluginManager.h>
+
 #include "SWATWidget.h"
 
 using namespace Plugins::Welcome;

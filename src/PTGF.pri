@@ -24,24 +24,60 @@ PTGF_PRI_INCLUDED = 1
 ##############
 
 # Source path for PTGF
-isEmpty(PTGF_PATH): PTGF_PATH = $$quote($${PWD})
-!exists($${PTGF_PATH}/src/PTGF.pri) {
-  warning()
-  warning("The PTGF header files could not be found.")
-  warning("The Open|SpeedShop plugin requires access to the framework source.")
-  error("Pass 'PTGF_PATH=~/src/PTGF' to qmake, where ~/src/PTGF is the base source directory of PTGF.")
+isEmpty(PTGF_INSTALLROOT) {
+  !isEmpty($$quote($${INSTALL_ROOT})): PTGF_INSTALLROOT = $$quote($${INSTALL_ROOT})
+  !isEmpty($$quote($${PWD})): PTGF_INSTALLROOT = $$quote($${PWD})
 }
 
+######################
+# PTGF INCLUDE PATHS #
+######################
+
+isEmpty(PTGF_INCPATH): PTGF_INCPATH = $$quote($${PTGF_INSTALLROOT})
+PTGF_INCPATHS = $${PTGF_INCPATH}
+PTGF_INCPATHS = $${PTGF_INCPATH}/src         # /src/PTGF/src/ ...
+PTGF_INCPATHS += $${PTGF_INCPATH}/include    # /opt/PTGF/include/ ...
+PTGF_INCPATHS += $${PTGF_INCPATH}/PTGF       # /usr/include/PTGF/ ...
+
+PTGF_FILENAME = core/lib/MainWindow/MainWindow.h
+
+# Loop through possible directories to find the header
+for(PTGF_PATH, PTGF_INCPATHS) {
+  exists($${PTGF_PATH}/$${PTGF_FILENAME}) {
+    INCLUDEPATH += $$quote($${PTGF_PATH}/core/lib) $$quote($${PTGF_PATH}/plugins)
+    DEPENDPATH  += $$quote($${PTGF_PATH}/core/lib) $$quote($${PTGF_PATH}/plugins)
+    unset(PTGF_INCPATHS)
+    break()
+  }
+}
+
+
+!isEmpty(PTGF_INCPATHS) {
+  warning()
+  for(PTGF_PATH, PTGF_INCPATHS) {
+    warning("$${PTGF_PATH}/$${PTGF_FILENAME} was not found")
+  }
+  warning("The PTGF header files could not be found.")
+  warning("The SWAT plugin requires access to the framework source.")
+  warning("Pass 'PTGF_INCPATH=~/src/PTGF' to qmake, where ~/src/PTGF is the base source directory of PTGF.")
+  warning("-=] OR [=-")
+  error("Pass 'PTGF_INSTALLROOT=/opt/PTGF' to qmake, where /opt/PTGF is the base install directory of PTGF.")
+}
+
+######################
+# PTGF LIBRARY PATHS #
+######################
+
 # Library path for compiled/built PTGF
-isEmpty(PTGF_LIBPATH): PTGF_LIBPATH = $$quote($${PWD})
+isEmpty(PTGF_LIBPATH): PTGF_LIBPATH = $$quote($${PTGF_INSTALLROOT})
 
 # Possible subdirectories for DLL
-PTGF_DIRECTORIES = $${PTGF_LIBPATH}
-PTGF_DIRECTORIES += $${PTGF_LIBPATH}/lib
-PTGF_DIRECTORIES += $${PTGF_LIBPATH}/debug
-PTGF_DIRECTORIES += $${PTGF_LIBPATH}/lib/debug
-PTGF_DIRECTORIES += $${PTGF_LIBPATH}/release
-PTGF_DIRECTORIES += $${PTGF_LIBPATH}/lib/release
+PTGF_LIBPATHS = $${PTGF_LIBPATH}
+PTGF_LIBPATHS += $${PTGF_LIBPATH}/lib
+PTGF_LIBPATHS += $${PTGF_LIBPATH}/debug
+PTGF_LIBPATHS += $${PTGF_LIBPATH}/lib/debug
+PTGF_LIBPATHS += $${PTGF_LIBPATH}/release
+PTGF_LIBPATHS += $${PTGF_LIBPATH}/lib/release
 
 # Find name of library file
 CONFIG(debug, debug|release) {
@@ -63,24 +99,25 @@ CONFIG(debug, debug|release) {
 }
 
 # Loop through possible directories to find the DLL
-for(PTGF_DIRECTORY, PTGF_DIRECTORIES) {
-  exists($${PTGF_DIRECTORY}/$${PTGF_FILENAME}) {
-    LIBS += -L$$quote($${PTGF_DIRECTORY}) -l$${PTGF_LIBNAME}
-    unset(PTGF_DIRECTORIES)
+for(PTGF_PATH, PTGF_LIBPATHS) {
+  exists($${PTGF_PATH}/$${PTGF_FILENAME}) {
+    LIBS += -L$$quote($${PTGF_PATH}) -l$${PTGF_LIBNAME}
+    unset(PTGF_LIBPATHS)
+    unset(PTGF_FILENAME)
     break()
   }
 }
 
 # If we never found an existing library file, notify the user, and error out
-!isEmpty(PTGF_DIRECTORIES) {
-  for(PTGF_DIRECTORY, PTGF_DIRECTORIES) {
-    warning("$${PTGF_DIRECTORY}/$${PTGF_FILENAME} was not found")
+!isEmpty(PTGF_LIBPATHS) {
+  warning()
+  for(PTGF_PATH, PTGF_LIBPATHS) {
+    warning("$${PTGF_PATH}/$${PTGF_FILENAME} was not found")
   }
-  error("Please ensure that you have already built the PTGF Core library.")
+  warning("The PTGF library files could not be found.")
+  warning("The SWAT plugin requires access to the framework libraries.")
+  warning("Please ensure that you have already built the PTGF Core library.")
+  warning("Pass 'PTGF_LIBPATH=/opt/PTGF' to qmake, where /opt/PTGF is the base library install directory of PTGF.")
+  warning("-=] OR [=-")
+  error("Pass 'PTGF_INSTALLROOT=/opt/PTGF' to qmake, where /opt/PTGF is the base install directory of PTGF.")
 }
-
-#################
-# INCLUDE PATHS #
-#################
-INCLUDEPATH += $$quote($${PTGF_PATH}/src/core/lib) $$quote($${PTGF_PATH}/src/plugins)
-DEPENDPATH  += $$quote($${PTGF_PATH}/src/core/lib) $$quote($${PTGF_PATH}/src//plugins)

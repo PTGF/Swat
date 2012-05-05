@@ -34,9 +34,11 @@
 
 #include <PluginManager/PluginManager.h>
 #include <SettingManager/SettingManager.h>
+#include <MainWindow/MainWindow.h>
 
-#include "AboutDialog.h"
 #include "Settings/SettingPage.h"
+#include "AboutDialog.h"
+#include "SWATWidget.h"
 
 
 namespace Plugins {

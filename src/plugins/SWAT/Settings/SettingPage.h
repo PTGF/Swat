@@ -1,7 +1,7 @@
 /*!
-   \file 
+   \file
    \author Dane Gardner <dane.gardner@gmail.com>
-   \version 
+   \version
 
    \section LICENSE
    This file is part of the StackWalker Analysis Tool (SWAT)
@@ -29,9 +29,10 @@
 #ifndef SWATSETTINGPAGE_H
 #define SWATSETTINGPAGE_H
 
-#include <QWidget>
+#include <QtCore>
+#include <QtGui>
+
 #include <SettingManager/ISettingPage.h>
-#include <SettingManager/SettingManager.h>
 
 namespace Plugins {
 namespace SWAT {

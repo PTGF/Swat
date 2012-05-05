@@ -29,7 +29,8 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <QDialog>
+#include <QtCore>
+#include <QtGui>
 
 namespace Plugins {
 namespace SWAT {

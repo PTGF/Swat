@@ -29,7 +29,9 @@
 #ifndef WELCOMEDATA_H
 #define WELCOMEDATA_H
 
-#include <QDomDocument>
+#include <QtCore>
+#include <QtXml>
+
 #include <Welcome/IWelcomeData.h>
 
 using namespace Plugins::Welcome;

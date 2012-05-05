@@ -29,13 +29,11 @@
 #ifndef COMPILEDADAPTER_H
 #define COMPILEDADAPTER_H
 
-#include <QThread>
-#include <QObject>
-#include <QHash>
-
-#include <SWAT/ConnectionManager/IAdapter.h>
+#include <QtCore>
 
 #include <STAT_FrontEnd.h>
+#include <SWAT/ConnectionManager/IAdapter.h>
+
 
 namespace Plugins {
 namespace CompiledAdapter {

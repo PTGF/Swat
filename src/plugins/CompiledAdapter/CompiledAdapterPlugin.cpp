@@ -27,6 +27,7 @@
  */
 
 #include <PluginManager/PluginManager.h>
+
 #include "CompiledAdapterPlugin.h"
 
 using namespace Plugins::SWAT;

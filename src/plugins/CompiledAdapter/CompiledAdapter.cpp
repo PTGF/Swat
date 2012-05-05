@@ -28,15 +28,10 @@
 
 #include "CompiledAdapter.h"
 
-#include <QApplication>
-#include <QFileInfo>
-#include <QFile>
-#include <QTime>
-
 #include <MainWindow/MainWindow.h>
 
 #ifdef CompiledADAPTER_DEBUG
-#  include <QDebug>
+#  include <QtDebug>
 #endif
 
 using namespace Plugins::SWAT;

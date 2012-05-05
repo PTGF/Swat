@@ -29,10 +29,8 @@
 #ifndef IADAPTER_H
 #define IADAPTER_H
 
-#include <QObject>
-#include <QMetaType>
-#include <QStringList>
-#include <QUuid>
+#include <QtCore>
+
 #include "ConnectionManagerLibrary.h"
 
 namespace Plugins {

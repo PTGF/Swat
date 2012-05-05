@@ -28,8 +28,6 @@
 
 #include "FrontEnd.h"
 
-#include <QStringList>
-
 namespace Plugins {
 namespace CompiledAdapter {
 
