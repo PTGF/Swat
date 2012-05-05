@@ -16,26 +16,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-include(../plugins.pri)
-
-include(STAT.pri)
-
-CONFIG(debug, debug|release) {
-  TARGET            = CompiledAdapterD
-} else {
-  TARGET            = CompiledAdapter
-}
-
-SOURCES            += CompiledAdapterPlugin.cpp \
-                      CompiledAdapter.cpp \
-    FrontEnd.cpp
-
-HEADERS            += CompiledAdapterPlugin.h \
-                      CompiledAdapter.h \
-    FrontEnd.h
-
-QT                 += xml
-
-LIBS         += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
-
-#debug: DEFINES += COMPILEDADAPTER_DEBUG
+INCLUDEPATH       += $$quote(/opt/stat/include)
+DEPENDPATH        += $$quote(/opt/stat/include)
+#LIBS              += -L$$quote(/opt/stat/lib) -lstatfe

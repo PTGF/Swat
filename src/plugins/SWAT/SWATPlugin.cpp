@@ -74,6 +74,8 @@ SWATPlugin::~SWATPlugin()
 
 bool SWATPlugin::initialize(QStringList &args, QString *err)
 {
+    Q_UNUSED(args)
+
     using namespace Core;
 
     try {

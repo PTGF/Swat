@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabAttach">
       <attribute name="title">
@@ -31,8 +31,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="1" column="1">
-           <widget class="QLineEdit" name="txtRemoteHost">
-           </widget>
+           <widget class="QLineEdit" name="txtRemoteHost"/>
           </item>
           <item row="1" column="2">
            <widget class="QPushButton" name="btnSearchProcesses">
@@ -79,8 +78,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLineEdit" name="txtProcessesFitler">
-           </widget>
+           <widget class="QLineEdit" name="txtProcessesFitler"/>
           </item>
           <item>
            <widget class="QListWidget" name="lstProcesses"/>
@@ -96,8 +94,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QLineEdit" name="txtLaunchString">
-        </widget>
+        <widget class="QLineEdit" name="txtLaunchString"/>
        </item>
        <item>
         <spacer name="verticalSpacer">
@@ -255,8 +252,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="txtTopology">
-           </widget>
+           <widget class="QLineEdit" name="txtTopology"/>
           </item>
          </layout>
         </widget>
@@ -275,8 +271,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="txtNodes">
-           </widget>
+           <widget class="QLineEdit" name="txtNodes"/>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="lblShareNodes">
@@ -342,8 +337,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="1">
-           <widget class="QLineEdit" name="txtDaemonPath">
-           </widget>
+           <widget class="QLineEdit" name="txtDaemonPath"/>
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="btnDaemonPath">
@@ -353,8 +347,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="txtFilterPath">
-           </widget>
+           <widget class="QLineEdit" name="txtFilterPath"/>
           </item>
           <item row="1" column="2">
            <widget class="QToolButton" name="btnFilterPath">
@@ -422,8 +415,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLineEdit" name="txtLogPath">
-           </widget>
+           <widget class="QLineEdit" name="txtLogPath"/>
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="btnLogPath">

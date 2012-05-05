@@ -31,17 +31,21 @@
 
 #include <QThread>
 #include <QObject>
+#include <QHash>
+
 #include <SWAT/ConnectionManager/IAdapter.h>
+
+#include <STAT_FrontEnd.h>
 
 namespace Plugins {
 namespace CompiledAdapter {
 
-//// Only way to get a calling thread to sleep using Qt4.
-//class Thread : public QThread
-//{
-//public:
-//    static void sleep(unsigned long msecs) { QThread::msleep(msecs); }
-//};
+// Only way to get a calling thread to sleep using Qt4.
+class Thread : public QThread
+{
+public:
+    static void sleep(unsigned long msecs) { QThread::msleep(msecs); }
+};
 
 class CompiledAdapter : public Plugins::SWAT::IAdapter
 {
@@ -50,14 +54,63 @@ class CompiledAdapter : public Plugins::SWAT::IAdapter
 
 public:
     explicit CompiledAdapter(QObject *parent = 0);
+    ~CompiledAdapter();
 
-    void attach();
-    void reAttach();
-    void detach();
-    void pause();
-    void resume();
-    void sample();
-    void sampleMultiple();
+    QUuid launch(LaunchOptions options);
+    QUuid attach(AttachOptions options);
+    void reAttach(QUuid id);
+    void detach(QUuid id);
+    void pause(QUuid id);
+    void resume(QUuid id);
+    void sample(SampleOptions options, QUuid id);
+    void sampleMultiple(SampleOptions options, QUuid id);
+
+protected:
+    struct OperationProgress {
+        OperationProgress(float value = 0, float scale = 1) { this->value = value; this->scale = scale; }
+        float value;
+        float scale;
+    };
+
+    void launch(LaunchOptions options, QUuid id);
+    void attach(AttachOptions options, QUuid id);
+    STAT_FrontEnd *setupFrontEnd(Options options, QUuid id);
+    void launchMRNet(TopologyOptions options, QUuid id);
+
+    void attachApplication(QUuid id);
+
+    void sample(SampleOptions options, QUuid id, OperationProgress &operationProgress);
+    void sampleMultiple(SampleOptions options, QUuid id, OperationProgress &operationProgress);
+
+    void preSampleRunWait(quint64 runTimeWait, QUuid id, OperationProgress &operationProgress);
+    void sampleOne(SampleOptions options, QUuid id, OperationProgress &operationProgress);
+
+
+    StatError_t waitAck(STAT_FrontEnd *frontEnd);
+
+    STAT_FrontEnd *getFrontEnd(QUuid id = QUuid());
+
+    QString errorToString(StatError_t error);
+
+    bool isAttached(QUuid id) { return m_attached.contains(id); }
+    bool isRunning(QUuid id)
+    {
+        if(!m_frontEnds.contains(id)) {
+            return false;
+        }
+        return getFrontEnd(id)->isRunning();
+    }
+
+private:
+    QHash<QUuid, STAT_FrontEnd*> m_frontEnds;
+
+    QHash<QUuid, IAdapter::Options> m_reattachOptions;
+
+    //! List of attached FrontEnds; push when attaching/launching; pop when detaching
+    QList<QUuid> m_attached;
+
+    //! List of running FrontEnds; push when running; pop when else
+    QList<QUuid> m_running;
 
 };
 

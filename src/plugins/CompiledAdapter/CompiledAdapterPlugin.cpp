@@ -43,11 +43,15 @@ namespace CompiledAdapter {
     \brief
 
     \par Depends on Plugins:
-         OpenSpeedShop
+         SWAT
 
     \todo Document this more explicitly.
  */
 
+/*!
+   \fn CompiledAdapterPlugin::CompiledAdapterPlugin()
+   \brief Constructor.
+ */
 CompiledAdapterPlugin::CompiledAdapterPlugin()
 {
     m_Name = "CompiledAdapter";
@@ -55,10 +59,19 @@ CompiledAdapterPlugin::CompiledAdapterPlugin()
     m_Dependencies.append( Core::PluginManager::Dependency("SWAT", "^0\\.1.*$") );
 }
 
+/*!
+   \fn CompiledAdapterPlugin::~CompiledAdapterPlugin()
+   \brief Destructor.
+ */
 CompiledAdapterPlugin::~CompiledAdapterPlugin()
 {
 }
 
+/*!
+   \fn CompiledAdapterPlugin::initialize()
+   \brief
+   \returns true if successful
+ */
 bool CompiledAdapterPlugin::initialize(QStringList &args, QString *err)
 {
     Q_UNUSED(args)
@@ -74,20 +87,39 @@ bool CompiledAdapterPlugin::initialize(QStringList &args, QString *err)
     return true;
 }
 
+/*!
+   \fn CompiledAdapterPlugin::shutdown()
+   \brief
+ */
 void CompiledAdapterPlugin::shutdown()
 {
 }
 
+/*!
+   \fn CompiledAdapterPlugin::name()
+   \brief
+   \returns name of plugin
+ */
 QString CompiledAdapterPlugin::name()
 {
     return m_Name;
 }
 
+/*!
+   \fn CompiledAdapterPlugin::version()
+   \brief
+   \returns version of plugin
+ */
 QString CompiledAdapterPlugin::version()
 {
     return m_Version;
 }
 
+/*!
+   \fn CompiledAdapterPlugin::dependencies()
+   \brief
+   \returns list of dependecies
+ */
 QList<Core::PluginManager::Dependency> CompiledAdapterPlugin::dependencies()
 {
     return m_Dependencies;
