@@ -36,7 +36,8 @@
 #include <SettingManager/SettingManager.h>
 #include <MainWindow/MainWindow.h>
 
-#include "Settings/SettingPage.h"
+#include <Settings/SettingPage.h>
+
 #include "AboutDialog.h"
 #include "SWATWidget.h"
 

@@ -36,7 +36,7 @@
 #include <PluginManager/IPlugin.h>
 #include <SettingManager/ISettingPageFactory.h>
 
-#include "Welcome/WelcomeData.h"
+#include <Welcome/WelcomeData.h>
 
 namespace Plugins {
 namespace SWAT {
