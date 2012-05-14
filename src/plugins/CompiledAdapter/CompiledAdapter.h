@@ -63,6 +63,11 @@ public:
     void sample(SampleOptions options, QUuid id);
     void sampleMultiple(SampleOptions options, QUuid id);
 
+    const QString defaultFilterPath() const;
+    const QString defaultToolDaemonPath() const;
+    const QString installPath() const;
+    const QString outputPath() const;
+
 protected:
     struct OperationProgress {
         OperationProgress(float value = 0, float scale = 1) { this->value = value; this->scale = scale; }
@@ -109,6 +114,11 @@ private:
 
     //! List of running FrontEnds; push when running; pop when else
     QList<QUuid> m_running;
+
+    QString m_DefaultFilterPath;
+    QString m_DefaultToolDaemonPath;
+    QString m_InstallPath;
+    QString m_OutputPath;
 
 };
 

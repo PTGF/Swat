@@ -28,11 +28,11 @@ CONFIG(debug, debug|release) {
 
 SOURCES            += CompiledAdapterPlugin.cpp \
                       CompiledAdapter.cpp \
-    FrontEnd.cpp
+                      FrontEnd.cpp
 
 HEADERS            += CompiledAdapterPlugin.h \
                       CompiledAdapter.h \
-    FrontEnd.h
+                      FrontEnd.h
 
 QT                 += xml
 

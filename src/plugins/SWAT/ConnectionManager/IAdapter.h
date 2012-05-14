@@ -137,10 +137,10 @@ public:
         QString toolDaemonPath;
         QString filterPath;
 
-        LogFlag logFlags;
         QString logPath;
-        VerboseFlag verboseFlags;
-        DebugFlag debugFlags;
+        int logFlags;       /*! \sa IAdapter::LogFlag     */
+        int verboseFlags;   /*! \sa IAdapter::VerboseFlag */
+        int debugFlags;     /*! \sa IAdapter::DebugFlag   */
     };
 
     /*! \brief Options required to attach
@@ -209,6 +209,14 @@ public:
         \returns
      */
     virtual void sampleMultiple(SampleOptions options, QUuid id) = 0;
+
+
+
+    virtual const QString defaultFilterPath() const = 0;
+    virtual const QString defaultToolDaemonPath() const = 0;
+    virtual const QString installPath() const = 0;
+    virtual const QString outputPath() const = 0;
+
 
 signals:
     /*! \fn CompiledAdapter::progress()
@@ -303,8 +311,8 @@ signals:
 } // namespace Plugins
 
 //! We do this so that we can use the pointer in a QVariant
-Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *);
+Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *)
 
-Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1");
+Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1")
 
 #endif // IADAPTER_H

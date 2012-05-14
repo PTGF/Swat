@@ -61,8 +61,6 @@ protected:
 
 };
 
-
-
 } // namespace CompiledAdapter
 } // namespace Plugins
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>JobControlDialog</class>
- <widget class="QDialog" name="JobControlDialog">
+ <class>Plugins::SWAT::JobControlDialog</class>
+ <widget class="QDialog" name="Plugins::SWAT::JobControlDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabAttach">
       <attribute name="title">
@@ -25,62 +25,22 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QGroupBox" name="grpRemoteHost">
-         <property name="title">
-          <string>Remote Host</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="txtRemoteHost"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="btnSearchProcesses">
-            <property name="text">
-             <string>Search Host Processes</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lblRemoteHost">
-            <property name="text">
-             <string>Remote Host</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblRemoteShell">
-            <property name="text">
-             <string>Remote Shell</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="cmbRemoteShell">
-            <item>
-             <property name="text">
-              <string>rsh</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ssh</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="grpProcesses">
          <property name="title">
           <string>Processes</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
            <widget class="QLineEdit" name="txtProcessesFitler"/>
           </item>
-          <item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="btnSearchProcesses">
+            <property name="text">
+             <string>Search Processes</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
            <widget class="QListWidget" name="lstProcesses"/>
           </item>
          </layout>
@@ -92,9 +52,18 @@
       <attribute name="title">
        <string>Launch</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLineEdit" name="txtLaunchString"/>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Launch String</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <widget class="QLineEdit" name="txtLaunchString"/>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer">
@@ -111,94 +80,172 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabRemote">
+      <attribute name="title">
+       <string>Remote Host</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QGroupBox" name="grpRemoteHost">
+         <property name="title">
+          <string>Remote Host</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblRemoteShell">
+            <property name="text">
+             <string>Remote Shell</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="cmbRemoteShell">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>rsh</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ssh</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblRemoteHost">
+            <property name="text">
+             <string>Remote Host</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="txtRemoteHost"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>225</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabSample">
       <attribute name="title">
        <string>Sample Options</string>
       </attribute>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-       </property>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lblSampleType">
-         <property name="text">
-          <string>Sample Type</string>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Sample Options</string>
          </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblWithThreads">
+            <property name="text">
+             <string>With Threads</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="chkWithThreads">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblSampleType">
+            <property name="text">
+             <string>Sample Type</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="cmbSampleType">
+            <item>
+             <property name="text">
+              <string>Function Only</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Function and PC</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Function and Line</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lblRetries">
+            <property name="text">
+             <string>Retries</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="txtRetries">
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="lblRetryFrequency">
+            <property name="text">
+             <string>Retry Frequency</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="txtRetryFrequency">
+            <property name="suffix">
+             <string>ms</string>
+            </property>
+            <property name="maximum">
+             <number>9999</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="cmbSampleType">
-         <item>
-          <property name="text">
-           <string>Function Only</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Function and PC</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Function and Line</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="lblRetries">
-         <property name="text">
-          <string>Retries</string>
+       <item>
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="txtRetries">
-         <property name="value">
-          <number>5</number>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
          </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lblRetryFrequency">
-         <property name="text">
-          <string>Retry Frequency</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="txtRetryFrequency">
-         <property name="suffix">
-          <string>ms</string>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="value">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="lblWithThreads">
-         <property name="text">
-          <string>With Threads</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="cmbWithThreads">
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-        </widget>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -336,6 +383,13 @@
           <string>Tool Paths</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblDaemonPath">
+            <property name="text">
+             <string>Tool Daemon</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="txtDaemonPath"/>
           </item>
@@ -346,6 +400,13 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblFilterPath">
+            <property name="text">
+             <string>Filter</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="txtFilterPath"/>
           </item>
@@ -353,20 +414,6 @@
            <widget class="QToolButton" name="btnFilterPath">
             <property name="text">
              <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblDaemonPath">
-            <property name="text">
-             <string>Tool Daemon</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lblFilterPath">
-            <property name="text">
-             <string>Filter</string>
             </property>
            </widget>
           </item>
@@ -401,7 +448,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QCheckBox" name="chkBackEnd">
+           <widget class="QCheckBox" name="chkLogBackEnd">
             <property name="text">
              <string/>
             </property>
@@ -516,7 +563,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>JobControlDialog</receiver>
+   <receiver>Plugins::SWAT::JobControlDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -532,7 +579,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>JobControlDialog</receiver>
+   <receiver>Plugins::SWAT::JobControlDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

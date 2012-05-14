@@ -33,7 +33,8 @@ SOURCES      += SWATPlugin.cpp \
                 Settings/SettingPage.cpp \
                 Welcome/WelcomeData.cpp \
                 ConnectionManager/IAdapter.cpp \
-    JobControlDialog.cpp
+    JobControlDialog.cpp \
+    ConnectionManager/ConnectionManager.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -43,7 +44,8 @@ HEADERS      += SWATPlugin.h \
                 Welcome/WelcomeData.h \
                 ConnectionManager/ConnectionManagerLibrary.h \
                 ConnectionManager/IAdapter.h \
-    JobControlDialog.h
+    JobControlDialog.h \
+    ConnectionManager/ConnectionManager.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \

@@ -30,6 +30,8 @@
 #include "ui_SWATWidget.h"
 
 #include <MainWindow/MainWindow.h>
+#include <MainWindow/NotificationWidget.h>
+#include <ConnectionManager/ConnectionManager.h>
 
 #include "JobControlDialog.h"
 
@@ -124,18 +126,84 @@ void SWATWidget::tabTitleChanged()
 
 void SWATWidget::attachJob()
 {
+    // Stylesheet screws with the dialog
+    QString currentStyleSheet = this->styleSheet();
+    setStyleSheet(QString());
+
     //Prompt user for finding and attaching to a running job
     JobControlDialog *dialog = new JobControlDialog(this);
-    dialog->setType(JobControlDialog::Type_Attach);
-    dialog->show();
+
+    if(dialog->exec(JobControlDialog::Type_Attach) == QDialog::Accepted &&
+            dialog->getOptions() != NULL) {
+        IAdapter *adapter = ConnectionManager::instance().currentAdapter();
+
+        if(!adapter) {
+            //TODO: display error
+            return;
+        }
+
+        IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->getOptions();
+
+        if(options) {
+            QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
+            dlg->setRange(0,100);
+            connect(adapter, SIGNAL(progress(int)), dlg, SLOT(setValue(int)));
+            connect(adapter, SIGNAL(progressMessage(QString,QUuid)), dlg, SLOT(setLabelText(QString)));
+
+            try {
+                adapter->attach(*options);
+            } catch(QString err) {
+                Core::MainWindow::MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+            }
+
+            dlg->deleteLater();
+        }
+    }
+
+    dialog->deleteLater();
+
+    setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
 
 void SWATWidget::launchJob()
 {
+    // Stylesheet screws with the dialog
+    QString currentStyleSheet = this->styleSheet();
+    setStyleSheet(QString());
+
     //Prompt user for launching and attaching to a new job
     JobControlDialog *dialog = new JobControlDialog(this);
-    dialog->setType(JobControlDialog::Type_Launch);
-    dialog->show();
+
+    if(dialog->exec(JobControlDialog::Type_Launch) == QDialog::Accepted &&
+            dialog->getOptions() != NULL) {
+        IAdapter *adapter = ConnectionManager::instance().currentAdapter();
+
+        if(!adapter) {
+            //TODO: display error
+            return;
+        }
+
+        IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->getOptions();
+
+        if(options) {
+            QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
+            dlg->setRange(0,100);
+            connect(adapter, SIGNAL(progress(int)), dlg, SLOT(setValue(int)));
+            connect(adapter, SIGNAL(progressMessage(QString,QUuid)), dlg, SLOT(setLabelText(QString)));
+
+            try {
+                adapter->launch(*options);
+            } catch(QString err) {
+                Core::MainWindow::MainWindow::instance().notify(tr("Error while launching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+            }
+
+            dlg->deleteLater();
+        }
+    }
+
+    dialog->deleteLater();
+
+    setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
 
 

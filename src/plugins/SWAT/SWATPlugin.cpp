@@ -36,6 +36,7 @@
 #include <SettingManager/SettingManager.h>
 #include <MainWindow/MainWindow.h>
 
+#include <ConnectionManager/ConnectionManager.h>
 #include <Settings/SettingPage.h>
 
 #include "AboutDialog.h"
@@ -108,6 +109,9 @@ bool SWATPlugin::initialize(QStringList &args, QString *err)
                 action->menu()->addAction(&m_AboutPage);
             }
         }
+
+        /*** Initialize child objects ***/
+        ConnectionManager::instance().initialize(args, err);
 
         /*** Register any objects with the plugin manager ***/
         PluginManager::PluginManager &pluginManager = PluginManager::PluginManager::instance();

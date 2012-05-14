@@ -48,6 +48,14 @@ CompiledAdapter::CompiledAdapter(QObject *parent) :
     IAdapter(parent)
 {
     setObjectName("CompiledAdapter");
+
+    // Get default values from the FrontEnd and cache them in this object
+    STAT_FrontEnd *frontEnd = new STAT_FrontEnd();
+    m_DefaultFilterPath = QString(frontEnd->getFilterPath());
+    m_DefaultToolDaemonPath = QString(frontEnd->getToolDaemonExe());
+    m_InstallPath = QString(frontEnd->getInstallPrefix());
+    m_OutputPath = QString(frontEnd->getOutDir());
+    delete frontEnd;
 }
 
 CompiledAdapter::~CompiledAdapter()
@@ -104,7 +112,7 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
         statError = frontEnd->launchAndSpawnDaemons(options.remoteHost.toLocal8Bit().data());
     }
     if(statError != STAT_OK) {
-        throw tr("Failed to launch daemons:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to launch daemons: %1").arg(frontEnd->getLastErrorMessage());
     }
     emit progress(10, id);
 
@@ -135,6 +143,45 @@ QUuid CompiledAdapter::attach(AttachOptions options)
     return id;
 }
 
+void CompiledAdapter::attach(AttachOptions options, QUuid id)
+{
+    StatError_t statError;
+
+    emit attaching(id);
+
+    emit progressMessage("Starting Front End", id);
+    STAT_FrontEnd *frontEnd = setupFrontEnd(options, id);
+    emit progress(5, id);
+
+    emit progressMessage("Launch Daemons", id);
+    if(options.remoteHost == "localhost") {
+        statError = frontEnd->attachAndSpawnDaemons(options.pid);
+    } else {
+        statError = frontEnd->attachAndSpawnDaemons(options.pid, options.remoteHost.toLocal8Bit().data());
+    }
+    if(statError != STAT_OK) {
+        throw tr("Failed to launch daemons: %1").arg(frontEnd->getLastErrorMessage());
+    }
+    emit progress(10, id);
+
+    emit progressMessage("Connect to Daemons", id);
+    launchMRNet(options, id);
+    emit progress(15, id);
+
+    emit progressMessage("Attach to Application", id);
+    attachApplication(id);
+    emit progress(20, id);
+
+    options.traceCount = 1;
+    options.traceFrequency = 1;
+    OperationProgress operationProgress(30, 0.7);
+    sample(options, id, operationProgress);
+    emit progress(100, id);
+
+    m_attached.append(id);
+    emit attached(id);
+}
+
 STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
 {
     StatError_t statError;
@@ -144,12 +191,12 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
 
     statError = frontEnd->setToolDaemonExe(options.toolDaemonPath.toLocal8Bit().data());
     if(statError != STAT_OK) {
-        throw tr("STAT_FrontEnd::setToolDaemonExe() returned error:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("STAT_FrontEnd::setToolDaemonExe() returned error: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     statError = frontEnd->setFilterPath(options.filterPath.toLocal8Bit().data());
     if(statError != STAT_OK) {
-        throw tr("STAT_FrontEnd::setFilterPath() returned error:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("STAT_FrontEnd::setFilterPath() returned error: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if(options.logFlags > 0) {
@@ -164,7 +211,7 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
 
         statError = frontEnd->startLog(logType, options.logPath.toLocal8Bit().data());
         if(statError != STAT_OK) {
-            throw tr("Failed to start log:\n %1").arg(frontEnd->getLastErrorMessage());
+            throw tr("Failed to start log: %1").arg(frontEnd->getLastErrorMessage());
         }
     }
 
@@ -185,45 +232,6 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
     frontEnd->setProcsPerNode(options.processesPerNode);
 
     return frontEnd;
-}
-
-void CompiledAdapter::attach(AttachOptions options, QUuid id)
-{
-    StatError_t statError;
-
-    emit attaching(id);
-
-    emit progressMessage("Starting Front End", id);
-    STAT_FrontEnd *frontEnd = setupFrontEnd(options, id);
-    emit progress(5, id);
-
-    emit progressMessage("Launch Daemons", id);
-    if(options.remoteHost == "localhost") {
-        statError = frontEnd->attachAndSpawnDaemons(options.pid);
-    } else {
-        statError = frontEnd->attachAndSpawnDaemons(options.pid, options.remoteHost.toLocal8Bit().data());
-    }
-    if(statError != STAT_OK) {
-        throw tr("Failed to launch daemons:\n %1").arg(frontEnd->getLastErrorMessage());
-    }
-    emit progress(10, id);
-
-    emit progressMessage("Connect to Daemons", id);
-    launchMRNet(options, id);
-    emit progress(15, id);
-
-    emit progressMessage("Attach to Application", id);
-    attachApplication(id);
-    emit progress(20, id);
-
-    options.traceCount = 1;
-    options.traceFrequency = 1;
-    OperationProgress operationProgress(30, 0.7);
-    sample(options, id, operationProgress);
-    emit progress(100, id);
-
-    m_attached.append(id);
-    emit attached(id);
 }
 
 void CompiledAdapter::reAttach(QUuid id)
@@ -269,11 +277,11 @@ void CompiledAdapter::detach(QUuid id)
     detaching(id);
 
     if((statError = frontEnd->detachApplication(NULL, 0, false)) != STAT_OK) {
-        throw tr("Failed to detach from application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to detach from application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to resume application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to resume application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     m_frontEnds.remove(id);
@@ -298,11 +306,11 @@ void CompiledAdapter::pause(QUuid id)
     emit pausing(id);
 
     if((statError = frontEnd->pause()) != STAT_OK) {
-        throw tr("Failed to pause application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to pause application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to pause application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to pause application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     m_running.removeAll(id);
@@ -323,11 +331,11 @@ void CompiledAdapter::resume(QUuid id)
     emit resuming(id);
 
     if((statError = frontEnd->resume()) != STAT_OK) {
-        throw tr("Failed to resume application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to resume application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to resume application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to resume application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     m_running.append(id);
@@ -399,7 +407,7 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to gather stack traces:\n%1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to gather stack traces: %1").arg(frontEnd->getLastErrorMessage());
     }
     operationProgress.value += operationProgressScale * 5;
     emit progress(operationProgress.value, id);
@@ -473,7 +481,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     StatError_t statError;
 
     if((statError = frontEnd->pause()) != STAT_OK) {
-        throw tr("Failed to pause application during sample:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to pause application during sample: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     emit paused(id);
@@ -495,22 +503,22 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
                                             options.retryCount, options.retryFrequency,
                                             false, NULL);
     if(statError != STAT_OK) {
-        throw tr("Failed to sample stack trace:\n%1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to sample stack trace:\n%1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
     operationProgress.value += operationProgressScale * 36;
     emit progress(operationProgress.value, id);
 
     emit progressMessage("Gather Stack Trace", id);
     if((statError = frontEnd->gatherLastTrace(false)) != STAT_OK) {
-        throw tr("Failed to gather stack trace:\n%1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to gather stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to gather stack trace:\n%1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to gather stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
     operationProgress.value += operationProgressScale * 14;
     emit progress(operationProgress.value, id);
@@ -560,7 +568,7 @@ void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
                                           false,
                                           options.shareApplicationNodes);
     if(statError != STAT_OK) {
-        throw tr("Failed to launch MRNet tree:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to launch MRNet tree: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     while((statError = frontEnd->connectMrnetTree(false)) == STAT_PENDING_ACK) {
@@ -568,7 +576,7 @@ void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
         Thread::sleep(5);
     }
     if(statError != STAT_OK) {
-        throw tr("Failed to connect MRNet tree:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to connect MRNet tree: %1").arg(frontEnd->getLastErrorMessage());
     }
 
 }
@@ -588,11 +596,11 @@ void CompiledAdapter::attachApplication(QUuid id)
 
     statError = frontEnd->attachApplication(false);
     if(statError != STAT_OK) {
-        throw tr("Failed to attach application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to attach application: %1").arg(frontEnd->getLastErrorMessage());
     }
 
     if((statError = waitAck(frontEnd)) != STAT_OK) {
-        throw tr("Failed to attach application:\n %1").arg(frontEnd->getLastErrorMessage());
+        throw tr("Failed to attach application: %1").arg(frontEnd->getLastErrorMessage());
     }
 }
 
@@ -727,6 +735,26 @@ QString CompiledAdapter::errorToString(StatError_t error)
         return tr("Unknown error");
         break;
     }
+}
+
+
+
+const QString CompiledAdapter::defaultFilterPath() const
+{
+    return m_DefaultFilterPath;
+}
+
+const QString CompiledAdapter::defaultToolDaemonPath() const
+{
+    return m_DefaultToolDaemonPath;
+}
+const QString CompiledAdapter::installPath() const
+{
+    return m_InstallPath;
+}
+const QString CompiledAdapter::outputPath() const
+{
+    return m_OutputPath;
 }
 
 } // namespace CompiledAdapter
