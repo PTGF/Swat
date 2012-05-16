@@ -217,6 +217,8 @@ public:
     virtual const QString installPath() const = 0;
     virtual const QString outputPath() const = 0;
 
+public slots:
+    virtual void cancel(QUuid id) = 0;
 
 signals:
     /*! \fn CompiledAdapter::progress()
@@ -305,6 +307,17 @@ signals:
      */
     void sampled(QString dotCode, QUuid id);
 
+    /*! \fn CompiledAdapter::canceling()
+        \brief Emitted when a cancel operation is initiated
+        \param id Unique ID of the associated FrontEnd
+     */
+    void canceling(QUuid id);
+
+    /*! \fn CompiledAdapter::canceled()
+        \brief Emitted when a cancel operation has finished
+        \param id Unique ID of the associated FrontEnd
+     */
+    void canceled(QUuid id);
 };
 
 } // namespace SWAT

@@ -92,6 +92,10 @@ JobControlDialog::JobControlDialog(QWidget *parent) :
 #else
     ui->txtRemoteHost->setText("localhost");
 #endif
+
+#ifdef QT_DEBUG
+    ui->txtLaunchString->setText("/opt/stat/bin/orterun -np 2 /opt/stat/share/STAT/examples/bin/mpi_ringtopo");
+#endif
 }
 
 JobControlDialog::~JobControlDialog()

@@ -45,9 +45,10 @@ public:
     bool initialize(QStringList &args, QString *err);
     void shutdown();
 
-    IAdapter *currentAdapter();
+    static IAdapter *currentAdapter();
 
 signals:
+    void CurrentAdapterChanged(IAdapter *from, IAdapter *to);
 
 public slots:
 

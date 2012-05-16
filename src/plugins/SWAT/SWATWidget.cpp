@@ -63,6 +63,10 @@ SWATWidget::SWATWidget(QWidget *parent) :
             }
         }
     }
+
+    CurrentAdapterChanged(NULL, ConnectionManager::currentAdapter());
+    connect(&ConnectionManager::instance(), SIGNAL(CurrentAdapterChanged(IAdapter*,IAdapter*)),
+            this, SLOT(CurrentAdapterChanged(IAdapter*,IAdapter*)));
 }
 
 SWATWidget::~SWATWidget()
@@ -135,7 +139,7 @@ void SWATWidget::attachJob()
 
     if(dialog->exec(JobControlDialog::Type_Attach) == QDialog::Accepted &&
             dialog->getOptions() != NULL) {
-        IAdapter *adapter = ConnectionManager::instance().currentAdapter();
+        IAdapter *adapter = ConnectionManager::currentAdapter();
 
         if(!adapter) {
             //TODO: display error
@@ -144,19 +148,14 @@ void SWATWidget::attachJob()
 
         IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->getOptions();
 
-        if(options) {
-            QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
-            dlg->setRange(0,100);
-            connect(adapter, SIGNAL(progress(int)), dlg, SLOT(setValue(int)));
-            connect(adapter, SIGNAL(progressMessage(QString,QUuid)), dlg, SLOT(setLabelText(QString)));
+        connect(adapter, SIGNAL(attaching(QUuid)), this, SLOT(attaching(QUuid)));
 
+        if(options) {
             try {
                 adapter->attach(*options);
             } catch(QString err) {
                 Core::MainWindow::MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
             }
-
-            dlg->deleteLater();
         }
     }
 
@@ -176,7 +175,7 @@ void SWATWidget::launchJob()
 
     if(dialog->exec(JobControlDialog::Type_Launch) == QDialog::Accepted &&
             dialog->getOptions() != NULL) {
-        IAdapter *adapter = ConnectionManager::instance().currentAdapter();
+        IAdapter *adapter = ConnectionManager::currentAdapter();
 
         if(!adapter) {
             //TODO: display error
@@ -186,24 +185,135 @@ void SWATWidget::launchJob()
         IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->getOptions();
 
         if(options) {
-            QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
-            dlg->setRange(0,100);
-            connect(adapter, SIGNAL(progress(int)), dlg, SLOT(setValue(int)));
-            connect(adapter, SIGNAL(progressMessage(QString,QUuid)), dlg, SLOT(setLabelText(QString)));
-
             try {
                 adapter->launch(*options);
             } catch(QString err) {
                 Core::MainWindow::MainWindow::instance().notify(tr("Error while launching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
             }
-
-            dlg->deleteLater();
         }
     }
 
     dialog->deleteLater();
 
     setStyleSheet(currentStyleSheet);  // Reset the stylesheet
+}
+
+void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
+{
+    checkAdapterProgress(from);
+
+    if(to) {
+        connect(to, SIGNAL(attaching(QUuid)),                   this, SLOT(attaching(QUuid)));
+        connect(to, SIGNAL(launching(QUuid)),                   this, SLOT(attaching(QUuid)));
+        connect(to, SIGNAL(attached(QUuid)),                    this, SLOT(attached(QUuid)));
+        connect(to, SIGNAL(launched(QUuid)),                    this, SLOT(attached(QUuid)));
+        connect(to, SIGNAL(progress(int,QUuid)),                this, SLOT(progress(int,QUuid)));
+        connect(to, SIGNAL(progressMessage(QString,QUuid)),     this, SLOT(progressMessage(QString,QUuid)));
+    }
+}
+
+void SWATWidget::checkAdapterProgress(IAdapter *adapter)
+{
+    if(!adapter) {
+        return;
+    }
+
+    // Skip checking if this is still the current adapter
+    if(ConnectionManager::currentAdapter() == adapter) {
+        return;
+    }
+
+    // Go ahead and disconnect from any new attachments
+    disconnect(adapter, SIGNAL(attaching(QUuid)),               this, SLOT(attaching(QUuid)));
+    disconnect(adapter, SIGNAL(launching(QUuid)),               this, SLOT(attaching(QUuid)));
+
+    // Search to see if there are any other progress dialogs associated with this adapter
+    foreach(QProgressDialog *dlg, m_ProgressDialogs) {
+        if(dlg->property("adapter").value<IAdapter*>() != adapter) {
+            continue;
+        }
+
+        return;
+    }
+
+    // If there are no progress dialogs for this adapter; disconnect us from it completely
+    disconnect(adapter, SIGNAL(attached(QUuid)),                this, SLOT(attached(QUuid)));
+    disconnect(adapter, SIGNAL(launched(QUuid)),                this, SLOT(attached(QUuid)));
+    disconnect(adapter, SIGNAL(progress(int,QUuid)),            this, SLOT(progress(int,QUuid)));
+    disconnect(adapter, SIGNAL(progressMessage(QString,QUuid)), this, SLOT(progressMessage(QString,QUuid)));
+}
+
+void SWATWidget::attaching(QUuid id)
+{
+    QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
+    dlg->setProperty("id", QVariant(id.toString()));
+    dlg->setProperty("adapter", qVariantFromValue(ConnectionManager::currentAdapter()));
+    dlg->setRange(0,100);
+    dlg->resize(dlg->width()*2, dlg->height());
+    dlg->show();
+
+    m_ProgressDialogs.append(dlg);
+
+    connect(dlg, SIGNAL(canceled()), this, SLOT(cancelAttach()));
+}
+
+void SWATWidget::attached(QUuid id)
+{
+    for(quint16 i = 0; i < m_ProgressDialogs.count(); ++i) {
+        QProgressDialog *dlg = m_ProgressDialogs.at(i);
+        if(dlg->property("id").toString() != id) {
+            continue;
+        }
+
+        IAdapter *progressAdapter = dlg->property("adapter").value<IAdapter*>();
+
+        m_ProgressDialogs.removeAt(i);
+        dlg->deleteLater();
+        checkAdapterProgress(progressAdapter);
+
+        break;
+    }
+}
+
+void SWATWidget::progress(int progress, QUuid id)
+{
+    foreach(QProgressDialog *dlg, m_ProgressDialogs) {
+        if(dlg->property("id").toString() == id) {
+            dlg->setValue(progress);
+        }
+    }
+}
+
+void SWATWidget::progressMessage(QString progressMessage, QUuid id)
+{
+    foreach(QProgressDialog *dlg, m_ProgressDialogs) {
+        if(dlg->property("id").toString() != id) {
+            dlg->setWindowTitle(progressMessage);
+        }
+    }
+}
+
+void SWATWidget::cancelAttach()
+{
+    QProgressDialog *dlg = qobject_cast<QProgressDialog *>(QObject::sender());
+    if(!dlg) {
+        return;
+    }
+
+
+    IAdapter *adapter = ConnectionManager::currentAdapter();
+    if(adapter) {
+        try {
+            adapter->cancel(dlg->property("id").toString());
+        } catch(QString err) {
+            Core::MainWindow::MainWindow::instance().notify(tr("Error while canceling: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+        }
+    }
+
+    dlg->close();
+    m_ProgressDialogs.removeAll(dlg);
+    checkAdapterProgress(dlg->property("adapter").value<IAdapter*>());
+    dlg->deleteLater();
 }
 
 

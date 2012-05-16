@@ -30,7 +30,7 @@
 
 #include <MainWindow/MainWindow.h>
 
-#ifdef CompiledADAPTER_DEBUG
+#ifdef COMPILEDADAPTER_DEBUG
 #  include <QtDebug>
 #endif
 
@@ -48,6 +48,17 @@ CompiledAdapter::CompiledAdapter(QObject *parent) :
     IAdapter(parent)
 {
     setObjectName("CompiledAdapter");
+
+//    setenv("prefix", "/opt/stat", true);
+//    setenv("exec_prefix", "/opt/stat", true);
+//    setenv("PATH", "$PATH:/usr/bin", true);
+//    setenv("STAT_LMON_REMOTE_LOGIN", "/usr/bin/rsh", true);
+//    setenv("STAT_XPLAT_RSH", "/usr/bin/rsh", true);
+//    setenv("STAT_MRNET_COMM_PATH", "/opt/stat/bin/mrnet_commnode", true);
+//    setenv("STAT_LMON_LAUNCHMON_ENGINE_PATH", "/opt/stat/bin/launchmon", true);
+//    setenv("STAT_MRNET_DEBUG_LOG_DIRECTORY", "/dev/null", true);
+//    setenv("STAT_CONNECT_TIMEOUT", "600", true);
+//    setenv("LMON_FE_ENGINE_TIMEOUT", "600", true);
 
     // Get default values from the FrontEnd and cache them in this object
     STAT_FrontEnd *frontEnd = new STAT_FrontEnd();
@@ -99,12 +110,17 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
     emit progressMessage("Starting Front End", id);
     STAT_FrontEnd *frontEnd = setupFrontEnd(options, id);
 
-    options.args.pop_front();  // STATGUI.py just ignores the 'Launcher Exe' argument
+//    options.args.pop_front();  // STATGUI.py just ignores the 'Launcher Exe' argument
     foreach(QString arg, options.args) {
         frontEnd->addLauncherArgv(arg.toLocal8Bit().data());
     }
     emit progress(5, id);
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::launchAndSpawnDaemons()";
+    Thread::sleep(100);
+#endif
     emit progressMessage("Launch Daemons", id);
     if(options.remoteHost == "localhost") {
         statError = frontEnd->launchAndSpawnDaemons();
@@ -116,10 +132,20 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
     }
     emit progress(10, id);
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "CompiledAdapter::launchMRNet()";
+    Thread::sleep(100);
+#endif
     emit progressMessage("Connect to Daemons", id);
     launchMRNet(options, id);
     emit progress(15, id);
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "CompiledAdapter::attachApplication()";
+    Thread::sleep(100);
+#endif
     emit progressMessage("Attach to Application", id);
     attachApplication(id);
     emit progress(20, id);
@@ -128,7 +154,6 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
     options.traceFrequency = 1;
     OperationProgress operationProgress(30, 0.7);
     sample(options, id, operationProgress);
-
     emit progress(100, id);
 
     m_attached.append(id);
@@ -223,7 +248,7 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
         frontEnd->setVerbose(STAT_VERBOSE_STDOUT);
     }
 
-    if(options.debugFlags | Debug_BackEnd) {
+    if(options.debugFlags & Debug_BackEnd) {
         setenv("LMON_DEBUG_BES", "1", true);
     } else {
         unsetenv("LMON_DEBUG_BES");
@@ -303,6 +328,11 @@ void CompiledAdapter::pause(QUuid id)
 
     StatError_t statError;
 
+    // Can't pause if we're not running
+    if(!frontEnd->isRunning()) {
+        return;
+    }
+
     emit pausing(id);
 
     if((statError = frontEnd->pause()) != STAT_OK) {
@@ -327,6 +357,11 @@ void CompiledAdapter::resume(QUuid id)
     STAT_FrontEnd *frontEnd = getFrontEnd(id);
 
     StatError_t statError;
+
+    // Can't resume if we're already running
+    if(frontEnd->isRunning()) {
+        return;
+    }
 
     emit resuming(id);
 
@@ -480,10 +515,16 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
 
     StatError_t statError;
 
-    if((statError = frontEnd->pause()) != STAT_OK) {
-        throw tr("Failed to pause application during sample: %1").arg(frontEnd->getLastErrorMessage());
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::pause()";
+    Thread::sleep(100);
+#endif
+    if(frontEnd->isRunning()) {
+        if((statError = frontEnd->pause()) != STAT_OK) {
+            throw tr("Failed to pause application during sample: %1").arg(frontEnd->getLastErrorMessage());
+        }
     }
-
     emit paused(id);
 
     operationProgress.value += operationProgressScale * 7;
@@ -497,6 +538,11 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
         sampleType = STAT_FUNCTION_AND_LINE;
     }
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::sampleStackTraces()";
+    Thread::sleep(100);
+#endif
     //! \note The compiler warning for the string conversion is in the STAT_FrontEnd header; not our issue
     statError = frontEnd->sampleStackTraces(sampleType, options.withThreads, options.clearOnSample,
                                             options.traceCount, options.traceFrequency,
@@ -506,12 +552,23 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
         throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
 
+
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::waitAck()";
+    Thread::sleep(100);
+#endif
     if((statError = waitAck(frontEnd)) != STAT_OK) {
         throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
     operationProgress.value += operationProgressScale * 36;
     emit progress(operationProgress.value, id);
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::gatherLastTrace()";
+    Thread::sleep(100);
+#endif
     emit progressMessage("Gather Stack Trace", id);
     if((statError = frontEnd->gatherLastTrace(false)) != STAT_OK) {
         throw tr("Failed to gather stack trace: %1").arg(frontEnd->getLastErrorMessage());
@@ -523,6 +580,11 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     operationProgress.value += operationProgressScale * 14;
     emit progress(operationProgress.value, id);
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::getLastDotFilename()";
+    Thread::sleep(100);
+#endif
     emit progressMessage("Render Stack Trace", id);
     QFileInfo fileInfo(frontEnd->getLastDotFilename());
     if(!fileInfo.exists()) {
@@ -562,6 +624,11 @@ void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
         topologyType = STAT_TOPOLOGY_USER;
     }
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::launchMrnetTree()";
+    Thread::sleep(100);
+#endif
     statError = frontEnd->launchMrnetTree(topologyType,
                                           options.topologySpecification.toLocal8Bit().data(),
                                           options.nodeList.join(" ").toLocal8Bit().data(),
@@ -571,6 +638,11 @@ void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
         throw tr("Failed to launch MRNet tree: %1").arg(frontEnd->getLastErrorMessage());
     }
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::connectMrnetTree()";
+    Thread::sleep(100);
+#endif
     while((statError = frontEnd->connectMrnetTree(false)) == STAT_PENDING_ACK) {
         QApplication::processEvents();
         Thread::sleep(5);
@@ -594,6 +666,11 @@ void CompiledAdapter::attachApplication(QUuid id)
 
     StatError_t statError;
 
+#ifdef COMPILEDADAPTER_DEBUG
+    Thread::sleep(100);
+    qDebug() << "STAT_FrontEnd::attachApplication()";
+    Thread::sleep(100);
+#endif
     statError = frontEnd->attachApplication(false);
     if(statError != STAT_OK) {
         throw tr("Failed to attach application: %1").arg(frontEnd->getLastErrorMessage());
@@ -737,8 +814,6 @@ QString CompiledAdapter::errorToString(StatError_t error)
     }
 }
 
-
-
 const QString CompiledAdapter::defaultFilterPath() const
 {
     return m_DefaultFilterPath;
@@ -755,6 +830,19 @@ const QString CompiledAdapter::installPath() const
 const QString CompiledAdapter::outputPath() const
 {
     return m_OutputPath;
+}
+
+void CompiledAdapter::cancel(QUuid id)
+{
+    emit canceling(id);
+    emit progressMessage(tr("Canceling"), id);
+    emit progress(99, id);
+
+    //TODO: cancel operation
+
+    emit canceled(id);
+    emit progressMessage(tr("Canceled"), id);
+    emit progress(100, id);
 }
 
 } // namespace CompiledAdapter

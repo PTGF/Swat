@@ -30,6 +30,7 @@
 #define COMPILEDADAPTER_H
 
 #include <QtCore>
+#include <QtGui>
 
 #include <STAT_FrontEnd.h>
 #include <SWAT/ConnectionManager/IAdapter.h>
@@ -42,7 +43,20 @@ namespace CompiledAdapter {
 class Thread : public QThread
 {
 public:
-    static void sleep(unsigned long msecs) { QThread::msleep(msecs); }
+    static void sleep(unsigned long msecs)
+    {
+        if(msecs < 100) {
+            QThread::msleep(msecs);
+        } else {
+            QTime time = QTime::currentTime();
+            time.start();
+            while((unsigned long)time.elapsed() < msecs) {
+                QApplication::processEvents();
+                int remain = msecs - time.elapsed();
+                QThread::msleep((remain <= 10) ? remain : 10);
+            }
+        }
+    }
 };
 
 class CompiledAdapter : public Plugins::SWAT::IAdapter
@@ -67,6 +81,9 @@ public:
     const QString defaultToolDaemonPath() const;
     const QString installPath() const;
     const QString outputPath() const;
+
+public slots:
+    void cancel(QUuid id);
 
 protected:
     struct OperationProgress {

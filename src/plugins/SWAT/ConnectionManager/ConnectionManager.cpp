@@ -115,13 +115,17 @@ void ConnectionManager::writeSettings()
 
 void ConnectionManager::pluginObjectRegistered(QObject *object)
 {
-    IAdapter *adapter = qobject_cast<IAdapter *>(object);
-    if(adapter) m_CurrentAdapter = adapter;
+    IAdapter *newAdapter = qobject_cast<IAdapter *>(object);
+    if(newAdapter) {
+        IAdapter *oldAdapter = m_CurrentAdapter;
+        m_CurrentAdapter = newAdapter;
+        emit CurrentAdapterChanged(oldAdapter, newAdapter);
+    }
 }
 
 IAdapter *ConnectionManager::currentAdapter()
 {
-    return m_CurrentAdapter;
+    return instance().m_CurrentAdapter;
 }
 
 } // namespace SWAT

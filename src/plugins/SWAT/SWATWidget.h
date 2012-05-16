@@ -37,6 +37,8 @@
 namespace Plugins {
 namespace SWAT {
 
+class IAdapter;
+
 namespace Ui {
     class SWATWidget;
 }
@@ -56,13 +58,25 @@ public slots:
 protected:
     void tabInserted(int index);
     void tabRemoved(int index);
+    void checkAdapterProgress(IAdapter *adapter);
 
 protected slots:
     void tabTitleChanged();
 
+    void CurrentAdapterChanged(IAdapter*,IAdapter*);
+
+    void attaching(QUuid);
+    void attached(QUuid);
+    void launching(QUuid);
+    void launched(QUuid);
+    void progress(int, QUuid);
+    void progressMessage(QString, QUuid);
+    void cancelAttach();
+
 private:
     Ui::SWATWidget *ui;
     QString m_StyleSheet;
+    QList<QProgressDialog*> m_ProgressDialogs;
 
 };
 

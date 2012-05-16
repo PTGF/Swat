@@ -18,4 +18,8 @@
 
 INCLUDEPATH += $$quote(/opt/stat/include)
 DEPENDPATH  += $$quote(/opt/stat/include)
-LIBS        += -L$$quote(/opt/stat/lib) -lstatfe -llnlgraph -lmonfeapi -lmrnet -lxplat -lpthread -ldl
+
+LIBS        += -L$$quote(/opt/stat/lib) -lstatfe -llnlgraph -lmonfeapi -lmrnet -lxplat -lpthread -ldl -lnsl -lrt
+
+QMAKE_LFLAGS += -Wl,-rpath=/opt/stat/lib -Wl,-E
+QMAKE_LFLAGS += -module -avoid-version
