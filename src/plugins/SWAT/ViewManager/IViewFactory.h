@@ -45,7 +45,7 @@ public:
 
     //TODO: Move all SWAT views to QAbstractItemView
     virtual bool viewHandlesFiles() = 0;
-    virtual QWidget *viewWidget(QByteArray content) = 0;
+    virtual QWidget *viewWidget(const QByteArray &content) = 0;
 };
 
 } // namespace SWAT

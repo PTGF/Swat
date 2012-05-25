@@ -28,22 +28,36 @@
 #ifndef DIRECTEDGRAPHVIEW_H
 #define DIRECTEDGRAPHVIEW_H
 
+#include <QtCore>
+#include <QtGui>
+
 #include <QGraphVizView.h>
 #include <QGraphVizScene.h>
 
 namespace Plugins {
 namespace DirectedGraphView {
 
-class DirectedGraphView : public QGraphVizView
+namespace Ui {
+class DirectedGraphView;
+}
+
+class DirectedGraphView : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit DirectedGraphView(QWidget *parent = 0);
-    explicit DirectedGraphView(QGraphicsScene * scene, QWidget * parent = 0);
+    explicit DirectedGraphView(const QByteArray &content, QWidget * parent = 0);
+    ~DirectedGraphView();
 
-signals:
+    QGraphVizView *view();
 
-public slots:
+protected slots:
+    void on_txtFilter_textChanged(const QString &);
+
+private:
+    Ui::DirectedGraphView *ui;
+    QGraphVizScene *m_Scene;
+    QGraphVizView *m_View;
 
 };
 

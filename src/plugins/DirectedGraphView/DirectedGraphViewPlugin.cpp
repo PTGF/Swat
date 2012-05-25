@@ -153,13 +153,9 @@ bool DirectedGraphViewPlugin::viewHandlesFiles()
     return true;
 }
 
-QWidget *DirectedGraphViewPlugin::viewWidget(QByteArray content)
+QWidget *DirectedGraphViewPlugin::viewWidget(const QByteArray &content)
 {
-    QGraphVizScene *scene = new QGraphVizScene(QString(content));
-    DirectedGraphView *view = new DirectedGraphView(scene);
-    scene->setParent(view);
-    view->setWindowTitle(tr("File"));
-    return view;
+    return new DirectedGraphView(content);
 }
 
 

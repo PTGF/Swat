@@ -29,6 +29,9 @@
 #ifndef DIRECTEDGRAPHVIEWPLUGIN_H
 #define DIRECTEDGRAPHVIEWPLUGIN_H
 
+#include <QtCore>
+#include <QtGui>
+
 #include <PluginManager/IPlugin.h>
 #include <SWAT/ViewManager/IViewFactory.h>
 
@@ -60,7 +63,7 @@ public:
     bool viewHandles(QAbstractItemModel *model);
     QAbstractItemView *viewWidget(QAbstractItemModel *model);
     bool viewHandlesFiles();
-    QWidget *viewWidget(QByteArray content);
+    QWidget *viewWidget(const QByteArray &content);
 
 protected:
     QString m_Name;

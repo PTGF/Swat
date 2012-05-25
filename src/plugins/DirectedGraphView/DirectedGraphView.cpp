@@ -26,20 +26,41 @@
  */
 
 #include "DirectedGraphView.h"
-
-#include <QGraphVizScene.h>
+#include "ui_DirectedGraphView.h"
 
 namespace Plugins {
 namespace DirectedGraphView {
 
-DirectedGraphView::DirectedGraphView(QWidget *parent) :
-    QGraphVizView(parent)
+DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::DirectedGraphView),
+    m_Scene(NULL),
+    m_View(NULL)
 {
+    ui->setupUi(this);
+
+    m_Scene = new QGraphVizScene(QString(content));
+    m_View = new QGraphVizView(m_Scene, this);
+    m_Scene->setParent(m_View);
+    m_View->setWindowTitle(tr("File"));
+
+    ui->verticalLayout->insertWidget(0, m_View);
+
 }
 
-DirectedGraphView::DirectedGraphView(QGraphicsScene * scene, QWidget *parent) :
-    QGraphVizView(scene, parent)
+DirectedGraphView::~DirectedGraphView()
 {
+    delete ui;
+}
+
+QGraphVizView *DirectedGraphView::view()
+{
+    return m_View;
+}
+
+void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
+{
+//TODO:    m_View->setFilter(filter);
 }
 
 } // namespace DirectedGraphView

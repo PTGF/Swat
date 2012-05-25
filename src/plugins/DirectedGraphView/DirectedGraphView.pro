@@ -29,11 +29,14 @@ CONFIG(debug, debug|release) {
 }
 
 HEADERS            += DirectedGraphViewPlugin.h \
-                      DirectedGraphView.h
+    DirectedGraphView.h
 
 SOURCES            += DirectedGraphViewPlugin.cpp \
-                      DirectedGraphView.cpp \
+    DirectedGraphView.cpp
 
 LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
 
 #debug: DEFINES     += DIRECTEDGRAPHVIEW_DEBUG
+
+FORMS += \
+    DirectedGraphView.ui
