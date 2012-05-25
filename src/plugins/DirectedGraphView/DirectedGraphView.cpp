@@ -63,5 +63,6 @@ void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
 //TODO:    m_View->setFilter(filter);
 }
 
+
 } // namespace DirectedGraphView
 } // namespace Plugins

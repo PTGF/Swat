@@ -34,6 +34,10 @@
 #include <QGraphVizView.h>
 #include <QGraphVizScene.h>
 
+#ifdef QT_DEBUG
+#include <QtDebug>
+#endif
+
 namespace Plugins {
 namespace DirectedGraphView {
 
@@ -59,6 +63,12 @@ private:
     QGraphVizScene *m_Scene;
     QGraphVizView *m_View;
 
+protected:
+
+protected slots:
+    void selectionChanged();
+
+private:
 };
 
 } // namespace DirectedGraphView
