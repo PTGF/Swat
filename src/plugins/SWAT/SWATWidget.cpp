@@ -432,13 +432,17 @@ void SWATWidget::closeJob(int index)
 
 void SWATWidget::loadFile()
 {
+    static QDir path = QDir::currentPath();
+
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Open SWAT file"),
-                                                    QDir::currentPath(),
+                                                    path.absolutePath(),
                                                     tr("SWAT files (*.dot *.swat);;STAT files (*.dot)")
                                                     );
 
     if(!filename.isEmpty()) {
+        path.setPath(QFileInfo(filename).absolutePath());
+
         loadFromFile(filename);
     }
 
@@ -462,17 +466,20 @@ void SWATWidget::loadFromFile(QString filename)
 
     file.close();
 
-    loadFromContent(fileContent);
+    loadFromContent(fileContent, fileInfo.completeBaseName());
 }
 
-void SWATWidget::loadFromContent(QByteArray content)
+void SWATWidget::loadFromContent(QByteArray content, QString title)
 {
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     mainWindow.setCurrentCentralWidget(this);
 
-    QWidget *view = getView(content);
-    if(view) {
+    if(QWidget *view = getView(content)) {
+        if(!title.isEmpty()) {
+            view->setWindowTitle(title);
+        }
+
         int index = addTab(view, view->windowTitle());
         setCurrentIndex(index);
     }
