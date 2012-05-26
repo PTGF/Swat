@@ -210,6 +210,9 @@ void SWATWidget::attachJob()
             } catch(QString err) {
                 using namespace Core::MainWindow;
                 MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), NotificationWidget::Critical);
+            } catch(...) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while attaching"), NotificationWidget::Critical);
             }
         }
     }
@@ -245,6 +248,9 @@ void SWATWidget::launchJob()
             } catch(QString err) {
                 using namespace Core::MainWindow;
                 MainWindow::instance().notify(tr("Error while launching: %1").arg(err), NotificationWidget::Critical);
+            } catch(...) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while launching"), NotificationWidget::Critical);
             }
         }
     }
@@ -365,6 +371,9 @@ void SWATWidget::cancelAttach()
         } catch(QString err) {
             using namespace Core::MainWindow;
             MainWindow::instance().notify(tr("Error while canceling: %1").arg(err), NotificationWidget::Critical);
+        } catch(...) {
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while canceling"), NotificationWidget::Critical);
         }
     }
 
