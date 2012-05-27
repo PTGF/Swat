@@ -27,25 +27,98 @@
 
 #include "DirectedGraphNode.h"
 
-#include "DirectedGraphScene.h"
+#include <QGraphVizEdge.h>
+
 
 namespace Plugins {
 namespace DirectedGraphView {
 
 DirectedGraphNode::DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent) :
     QGraphVizNode(node, scene, parent),
-    m_Scene(scene)
+    m_Scene(scene),
+    m_Depth(-1)
 {
+    m_NodeId = getGVName().toLongLong();
+    m_NodeInfo = m_Scene->m_NodeInfos.value(nodeId(), DirectedGraphScene::NodeInfo());
+    m_EdgeInfo = m_Scene->m_EdgeInfos.value(nodeId(), DirectedGraphScene::EdgeInfo());
 }
 
-DirectedGraphScene::NodeInfo DirectedGraphNode::getNodeInfo()
+qint64 DirectedGraphNode::nodeId()
 {
-    return m_Scene->m_NodeInfos.value(getGVName().toLongLong(), DirectedGraphScene::NodeInfo());
+    return m_NodeId;
 }
 
-DirectedGraphScene::EdgeInfo DirectedGraphNode::getEdgeInfo()
+int DirectedGraphNode::nodeDepth()
 {
-    return m_Scene->m_EdgeInfos.value(getGVName().toLongLong(), DirectedGraphScene::EdgeInfo());
+    if(m_Depth >= 0) {
+        return m_Depth;
+    }
+
+    m_Depth = 0;
+    if(headEdges().count() == 1) {
+        if(DirectedGraphNode *parent = dynamic_cast<DirectedGraphNode*>(headEdges().at(0)->tail())) {
+            m_Depth += parent->nodeDepth() + 1;
+        }
+    }
+    return m_Depth;
+}
+
+
+QString DirectedGraphNode::label()
+{
+    return nodeInfo().longLabel;
+}
+QString DirectedGraphNode::shortLabel()
+{
+    return nodeInfo().shortLabel;
+}
+QString DirectedGraphNode::functionName()
+{
+    return nodeInfo().functionName;
+}
+quint64 DirectedGraphNode::programCounter()
+{
+    return nodeInfo().programCounter;
+}
+QString DirectedGraphNode::sourceFile()
+{
+    return nodeInfo().sourceFile;
+}
+quint32 DirectedGraphNode::sourceLine()
+{
+    return nodeInfo().sourceLine;
+}
+QString DirectedGraphNode::iter()
+{
+    return nodeInfo().iter_string;
+}
+
+QString DirectedGraphNode::edgeLabel()
+{
+    return edgeInfo().longLabel;
+}
+QString DirectedGraphNode::shortEdgeLabel()
+{
+    return edgeInfo().shortLabel;
+}
+QString DirectedGraphNode::processCount()
+{
+    return edgeInfo().processCount;
+}
+QStringList DirectedGraphNode::processList()
+{
+    return edgeInfo().processList;
+}
+
+
+DirectedGraphScene::NodeInfo DirectedGraphNode::nodeInfo()
+{
+    return m_NodeInfo;
+}
+
+DirectedGraphScene::EdgeInfo DirectedGraphNode::edgeInfo()
+{
+    return m_EdgeInfo;
 }
 
 

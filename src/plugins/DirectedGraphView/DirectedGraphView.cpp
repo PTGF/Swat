@@ -68,7 +68,16 @@ QGraphVizView *DirectedGraphView::view()
 
 void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
 {
-//TODO:    m_View->setFilter(filter);
+    QRegExp rx = QRegExp(filter, Qt::CaseInsensitive, QRegExp::RegExp2);
+    foreach(QGraphVizNode *gvNode, m_Scene->getNodes()) {
+        if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(gvNode)) {
+            if(rx.indexIn(node->label()) >= 0) {
+                node->setSelected(true);
+            } else {
+                node->setSelected(false);
+            }
+        }
+    }
 }
 
 void DirectedGraphView::selectionChanged()
@@ -76,12 +85,7 @@ void DirectedGraphView::selectionChanged()
     if(m_Scene->selectedItems().count() == 1) {
         if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(m_Scene->selectedItems().at(0))) {
             DirectedGraphNodeDialog *dlg = new DirectedGraphNodeDialog(this);
-
-            dlg->setStackFrame(node->getNodeInfo().longLabel);
-
-            DirectedGraphScene::EdgeInfo edgeInfo = node->getEdgeInfo();
-            dlg->setTotalTasks(edgeInfo.processCount, edgeInfo.processList.join(", "));
-
+            dlg->setNode(node);
             dlg->exec();
         }
     }

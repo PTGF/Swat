@@ -28,6 +28,11 @@
 #include "DirectedGraphNodeDialog.h"
 #include "ui_DirectedGraphNodeDialog.h"
 
+#include "DirectedGraphNode.h"
+
+namespace Plugins {
+namespace DirectedGraphView {
+
 DirectedGraphNodeDialog::DirectedGraphNodeDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DirectedGraphNodeDialog)
@@ -43,37 +48,81 @@ DirectedGraphNodeDialog::~DirectedGraphNodeDialog()
     delete ui;
 }
 
-void DirectedGraphNodeDialog::setStackFrame(QString stackFrame)
+void DirectedGraphNodeDialog::setNode(DirectedGraphNode *node)
 {
-    ui->txtStackFrame->setText(stackFrame);
-}
-
-void DirectedGraphNodeDialog::setLeafTasks(QString leafTasks)
-{
-    ui->grpLeafTasks->setVisible(true);
-
-    //TODO: Set the group box text to the task count total
-    ui->txtLeafTasks->setText(leafTasks);
-}
-
-void DirectedGraphNodeDialog::setTotalTasks(QString totalTaskCount, QString totalTasks)
-{
-    ui->grpTotalTasks->setVisible(true);
-
-    QString taskTitle;
-
-    bool okay;
-    quint64 taskCount = totalTaskCount.toULongLong(&okay);
-    if(okay) {
-        if(taskCount == 1) {
-            taskTitle = tr("%L1 Total Task").arg(taskCount);
-        } else {
-            taskTitle = tr("%L1 Total Tasks").arg(taskCount);
-        }
-    } else {
-        taskTitle = "Unknown Total Tasks";
+    if(node == m_Node) {
+        return;
     }
 
-    ui->grpTotalTasks->setTitle(taskTitle);
-    ui->txtTotalTasks->setText(totalTasks);
+    m_Node = node;
+
+    ui->grpLeafTasks->setVisible(false);
+    ui->grpTotalTasks->setVisible(false);
+
+    if(!m_Node) {
+        return;
+    }
+
+    ui->btnCollapse->setChecked(m_Node->collapsed());
+
+    ui->txtStackFrame->setText(m_Node->label());
+
+    //TODO: Leaf Tasks
+
+    if(!m_Node->processCount().isEmpty() || !m_Node->processList().count()) {
+        ui->grpTotalTasks->setVisible(true);
+
+        bool okay;
+        QString taskTitle;
+        quint64 taskCount = m_Node->processCount().toULongLong(&okay);
+        if(okay) {
+            if(taskCount == 1) {
+                taskTitle = tr("%L1 Total Task").arg(taskCount);
+            } else {
+                taskTitle = tr("%L1 Total Tasks").arg(taskCount);
+            }
+        } else {
+            taskTitle = "Unknown Total Tasks";
+        }
+        ui->grpTotalTasks->setTitle(taskTitle);
+
+        ui->txtTotalTasks->setText(m_Node->processList().join(", "));
+    }
 }
+
+DirectedGraphNode *DirectedGraphNodeDialog::node()
+{
+    return m_Node;
+}
+
+void DirectedGraphNodeDialog::on_btnCollapse_toggled(bool checked)
+{
+    if(!m_Node) { return; }
+
+    m_Node->setCollapsed(checked);
+}
+
+void DirectedGraphNodeDialog::on_btnCollapseDepth_clicked()
+{
+    if(!m_Node) { return; }
+
+    //TODO:
+}
+
+void DirectedGraphNodeDialog::on_btnFocus_clicked()
+{
+    if(!m_Node) { return; }
+
+    //TODO:
+}
+
+void DirectedGraphNodeDialog::on_btnViewSource_clicked()
+{
+    if(!m_Node) { return; }
+
+    //TODO:
+}
+
+
+} // namespace DirectedGraphView
+} // namespace Plugins

@@ -30,6 +30,11 @@
 
 #include <QDialog>
 
+namespace Plugins {
+namespace DirectedGraphView {
+
+class DirectedGraphNode;
+
 namespace Ui {
 class DirectedGraphNodeDialog;
 }
@@ -42,12 +47,26 @@ public:
     explicit DirectedGraphNodeDialog(QWidget *parent = 0);
     ~DirectedGraphNodeDialog();
 
-    void setStackFrame(QString stackFrame);
-    void setLeafTasks(QString leafTasks);
+    void setNode(DirectedGraphNode *node);
+    DirectedGraphNode *node();
+
+protected:
+    void updateStackFrame();
+    void updateLeafTasks();
     void setTotalTasks(QString totalTaskCount, QString totalTasks);
+
+protected slots:
+    void on_btnCollapse_toggled(bool checked);
+    void on_btnCollapseDepth_clicked();
+    void on_btnFocus_clicked();
+    void on_btnViewSource_clicked();
 
 private:
     Ui::DirectedGraphNodeDialog *ui;
+    DirectedGraphNode *m_Node;
 };
+
+} // namespace DirectedGraphView
+} // namespace Plugins
 
 #endif // DIRECTEDGRAPHNODEDIALOG_H

@@ -35,6 +35,7 @@
 
 #include "DirectedGraphScene.h"
 
+
 namespace Plugins {
 namespace DirectedGraphView {
 
@@ -45,12 +46,33 @@ class DirectedGraphNode : public QGraphVizNode
 public:
     explicit DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent = 0);
 
+    qint64 nodeId();
+    int nodeDepth();
+
+    QString label();
+    QString shortLabel();
+    QString functionName();
+    quint64 programCounter();
+    QString sourceFile();
+    quint32 sourceLine();
+    QString iter();
+
+    QString edgeLabel();
+    QString shortEdgeLabel();
+    QString processCount();
+    QStringList processList();
+
 protected:
-    DirectedGraphScene::NodeInfo getNodeInfo();
-    DirectedGraphScene::EdgeInfo getEdgeInfo();
+    DirectedGraphScene::NodeInfo nodeInfo();
+    DirectedGraphScene::EdgeInfo edgeInfo();
 
 private:
     DirectedGraphScene *m_Scene;
+
+    int m_Depth;
+    qint64 m_NodeId;
+    DirectedGraphScene::NodeInfo m_NodeInfo;
+    DirectedGraphScene::EdgeInfo m_EdgeInfo;
 
     friend class DirectedGraphScene;
     friend class DirectedGraphView;
