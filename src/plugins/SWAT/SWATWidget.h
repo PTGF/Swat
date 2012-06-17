@@ -60,6 +60,14 @@ protected:
     void tabRemoved(int index);
     void checkAdapterProgress(IAdapter *adapter);
 
+    QAction *m_AttachJob;
+    QAction *m_LaunchJob;
+    QAction *m_LoadFile;
+    QAction *m_CloseJob;
+
+    virtual void showEvent(QShowEvent *event);
+    virtual void hideEvent(QHideEvent *event);
+
 protected slots:
     void tabTitleChanged();
 
@@ -72,6 +80,7 @@ protected slots:
     void progress(int, QUuid);
     void progressMessage(QString, QUuid);
     void cancelAttach();
+
 
 private:
     Ui::SWATWidget *ui;

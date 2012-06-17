@@ -54,6 +54,41 @@ SWATWidget::SWATWidget(QWidget *parent) :
     foreach(QAction *action, mainWindow.menuBar()->actions()) {
         if(action->text() == tr("File")) {
 
+            m_AttachJob = new QAction(tr("Attach to Job"), this);
+            m_AttachJob->setToolTip(tr("Attach SWAT to a running job"));
+            m_AttachJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_AttachJob->setIconVisibleInMenu(true);
+            m_AttachJob->setVisible(false);
+            m_AttachJob->setProperty("swat_menuitem", QVariant(1));
+            connect(m_AttachJob, SIGNAL(triggered()), this, SLOT(attachJob()));
+
+            m_LaunchJob = new QAction(tr("Launch a Job"), this);
+            m_LaunchJob->setToolTip(tr("Launch job and attach SWAT"));
+            m_LaunchJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_LaunchJob->setIconVisibleInMenu(true);
+            m_LaunchJob->setVisible(false);
+            m_LaunchJob->setProperty("swat_menuitem", QVariant(1));
+            connect(m_LaunchJob, SIGNAL(triggered()), this, SLOT(launchJob()));
+
+            m_LoadFile = new QAction(tr("Load from File"), this);
+            m_LoadFile->setToolTip(tr("Load SWAT output from saved file"));
+            m_LoadFile->setIcon(QIcon(":/SWAT/app.gif"));
+            m_LoadFile->setIconVisibleInMenu(true);
+            m_LoadFile->setVisible(false);
+            m_LoadFile->setEnabled(false);
+            m_LoadFile->setProperty("swat_menuitem", QVariant(1));
+//            connect(m_Load, SIGNAL(triggered()), this, SLOT(loadFile()));
+
+            m_CloseJob = new QAction(tr("Close Job"), this);
+            m_CloseJob->setToolTip(tr("Close current SWAT job"));
+            m_CloseJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_CloseJob->setIconVisibleInMenu(true);
+            m_CloseJob->setVisible(false);
+            m_CloseJob->setEnabled(false);
+            m_CloseJob->setProperty("swat_menuitem", QVariant(1));
+//            connect(m_Close, SIGNAL(triggered()), this, SLOT(closeJob()));
+
+
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
             foreach(QAction *item, action->menu()->actions()) {
@@ -61,6 +96,19 @@ SWATWidget::SWATWidget(QWidget *parent) :
                     before = item;
                 }
             }
+
+            if(before) {
+                action->menu()->insertAction(before, m_LaunchJob);
+                action->menu()->insertAction(before, m_AttachJob);
+                action->menu()->insertAction(before, m_LoadFile);
+                action->menu()->insertAction(before, m_CloseJob);
+            } else {
+                action->menu()->addAction(m_LaunchJob);
+                action->menu()->addAction(m_AttachJob);
+                action->menu()->addAction(m_LoadFile);
+                action->menu()->addAction(m_CloseJob);
+            }
+
         }
     }
 
@@ -314,6 +362,32 @@ void SWATWidget::cancelAttach()
     m_ProgressDialogs.removeAll(dlg);
     checkAdapterProgress(dlg->property("adapter").value<IAdapter*>());
     dlg->deleteLater();
+}
+
+
+void SWATWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+
+    Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
+    foreach(QAction *action, mainWindow.allActions()) {
+        qDebug() << action->property("swat_menuitem").isValid() << action->text();
+        if(action->property("swat_menuitem").isValid()) {
+            action->setVisible(true);
+        }
+    }
+}
+
+void SWATWidget::hideEvent(QHideEvent *event)
+{
+    Q_UNUSED(event)
+
+    Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
+    foreach(QAction *action, mainWindow.allActions()) {
+        if(action->property("swat_menuitem").isValid()) {
+            action->setVisible(false);
+        }
+    }
 }
 
 
