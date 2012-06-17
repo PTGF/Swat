@@ -371,7 +371,6 @@ void SWATWidget::showEvent(QShowEvent *event)
 
     Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
     foreach(QAction *action, mainWindow.allActions()) {
-        qDebug() << action->property("swat_menuitem").isValid() << action->text();
         if(action->property("swat_menuitem").isValid()) {
             action->setVisible(true);
         }
