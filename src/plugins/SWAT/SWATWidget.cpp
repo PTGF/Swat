@@ -77,7 +77,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_LoadFile->setVisible(false);
             m_LoadFile->setEnabled(false);
             m_LoadFile->setProperty("swat_menuitem", QVariant(1));
-//            connect(m_Load, SIGNAL(triggered()), this, SLOT(loadFile()));
+            connect(m_Load, SIGNAL(triggered()), this, SLOT(loadFile()));
 
             m_CloseJob = new QAction(tr("Close Job"), this);
             m_CloseJob->setToolTip(tr("Close current SWAT job"));
@@ -257,6 +257,7 @@ void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
         connect(to, SIGNAL(launched(QUuid)),                    this, SLOT(attached(QUuid)));
         connect(to, SIGNAL(progress(int,QUuid)),                this, SLOT(progress(int,QUuid)));
         connect(to, SIGNAL(progressMessage(QString,QUuid)),     this, SLOT(progressMessage(QString,QUuid)));
+        connect(to, SIGNAL(sampled(QString,QUuid))),            this, SLOT(sampled(QString,QUuid)));
     }
 }
 
@@ -388,6 +389,53 @@ void SWATWidget::hideEvent(QHideEvent *event)
         }
     }
 }
+
+
+void SWATWidget::sampled(QString content, QUuid id)
+{
+    loadGraphVizContent(content);
+}
+
+void SWATWidget::loadFile()
+{
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("Open SWAT file"),
+                                                    QDir::currentPath(),
+                                                    tr("SWAT files (*.dot *.swat);;STAT files (*.dot)")
+                                                    );
+
+    if(!filename.isEmpty()) {
+        loadFile(filename);
+    }
+
+}
+
+
+void SWATWidget::loadFile(QString filename)
+{
+    QFileInfo fileInfo(filename);
+
+    if(!fileInfo.exists()) {
+        throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QFile file(fileInfo.absoluteFilePath());
+    if(!file.open(QIODevice::Text)) {
+        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QString fileContent = file.readAll();
+
+    file.close();
+
+    loadGraphVizContent(fileContent);
+}
+
+void SWATWidget::loadDotCode(QString dotCode)
+{
+
+}
+
 
 
 } // namespace SWAT

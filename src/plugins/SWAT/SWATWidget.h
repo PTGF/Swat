@@ -81,6 +81,10 @@ protected slots:
     void progressMessage(QString, QUuid);
     void cancelAttach();
 
+    void sampled(QString content, QUuid id);
+
+    void loadFile(QString filename);
+    void loadDotCode(QString dotCode);
 
 private:
     Ui::SWATWidget *ui;

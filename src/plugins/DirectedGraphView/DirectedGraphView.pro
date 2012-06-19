@@ -16,14 +16,24 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-TEMPLATE                    = subdirs
-SUBDIRS                     = SWAT CompiledAdapter DirectedGraphView
+include(../plugins.pri)
 
-SWAT.subdir                 = SWAT
+include(QGraphViz.pri)
 
-CompiledAdapter.subdir      = CompiledAdapter
-CompiledAdapter.depends     = SWAT
+CONFIG(debug, debug|release) {
+  TARGET            = DirectedGraphViewD
+} else {
+  TARGET            = DirectedGraphView
+}
 
-DirectedGraphView.subdir    = DirectedGraphView
-DirectedGraphView.depends   = SWAT
+SOURCES            += DirectedGraphViewPlugin.cpp \
+                      DirectedGraphView.cpp \
 
+HEADERS            += DirectedGraphViewPlugin.h \
+                      DirectedGraphView.h \
+
+QT                 += xml
+
+LIBS         += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
+
+debug: DEFINES += DIRECTEDGRAPHVIEW_DEBUG

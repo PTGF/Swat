@@ -459,6 +459,7 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
     }
 
     emit sampled(QString(file.readAll()), id);
+    file.close();
 
     operationProgress.value += operationProgressScale * 43;
     emit progress(operationProgress.value, id);
@@ -597,6 +598,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     }
 
     emit sampled(QString(file.readAll()), id);
+    file.close();
 
     operationProgress.value += operationProgressScale * 43;
     emit progress(operationProgress.value, id);

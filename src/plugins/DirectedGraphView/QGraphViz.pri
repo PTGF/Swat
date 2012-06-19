@@ -16,14 +16,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-TEMPLATE                    = subdirs
-SUBDIRS                     = SWAT CompiledAdapter DirectedGraphView
+INCLUDEPATH += $$quote(/opt//include)
+DEPENDPATH  += $$quote(/opt/stat/include)
 
-SWAT.subdir                 = SWAT
+LIBS        += -L$$quote(/opt/stat/lib) -lstatfe -llnlgraph -lmonfeapi -lmrnet -lxplat -lpthread -ldl -lnsl -lrt
 
-CompiledAdapter.subdir      = CompiledAdapter
-CompiledAdapter.depends     = SWAT
-
-DirectedGraphView.subdir    = DirectedGraphView
-DirectedGraphView.depends   = SWAT
-
+QMAKE_LFLAGS += -Wl,-rpath=/opt/stat/lib -Wl,-E
+QMAKE_LFLAGS += -module -avoid-version
