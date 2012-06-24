@@ -16,10 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-INCLUDEPATH += $$quote(/opt//include)
-DEPENDPATH  += $$quote(/opt/stat/include)
+INCLUDEPATH += $$quote(/opt/qgraphviz/include)
+DEPENDPATH  += $$quote(/opt/qgraphviz/include)
 
-LIBS        += -L$$quote(/opt/stat/lib) -lstatfe -llnlgraph -lmonfeapi -lmrnet -lxplat -lpthread -ldl -lnsl -lrt
-
-QMAKE_LFLAGS += -Wl,-rpath=/opt/stat/lib -Wl,-E
-QMAKE_LFLAGS += -module -avoid-version
+LIBS        += -L$$quote(/opt/qgraphviz/lib) -lQGraphVizD

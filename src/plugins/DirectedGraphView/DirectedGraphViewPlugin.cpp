@@ -26,9 +26,11 @@
 
  */
 
+#include "DirectedGraphViewPlugin.h"
+
 #include <PluginManager/PluginManager.h>
 
-#include "DirectedGraphViewPlugin.h"
+#include "DirectedGraphView.h"
 
 using namespace Plugins::SWAT;
 
@@ -53,7 +55,8 @@ namespace DirectedGraphView {
    \fn DirectedGraphViewPlugin::DirectedGraphViewPlugin()
    \brief Constructor.
  */
-DirectedGraphViewPlugin::DirectedGraphViewPlugin()
+DirectedGraphViewPlugin::DirectedGraphViewPlugin(QObject *parent) :
+    QObject(parent)
 {
     m_Name = "DirectedGraphView";
     m_Version = "0.1.dev";
@@ -79,8 +82,10 @@ bool DirectedGraphViewPlugin::initialize(QStringList &args, QString *err)
     Q_UNUSED(err)
 
     try {
+
         Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
-        pluginManager.addObject(&m_DirectedGraphView);
+        pluginManager.addObject(this);
+
     } catch(...) {
         return false;
     }
@@ -125,6 +130,38 @@ QList<Core::PluginManager::Dependency> DirectedGraphViewPlugin::dependencies()
 {
     return m_Dependencies;
 }
+
+QString DirectedGraphViewPlugin::viewName()
+{
+    return tr("Directed Graph");
+}
+
+bool DirectedGraphViewPlugin::viewHandles(QAbstractItemModel *model)
+{
+    Q_UNUSED(model)
+    return false;
+}
+
+QAbstractItemView *DirectedGraphViewPlugin::viewWidget(QAbstractItemModel *model)
+{
+    Q_UNUSED(model)
+    return NULL;
+}
+
+bool DirectedGraphViewPlugin::viewHandlesFiles()
+{
+    return true;
+}
+
+QWidget *DirectedGraphViewPlugin::viewWidget(QByteArray content)
+{
+    QGraphVizScene *scene = new QGraphVizScene(QString(content));
+    DirectedGraphView *view = new DirectedGraphView(scene);
+    scene->setParent(view);
+    view->setWindowTitle(tr("File"));
+    return view;
+}
+
 
 } // namespace DirectedGraphView
 } // namespace Plugins

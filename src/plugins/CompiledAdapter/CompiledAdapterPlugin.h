@@ -30,20 +30,22 @@
 #define COMPILEDADAPTERPLUGIN_H
 
 #include <QtCore>
-
+#include <QtPlugin>
 #include <PluginManager/IPlugin.h>
-
 #include "CompiledAdapter.h"
 
 namespace Plugins {
 namespace CompiledAdapter {
 
-class CompiledAdapterPlugin : public QObject, public Core::PluginManager::IPlugin {
-  Q_OBJECT
-  Q_INTERFACES(Core::PluginManager::IPlugin)
+class CompiledAdapterPlugin :
+        public QObject,
+        public Core::PluginManager::IPlugin
+{
+    Q_OBJECT
+    Q_INTERFACES(Core::PluginManager::IPlugin)
 
 public:
-    CompiledAdapterPlugin();
+    CompiledAdapterPlugin(QObject *parent);
 
     /* IPlugin Interface */
     ~CompiledAdapterPlugin();

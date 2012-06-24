@@ -26,9 +26,9 @@
 
  */
 
-#include <PluginManager/PluginManager.h>
-
 #include "CompiledAdapterPlugin.h"
+
+#include <PluginManager/PluginManager.h>
 
 using namespace Plugins::SWAT;
 
@@ -53,7 +53,8 @@ namespace CompiledAdapter {
    \fn CompiledAdapterPlugin::CompiledAdapterPlugin()
    \brief Constructor.
  */
-CompiledAdapterPlugin::CompiledAdapterPlugin()
+CompiledAdapterPlugin::CompiledAdapterPlugin(QObject *parent = 0) :
+    QObject(parent)
 {
     m_Name = "CompiledAdapter";
     m_Version = "0.1.dev";

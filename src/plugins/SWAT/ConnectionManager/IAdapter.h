@@ -30,7 +30,6 @@
 #define IADAPTER_H
 
 #include <QtCore>
-
 #include "ConnectionManagerLibrary.h"
 
 namespace Plugins {

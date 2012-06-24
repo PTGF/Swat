@@ -56,6 +56,8 @@ JobControlDialog::JobControlDialog(QWidget *parent) :
     ui->txtNodes->setPlaceholderText(tr("Node List"));
 #endif
 
+    ui->txtProcessesFitler->setText("mpirun|srun|orterun");
+
     setType(Type_Attach);
 
     ui->cmbTopologyType->clear();
@@ -96,6 +98,8 @@ JobControlDialog::JobControlDialog(QWidget *parent) :
 #ifdef QT_DEBUG
     ui->txtLaunchString->setText("/opt/stat/bin/orterun -np 2 /opt/stat/share/STAT/examples/bin/mpi_ringtopo");
 #endif
+
+    on_btnSearchProcesses_clicked();
 }
 
 JobControlDialog::~JobControlDialog()
@@ -111,25 +115,45 @@ JobControlDialog::~JobControlDialog()
 void JobControlDialog::setType(Types type)
 {
     m_Type = type;
+    int index = 0;
     switch(type) {
       case Type_Attach:
-
+        setWindowTitle(tr("Attach to Job Dialog"));
         ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Attach"));
-
         ui->tabLaunch->setEnabled(false);
         ui->tabAttach->setEnabled(true);
-        ui->tabWidget->setCurrentWidget(ui->tabAttach);
 
+
+        index = ui->tabWidget->indexOf(ui->tabLaunch);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabAttach);
+        if(index < 0) {
+            ui->tabWidget->insertTab(0, ui->tabAttach, tr("Attach"));
+        }
+
+        ui->tabWidget->setCurrentWidget(ui->tabAttach);
         break;
 
       case Type_Launch:
-
+        setWindowTitle(tr("Launch Job Dialog"));
         ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Launch"));
-
         ui->tabAttach->setEnabled(false);
         ui->tabLaunch->setEnabled(true);
-        ui->tabWidget->setCurrentWidget(ui->tabLaunch);
 
+        index = ui->tabWidget->indexOf(ui->tabAttach);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabLaunch);
+        if(index < 0) {
+            ui->tabWidget->insertTab(0, ui->tabLaunch, tr("Launch"));
+        }
+
+        ui->tabWidget->setCurrentWidget(ui->tabLaunch);
         break;
     }
 }
@@ -161,7 +185,7 @@ void JobControlDialog::accept()
             ui->lstProcesses->setToolTip(QString());
             ui->lstProcesses->setStyleSheet(QString());
 
-            attachOptions->pid = selectedItems.at(0)->data(Qt::UserRole).toULongLong(&convertedOkay);
+            attachOptions->pid = selectedItems.at(0)->data(Qt::UserRole + 1).toULongLong(&convertedOkay);
             if(!convertedOkay) {
                 throw tr("Conversion of PID value failed");
             }
@@ -337,15 +361,70 @@ IAdapter::Options *JobControlDialog::getOptions()
 
 void JobControlDialog::on_btnSearchProcesses_clicked()
 {
-
     QString remoteShell = ui->cmbRemoteShell->currentText();
     QString remoteHost = ui->txtRemoteHost->text();
 
-    QString command = QString("%1 %2 ps wx").arg(remoteShell, remoteHost);
+    QString filter = ui->txtProcessesFitler->text();
 
-    //TODO:
+    QString program = "/bin/ps";
+    QStringList arguments;
+    arguments << "w" << "x";
+
+    QByteArray output;
+    if(remoteHost == "localhost") {
+        QProcess process;
+        process.start(program, arguments);
+
+        if(!process.waitForStarted()) {
+            return;
+        }
+
+        if(!process.waitForFinished()) {
+            return;
+        }
+
+        output = process.readAll();
+
+    } else {
+        //TODO: Get remote host processes
+        //QString command = QString("%1 %2 ps wx").arg(remoteShell, remoteHost);
+    }
 
 
+    QStringList lines = QString(output).split('\n');
+
+    QMap<quint64, QString> processes;
+
+    QRegExp rxPid("\\s*PID");
+    QRegExp rxCommand("COMMAND\\s*$");
+
+    int index = 0;
+    foreach(QString line, lines) {
+        if(line.contains(rxPid)) {
+            index = line.indexOf(rxCommand);
+            continue;
+        }
+
+        bool okay = false;
+        QString trimmed = line.trimmed();
+        quint64 pid = trimmed.left(trimmed.indexOf(' ')).toULongLong(&okay);
+
+        if(okay) {
+            processes.insert(pid, line.right(line.count() - index));
+        }
+    }
+
+    ui->lstProcesses->clear();
+
+    foreach(quint64 pid, processes.keys()) {
+        if(!processes.value(pid).contains(QRegExp(filter, Qt::CaseInsensitive))) {
+            continue;
+        }
+
+        QListWidgetItem *item = new QListWidgetItem(processes.value(pid));
+        item->setData(Qt::UserRole + 1, QVariant(pid));
+        ui->lstProcesses->addItem(item);
+    }
 }
 
 void JobControlDialog::on_btnDaemonPath_clicked()
@@ -371,6 +450,7 @@ void JobControlDialog::on_btnLogPath_clicked()
         ui->txtLogPath->setText(path);
     }
 }
+
 
 } // namespace SWAT
 } // namespace Plugins

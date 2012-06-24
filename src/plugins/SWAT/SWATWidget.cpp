@@ -31,7 +31,9 @@
 
 #include <MainWindow/MainWindow.h>
 #include <MainWindow/NotificationWidget.h>
+#include <PluginManager/PluginManager.h>
 #include <ConnectionManager/ConnectionManager.h>
+#include <ViewManager/IViewFactory.h>
 
 #include "JobControlDialog.h"
 
@@ -50,7 +52,8 @@ SWATWidget::SWATWidget(QWidget *parent) :
     setWindowTitle(QString("SWAT%1").arg(QChar(0x2122))); //Trademark
     setWindowIcon(QIcon(":/SWAT/app.gif"));
 
-    Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
+    using namespace Core::MainWindow;
+    MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.menuBar()->actions()) {
         if(action->text() == tr("File")) {
 
@@ -75,9 +78,8 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_LoadFile->setIcon(QIcon(":/SWAT/app.gif"));
             m_LoadFile->setIconVisibleInMenu(true);
             m_LoadFile->setVisible(false);
-            m_LoadFile->setEnabled(false);
             m_LoadFile->setProperty("swat_menuitem", QVariant(1));
-            connect(m_Load, SIGNAL(triggered()), this, SLOT(loadFile()));
+            connect(m_LoadFile, SIGNAL(triggered()), this, SLOT(loadFile()));
 
             m_CloseJob = new QAction(tr("Close Job"), this);
             m_CloseJob->setToolTip(tr("Close current SWAT job"));
@@ -86,7 +88,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_CloseJob->setVisible(false);
             m_CloseJob->setEnabled(false);
             m_CloseJob->setProperty("swat_menuitem", QVariant(1));
-//            connect(m_Close, SIGNAL(triggered()), this, SLOT(closeJob()));
+            connect(m_CloseJob, SIGNAL(triggered()), this, SLOT(closeJob()));
 
 
             //! \todo We really need to rely on the ActionManager to do this.
@@ -138,6 +140,8 @@ void SWATWidget::tabInserted(int index)
     } else {
         setStyleSheet(QString());
     }
+
+    m_CloseJob->setEnabled(count());
 }
 
 void SWATWidget::tabRemoved(int index)
@@ -156,6 +160,8 @@ void SWATWidget::tabRemoved(int index)
     } else {
         setStyleSheet(QString());
     }
+
+    m_CloseJob->setEnabled(count());
 }
 
 void SWATWidget::tabTitleChanged()
@@ -202,7 +208,8 @@ void SWATWidget::attachJob()
             try {
                 adapter->attach(*options);
             } catch(QString err) {
-                Core::MainWindow::MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), NotificationWidget::Critical);
             }
         }
     }
@@ -236,7 +243,8 @@ void SWATWidget::launchJob()
             try {
                 adapter->launch(*options);
             } catch(QString err) {
-                Core::MainWindow::MainWindow::instance().notify(tr("Error while launching: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while launching: %1").arg(err), NotificationWidget::Critical);
             }
         }
     }
@@ -257,7 +265,7 @@ void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
         connect(to, SIGNAL(launched(QUuid)),                    this, SLOT(attached(QUuid)));
         connect(to, SIGNAL(progress(int,QUuid)),                this, SLOT(progress(int,QUuid)));
         connect(to, SIGNAL(progressMessage(QString,QUuid)),     this, SLOT(progressMessage(QString,QUuid)));
-        connect(to, SIGNAL(sampled(QString,QUuid))),            this, SLOT(sampled(QString,QUuid)));
+        connect(to, SIGNAL(sampled(QString,QUuid)),             this, SLOT(sampled(QString,QUuid)));
     }
 }
 
@@ -355,7 +363,8 @@ void SWATWidget::cancelAttach()
         try {
             adapter->cancel(dlg->property("id").toString());
         } catch(QString err) {
-            Core::MainWindow::MainWindow::instance().notify(tr("Error while canceling: %1").arg(err), Core::MainWindow::NotificationWidget::Critical);
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while canceling: %1").arg(err), NotificationWidget::Critical);
         }
     }
 
@@ -370,7 +379,8 @@ void SWATWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
-    Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
+    using namespace Core::MainWindow;
+    MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.allActions()) {
         if(action->property("swat_menuitem").isValid()) {
             action->setVisible(true);
@@ -382,7 +392,8 @@ void SWATWidget::hideEvent(QHideEvent *event)
 {
     Q_UNUSED(event)
 
-    Core::MainWindow::MainWindow &mainWindow = Core::MainWindow::MainWindow::instance();
+    using namespace Core::MainWindow;
+    MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.allActions()) {
         if(action->property("swat_menuitem").isValid()) {
             action->setVisible(false);
@@ -393,7 +404,30 @@ void SWATWidget::hideEvent(QHideEvent *event)
 
 void SWATWidget::sampled(QString content, QUuid id)
 {
-    loadGraphVizContent(content);
+    loadFromContent(content.toLocal8Bit());
+}
+
+void SWATWidget::closeJob(int index)
+{
+    try {
+
+        if(index < 0) {
+            index = currentIndex();
+        }
+
+
+        QWidget *widget = this->widget(currentIndex());
+        widget->close();
+        removeTab(currentIndex());
+        widget->deleteLater();
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to close job: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to close job."), NotificationWidget::Critical);
+    }
 }
 
 void SWATWidget::loadFile()
@@ -405,13 +439,13 @@ void SWATWidget::loadFile()
                                                     );
 
     if(!filename.isEmpty()) {
-        loadFile(filename);
+        loadFromFile(filename);
     }
 
 }
 
 
-void SWATWidget::loadFile(QString filename)
+void SWATWidget::loadFromFile(QString filename)
 {
     QFileInfo fileInfo(filename);
 
@@ -420,20 +454,53 @@ void SWATWidget::loadFile(QString filename)
     }
 
     QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::Text)) {
+    if(!file.open(QIODevice::ReadOnly)) {
         throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
     }
 
-    QString fileContent = file.readAll();
+    QByteArray fileContent = file.readAll();
 
     file.close();
 
-    loadGraphVizContent(fileContent);
+    loadFromContent(fileContent);
 }
 
-void SWATWidget::loadDotCode(QString dotCode)
+void SWATWidget::loadFromContent(QByteArray content)
 {
+    using namespace Core::MainWindow;
+    MainWindow &mainWindow = MainWindow::instance();
+    mainWindow.setCurrentCentralWidget(this);
 
+    QWidget *view = getView(content);
+    if(view) {
+        int index = addTab(view, view->windowTitle());
+        setCurrentIndex(index);
+    }
+}
+
+QWidget *SWATWidget::getView(QByteArray content)
+{
+    try {
+
+        Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
+        foreach(QObject *object, pluginManager.allObjects()) {
+            IViewFactory *viewFactory = qobject_cast<IViewFactory *>(object);
+            if(viewFactory) {
+                if(viewFactory->viewHandlesFiles()) {
+                    return viewFactory->viewWidget(content);
+                }
+            }
+        }
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to create view from content: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to create view from content."), NotificationWidget::Critical);
+    }
+
+    return NULL;
 }
 
 

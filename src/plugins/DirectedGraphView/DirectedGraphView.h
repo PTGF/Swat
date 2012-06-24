@@ -4,9 +4,8 @@
    \version
 
    \section LICENSE
-   This file is part of the StackWalker Analysis Tool (SWAT)
-   Copyright (C) 2012-2012 Argo Navis Technologies, LLC
-   Copyright (C) 2012-2012 University of Wisconsin
+   This file is part of the Parallel Tools GUI Framework (PTGF)
+   Copyright (C) 2010-2011 Argo Navis Technologies, LLC
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU Lesser General Public License as published by the
@@ -26,53 +25,29 @@
 
  */
 
-#ifndef JOBCONTROLDIALOG_H
-#define JOBCONTROLDIALOG_H
+#ifndef DIRECTEDGRAPHVIEW_H
+#define DIRECTEDGRAPHVIEW_H
 
-#include <QtCore>
-#include <QtGui>
-
-#include <ConnectionManager/IAdapter.h>
+#include <QGraphVizView.h>
+#include <QGraphVizScene.h>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraphView {
 
-namespace Ui {
-class JobControlDialog;
-}
-
-class JobControlDialog : public QDialog
+class DirectedGraphView : public QGraphVizView
 {
     Q_OBJECT
-
 public:
-    explicit JobControlDialog(QWidget *parent = 0);
-    ~JobControlDialog();
+    explicit DirectedGraphView(QWidget *parent = 0);
+    explicit DirectedGraphView(QGraphicsScene * scene, QWidget * parent = 0);
 
-    enum Types { Type_Attach, Type_Launch };
-    void setType(Types type);
-
-    IAdapter::Options *getOptions();
+signals:
 
 public slots:
-    void accept();
-    int exec(Types type);
 
-
-protected slots:
-    void on_btnSearchProcesses_clicked();
-    void on_btnDaemonPath_clicked();
-    void on_btnFilterPath_clicked();
-    void on_btnLogPath_clicked();
-
-private:
-    Ui::JobControlDialog *ui;
-
-    IAdapter::Options *m_Options;
-    Types m_Type;
 };
 
-} // namespace SWAT
+} // namespace DirectedGraphView
 } // namespace Plugins
 
-#endif // JOBCONTROLDIALOG_H
+#endif // DIRECTEDGRAPHVIEW_H

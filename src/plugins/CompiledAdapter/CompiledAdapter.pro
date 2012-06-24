@@ -36,6 +36,6 @@ HEADERS            += CompiledAdapterPlugin.h \
 
 QT                 += xml
 
-LIBS         += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
+LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
 
-debug: DEFINES += COMPILEDADAPTER_DEBUG
+debug: DEFINES     += COMPILEDADAPTER_DEBUG

@@ -20,20 +20,20 @@ include(../plugins.pri)
 
 include(QGraphViz.pri)
 
+QT += gui
+
 CONFIG(debug, debug|release) {
   TARGET            = DirectedGraphViewD
 } else {
   TARGET            = DirectedGraphView
 }
 
+HEADERS            += DirectedGraphViewPlugin.h \
+                      DirectedGraphView.h
+
 SOURCES            += DirectedGraphViewPlugin.cpp \
                       DirectedGraphView.cpp \
 
-HEADERS            += DirectedGraphViewPlugin.h \
-                      DirectedGraphView.h \
+LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
 
-QT                 += xml
-
-LIBS         += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
-
-debug: DEFINES += DIRECTEDGRAPHVIEW_DEBUG
+#debug: DEFINES     += DIRECTEDGRAPHVIEW_DEBUG

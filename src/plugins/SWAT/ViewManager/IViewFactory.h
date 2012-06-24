@@ -4,9 +4,8 @@
    \version
 
    \section LICENSE
-   This file is part of the StackWalker Analysis Tool (SWAT)
-   Copyright (C) 2012-2012 Argo Navis Technologies, LLC
-   Copyright (C) 2012-2012 University of Wisconsin
+   This file is part of the Parallel Tools GUI Framework (PTGF)
+   Copyright (C) 2010-2011 Argo Navis Technologies, LLC
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU Lesser General Public License as published by the
@@ -26,53 +25,32 @@
 
  */
 
-#ifndef JOBCONTROLDIALOG_H
-#define JOBCONTROLDIALOG_H
+#ifndef IVIEWFACTORYA_H
+#define IVIEWFACTORYA_H
 
 #include <QtCore>
 #include <QtGui>
-
-#include <ConnectionManager/IAdapter.h>
+#include "ViewManagerLibrary.h"
 
 namespace Plugins {
 namespace SWAT {
 
-namespace Ui {
-class JobControlDialog;
-}
-
-class JobControlDialog : public QDialog
+class VIEWMANAGER_EXPORT IViewFactory
 {
-    Q_OBJECT
-
 public:
-    explicit JobControlDialog(QWidget *parent = 0);
-    ~JobControlDialog();
+    virtual QString viewName() = 0;
 
-    enum Types { Type_Attach, Type_Launch };
-    void setType(Types type);
+    virtual bool viewHandles(QAbstractItemModel *model) = 0;
+    virtual QAbstractItemView *viewWidget(QAbstractItemModel *model) = 0;
 
-    IAdapter::Options *getOptions();
-
-public slots:
-    void accept();
-    int exec(Types type);
-
-
-protected slots:
-    void on_btnSearchProcesses_clicked();
-    void on_btnDaemonPath_clicked();
-    void on_btnFilterPath_clicked();
-    void on_btnLogPath_clicked();
-
-private:
-    Ui::JobControlDialog *ui;
-
-    IAdapter::Options *m_Options;
-    Types m_Type;
+    //TODO: Move all SWAT views to QAbstractItemView
+    virtual bool viewHandlesFiles() = 0;
+    virtual QWidget *viewWidget(QByteArray content) = 0;
 };
 
 } // namespace SWAT
 } // namespace Plugins
 
-#endif // JOBCONTROLDIALOG_H
+Q_DECLARE_INTERFACE(Plugins::SWAT::IViewFactory, "org.krellinst.swat.IViewFactory/0.1")
+
+#endif // IVIEWFACTORY_H

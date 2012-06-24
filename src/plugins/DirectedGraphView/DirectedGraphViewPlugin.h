@@ -29,21 +29,23 @@
 #ifndef DIRECTEDGRAPHVIEWPLUGIN_H
 #define DIRECTEDGRAPHVIEWPLUGIN_H
 
-#include <QtCore>
-
 #include <PluginManager/IPlugin.h>
-
-#include "DirectedGraphView.h"
+#include <SWAT/ViewManager/IViewFactory.h>
 
 namespace Plugins {
 namespace DirectedGraphView {
 
-class DirectedGraphViewPlugin : public QObject, public Core::PluginManager::IPlugin {
-  Q_OBJECT
-  Q_INTERFACES(Core::PluginManager::IPlugin)
+class DirectedGraphViewPlugin :
+        public QObject,
+        public Core::PluginManager::IPlugin,
+        public Plugins::SWAT::IViewFactory
+{
+    Q_OBJECT
+    Q_INTERFACES(Core::PluginManager::IPlugin)
+    Q_INTERFACES(Plugins::SWAT::IViewFactory)
 
 public:
-    DirectedGraphViewPlugin();
+    DirectedGraphViewPlugin(QObject *parent = 0);
 
     /* IPlugin Interface */
     ~DirectedGraphViewPlugin();
@@ -53,11 +55,17 @@ public:
     QString version();
     QList<Core::PluginManager::Dependency> dependencies();
 
+    /* IViewFactory Interface */
+    QString viewName();
+    bool viewHandles(QAbstractItemModel *model);
+    QAbstractItemView *viewWidget(QAbstractItemModel *model);
+    bool viewHandlesFiles();
+    QWidget *viewWidget(QByteArray content);
+
 protected:
     QString m_Name;
     QString m_Version;
     QList<Core::PluginManager::Dependency> m_Dependencies;
-    DirectedGraphView m_DirectedGraphView;
 
 };
 

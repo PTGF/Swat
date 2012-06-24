@@ -68,6 +68,8 @@ protected:
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
 
+    QWidget *getView(QByteArray content);
+
 protected slots:
     void tabTitleChanged();
 
@@ -83,8 +85,11 @@ protected slots:
 
     void sampled(QString content, QUuid id);
 
-    void loadFile(QString filename);
-    void loadDotCode(QString dotCode);
+    void loadFile();
+    void loadFromFile(QString filename);
+    void loadFromContent(QByteArray content);
+
+    void closeJob(int index = -1);
 
 private:
     Ui::SWATWidget *ui;
