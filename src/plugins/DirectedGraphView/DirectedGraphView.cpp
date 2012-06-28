@@ -40,16 +40,8 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
 DirectedGraphView::DirectedGraphView(QGraphicsScene * scene, QWidget *parent) :
     QGraphVizView(scene, parent)
 {
-    connect(scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
 
-
-void DirectedGraphView::selectionChanged()
-{
-    foreach(QGraphicsItem *item, scene()->selectedItems()) {
-        qDebug() << item->type();
-    }
-}
 
 } // namespace DirectedGraphView
 } // namespace Plugins
