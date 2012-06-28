@@ -28,8 +28,15 @@
 #ifndef DIRECTEDGRAPHVIEW_H
 #define DIRECTEDGRAPHVIEW_H
 
+#include <QtCore>
+#include <QtGui>
+
 #include <QGraphVizView.h>
 #include <QGraphVizScene.h>
+
+#ifdef QT_DEBUG
+#include <QtDebug>
+#endif
 
 namespace Plugins {
 namespace DirectedGraphView {
@@ -45,6 +52,12 @@ signals:
 
 public slots:
 
+protected:
+
+protected slots:
+    void selectionChanged();
+
+private:
 };
 
 } // namespace DirectedGraphView
