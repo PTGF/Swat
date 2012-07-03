@@ -42,7 +42,8 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
     m_Scene = new QGraphVizScene(QString(content));
     m_View = new QGraphVizView(m_Scene, this);
     m_Scene->setParent(m_View);
-    m_View->setWindowTitle(tr("File"));
+
+    setWindowTitle(tr("Directed Graph View"));
 
     ui->verticalLayout->insertWidget(0, m_View);
 
