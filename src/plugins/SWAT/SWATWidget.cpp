@@ -104,11 +104,13 @@ SWATWidget::SWATWidget(QWidget *parent) :
                 action->menu()->insertAction(before, m_AttachJob);
                 action->menu()->insertAction(before, m_LoadFile);
                 action->menu()->insertAction(before, m_CloseJob);
+                action->menu()->insertSeparator(before)->setProperty("swat_menuitem", QVariant(1));
             } else {
                 action->menu()->addAction(m_LaunchJob);
                 action->menu()->addAction(m_AttachJob);
                 action->menu()->addAction(m_LoadFile);
                 action->menu()->addAction(m_CloseJob);
+                action->menu()->addSeparator()->setProperty("swat_menuitem", QVariant(1));
             }
 
         }

@@ -60,6 +60,8 @@ CompiledAdapter::CompiledAdapter(QObject *parent) :
 //    setenv("STAT_CONNECT_TIMEOUT", "600", true);
 //    setenv("LMON_FE_ENGINE_TIMEOUT", "600", true);
 
+//    setenv("MRNET_DEBUG_LEVEL", "5", true);
+
     // Get default values from the FrontEnd and cache them in this object
     STAT_FrontEnd *frontEnd = new STAT_FrontEnd();
     m_DefaultFilterPath = QString(frontEnd->getFilterPath());
@@ -454,7 +456,7 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
     }
 
     QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::Text)) {
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
     }
 
@@ -548,7 +550,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     statError = frontEnd->sampleStackTraces(sampleType, options.withThreads, options.clearOnSample,
                                             options.traceCount, options.traceFrequency,
                                             options.retryCount, options.retryFrequency,
-                                            false, NULL);
+                                            false, "NULL");
     if(statError != STAT_OK) {
         throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
@@ -593,7 +595,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     }
 
     QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::Text)) {
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
     }
 

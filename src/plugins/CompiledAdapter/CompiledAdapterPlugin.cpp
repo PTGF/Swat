@@ -30,6 +30,8 @@
 
 #include <PluginManager/PluginManager.h>
 
+#include <dlfcn.h>
+
 using namespace Plugins::SWAT;
 
 namespace Plugins {
@@ -59,6 +61,12 @@ CompiledAdapterPlugin::CompiledAdapterPlugin(QObject *parent = 0) :
     m_Name = "CompiledAdapter";
     m_Version = "0.1.dev";
     m_Dependencies.append( Core::PluginManager::Dependency("SWAT", "^0\\.1.*$") );
+
+    /*! \note This feels like a total hack, but it's apparently the only way to do this.  The MRNet library needs to
+              be reflagged as global, otherwise the MRNet filter plugins will not be able to see the necessary
+              symbols and the system will fail miserably. */
+    dlopen("libmrnet.so", RTLD_NOLOAD | RTLD_GLOBAL | RTLD_NOW);
+
 }
 
 /*!
