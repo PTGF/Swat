@@ -395,13 +395,16 @@ void CompiledAdapter::sample(SampleOptions options, QUuid id, OperationProgress 
     float operationProgressScale = operationProgress.scale;
 
     // Run the application for the specified period before we begin
-    operationProgress.scale = 5 * operationProgressScale / 100;  // (((our steps) * (our scale)) / (sub-op scale))
+    operationProgress.scale = 0.05 * operationProgressScale;  // (((our steps) * (our scale)) / (sub-op scale))
     preSampleRunWait(options.runTimeBeforeSample, id, operationProgress);
+
+
+    // Rescale the progress for the following operations
+    operationProgress.scale = 0.85 * operationProgressScale;
 
     options.traceCount = 1;
     options.traceFrequency = 1;
     sampleOne(options, id, operationProgress);
-
 }
 
 void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id)
@@ -422,11 +425,11 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
     float operationProgressScale = operationProgress.scale;
 
     // Run the application for the specified period before we begin
-    operationProgress.scale = 5 * operationProgressScale / 100;  // (((our steps) * (our scale)) / (sub-op scale))
+    operationProgress.scale = 0.05 * operationProgressScale;  // (((our steps) * (our scale)) / (sub-op scale))
     preSampleRunWait(options.runTimeBeforeSample, id, operationProgress);
 
     // Rescale the progress for the following operations
-    operationProgress.scale = 85 * operationProgressScale / options.traceCount;
+    operationProgress.scale = 0.85 * operationProgressScale / options.traceCount;
 
     SampleOptions tempOptions = options;
     tempOptions.traceCount = 1;

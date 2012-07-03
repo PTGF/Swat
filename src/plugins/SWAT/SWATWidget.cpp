@@ -352,7 +352,7 @@ void SWATWidget::progress(int progress, QUuid id)
 void SWATWidget::progressMessage(QString progressMessage, QUuid id)
 {
     foreach(QProgressDialog *dlg, m_ProgressDialogs) {
-        if(dlg->property("id").toString() != id) {
+        if(dlg->property("id").toString() == id) {
             dlg->setWindowTitle(progressMessage);
         }
     }
