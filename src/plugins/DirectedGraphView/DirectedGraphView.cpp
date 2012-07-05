@@ -28,6 +28,12 @@
 #include "DirectedGraphView.h"
 #include "ui_DirectedGraphView.h"
 
+#include <QGraphVizView.h>
+
+#include "DirectedGraphScene.h"
+#include "DirectedGraphNode.h"
+#include "DirectedGraphNodeDialog.h"
+
 namespace Plugins {
 namespace DirectedGraphView {
 
@@ -39,7 +45,7 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
 {
     ui->setupUi(this);
 
-    m_Scene = new QGraphVizScene(QString(content));
+    m_Scene = new DirectedGraphScene(QString(content));
     m_View = new QGraphVizView(m_Scene, this);
     m_Scene->setParent(m_View);
 
@@ -47,6 +53,7 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
 
     ui->verticalLayout->insertWidget(0, m_View);
 
+    connect(m_Scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
 
 DirectedGraphView::~DirectedGraphView()
@@ -62,6 +69,22 @@ QGraphVizView *DirectedGraphView::view()
 void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
 {
 //TODO:    m_View->setFilter(filter);
+}
+
+void DirectedGraphView::selectionChanged()
+{
+    if(m_Scene->selectedItems().count() == 1) {
+        if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(m_Scene->selectedItems().at(0))) {
+            DirectedGraphNodeDialog *dlg = new DirectedGraphNodeDialog(this);
+
+            dlg->setStackFrame(node->getNodeInfo().longLabel);
+
+            DirectedGraphScene::EdgeInfo edgeInfo = node->getEdgeInfo();
+            dlg->setTotalTasks(edgeInfo.processCount, edgeInfo.processList.join(", "));
+
+            dlg->exec();
+        }
+    }
 }
 
 

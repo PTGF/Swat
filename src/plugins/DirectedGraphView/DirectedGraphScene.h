@@ -25,51 +25,60 @@
 
  */
 
-#ifndef DIRECTEDGRAPHVIEW_H
-#define DIRECTEDGRAPHVIEW_H
+#ifndef DIRECTEDGRAPHSCENE_H
+#define DIRECTEDGRAPHSCENE_H
 
 #include <QtCore>
 #include <QtGui>
 
-#ifdef QT_DEBUG
-#include <QtDebug>
-#endif
-
-class QGraphVizView;
+#include <QGraphVizScene.h>
 
 namespace Plugins {
 namespace DirectedGraphView {
 
-class DirectedGraphScene;
-
-namespace Ui {
-class DirectedGraphView;
-}
-
-class DirectedGraphView : public QWidget
+class DirectedGraphScene : public QGraphVizScene
 {
     Q_OBJECT
-
 public:
-    explicit DirectedGraphView(const QByteArray &content, QWidget * parent = 0);
-    ~DirectedGraphView();
+    explicit DirectedGraphScene(QString content, QObject *parent = 0);
 
-    QGraphVizView *view();
+protected:
+    struct NodeInfo {
+        QString longLabel;
+        QString shortLabel;
 
+        QString functionName;
+        quint64 programCounter;
+        QString sourceFile;
+        quint32 sourceLine;
+        QString iter_string;
+    };
 
-protected slots:
-    void on_txtFilter_textChanged(const QString &);
-    void selectionChanged();
+    struct EdgeInfo {
+        QString longLabel;
+        QString shortLabel;
+
+        QString processCount;
+        QStringList processList;
+    };
+
+    QGraphVizNode *createNode(node_t *node);
+    QGraphVizEdge *createEdge(edge_t *edge);
+
+    QString preprocessContent(const QString &content);
+    NodeInfo getNodeInfo(QString label);
+    EdgeInfo getEdgeInfo(QString label);
 
 private:
-    Ui::DirectedGraphView *ui;
-    DirectedGraphScene *m_Scene;
-    QGraphVizView *m_View;
+    QHash<int, NodeInfo> m_NodeInfos;
+    QHash<int, EdgeInfo> m_EdgeInfos;
 
-
+    friend class DirectedGraphNode;
+    friend class DirectedGraphEdge;
+    friend class DirectedGraphView;
 };
 
 } // namespace DirectedGraphView
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHVIEW_H
+#endif // DIRECTEDGRAPHSCENE_H

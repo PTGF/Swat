@@ -29,14 +29,23 @@ CONFIG(debug, debug|release) {
 }
 
 HEADERS            += DirectedGraphViewPlugin.h \
-    DirectedGraphView.h
+    DirectedGraphView.h \
+    DirectedGraphScene.h \
+    DirectedGraphNode.h \
+    DirectedGraphEdge.h \
+    DirectedGraphNodeDialog.h
 
 SOURCES            += DirectedGraphViewPlugin.cpp \
-    DirectedGraphView.cpp
+    DirectedGraphView.cpp \
+    DirectedGraphScene.cpp \
+    DirectedGraphNode.cpp \
+    DirectedGraphEdge.cpp \
+    DirectedGraphNodeDialog.cpp
 
 LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
 
 #debug: DEFINES     += DIRECTEDGRAPHVIEW_DEBUG
 
 FORMS += \
-    DirectedGraphView.ui
+    DirectedGraphView.ui \
+    DirectedGraphNodeDialog.ui

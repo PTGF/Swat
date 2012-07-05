@@ -25,51 +25,38 @@
 
  */
 
-#ifndef DIRECTEDGRAPHVIEW_H
-#define DIRECTEDGRAPHVIEW_H
+#ifndef DIRECTEDGRAPHNODE_H
+#define DIRECTEDGRAPHNODE_H
 
 #include <QtCore>
 #include <QtGui>
 
-#ifdef QT_DEBUG
-#include <QtDebug>
-#endif
+#include <QGraphVizNode.h>
 
-class QGraphVizView;
+#include "DirectedGraphScene.h"
 
 namespace Plugins {
 namespace DirectedGraphView {
 
 class DirectedGraphScene;
 
-namespace Ui {
-class DirectedGraphView;
-}
-
-class DirectedGraphView : public QWidget
+class DirectedGraphNode : public QGraphVizNode
 {
-    Q_OBJECT
-
 public:
-    explicit DirectedGraphView(const QByteArray &content, QWidget * parent = 0);
-    ~DirectedGraphView();
+    explicit DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent = 0);
 
-    QGraphVizView *view();
-
-
-protected slots:
-    void on_txtFilter_textChanged(const QString &);
-    void selectionChanged();
+protected:
+    DirectedGraphScene::NodeInfo getNodeInfo();
+    DirectedGraphScene::EdgeInfo getEdgeInfo();
 
 private:
-    Ui::DirectedGraphView *ui;
     DirectedGraphScene *m_Scene;
-    QGraphVizView *m_View;
 
-
+    friend class DirectedGraphScene;
+    friend class DirectedGraphView;
 };
 
 } // namespace DirectedGraphView
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHVIEW_H
+#endif // DIRECTEDGRAPHNODE_H
