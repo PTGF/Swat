@@ -58,6 +58,9 @@ public slots:
     void accept();
     int exec(Types type);
 
+protected:
+    void readSettings();
+    void writeSettings();
 
 protected slots:
     void on_btnSearchProcesses_clicked();

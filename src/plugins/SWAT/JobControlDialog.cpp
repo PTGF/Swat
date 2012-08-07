@@ -29,6 +29,7 @@
 #include "JobControlDialog.h"
 #include "ui_JobControlDialog.h"
 
+#include <SettingManager/SettingManager.h>
 #include <ConnectionManager/ConnectionManager.h>
 
 #ifdef QT_DEBUG
@@ -79,31 +80,19 @@ JobControlDialog::JobControlDialog(QWidget *parent) :
     ui->cmbSampleType->insertItem(0, tr("Function Only"), IAdapter::Sample_FunctionNameOnly);
     ui->cmbSampleType->setCurrentIndex(0);
 
-    ui->txtLogPath->setText(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-
-
-    IAdapter *adapter = ConnectionManager::instance().currentAdapter();
-    if(!adapter) {
-        throw tr("No adapter found");
-    }
-    ui->txtFilterPath->setText(adapter->defaultFilterPath());
-    ui->txtDaemonPath->setText(adapter->defaultToolDaemonPath());
-
-#if 0
-    ui->txtRemoteHost->setText(adapter->remoteHost());
-#else
-    ui->txtRemoteHost->setText("localhost");
-#endif
-
 #ifdef QT_DEBUG
     ui->txtLaunchString->setText("/opt/stat/bin/orterun -np 2 /opt/stat/share/STAT/examples/bin/mpi_ringtopo");
 #endif
+
+    readSettings();
 
     on_btnSearchProcesses_clicked();
 }
 
 JobControlDialog::~JobControlDialog()
 {
+    writeSettings();
+
     if(m_Options) {
         delete m_Options;
         m_Options = NULL;
@@ -111,6 +100,106 @@ JobControlDialog::~JobControlDialog()
 
     delete ui;
 }
+
+void JobControlDialog::writeSettings()
+{
+    Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
+    settingManager.beginGroup("Plugins/SWAT");
+
+    settingManager.setValue("JobControlDialog/WindowSize", size());
+    settingManager.setValue("JobControlDialog/WindowPosition", pos());
+
+    settingManager.endGroup();
+}
+
+
+void JobControlDialog::readSettings()
+{
+    IAdapter *adapter = ConnectionManager::instance().currentAdapter();
+    if(!adapter) {
+        throw tr("No adapter found");
+    }
+
+    // Get settings from SettingManager and populate form
+    Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
+    settingManager.beginGroup("Plugins/SWAT");
+
+    //TODO: Set the window sizes appropriately
+//    resize( settingManager.value("JobControlDialog/WindowSize", size()).toSize() );
+//    move( settingManager.value("JobControlDialog/WindowPosition", pos()).toPoint() );
+
+    QString remoteShellText = settingManager.value("remote/shell", ui->cmbRemoteShell->itemText(0)).toString();
+    int remoteShellIndex = ui->cmbRemoteShell->findText(remoteShellText, Qt::MatchExactly);
+    if(remoteShellIndex >= 0) {
+        ui->cmbRemoteShell->setCurrentIndex(remoteShellIndex);
+    } else {
+        ui->cmbRemoteShell->setEditText(remoteShellText);
+    }
+
+#if 0
+    ui->txtRemoteHost->setText(settingManager.value("remote/host", adapter->remoteHost()).toString());
+#else
+    ui->txtRemoteHost->setText(settingManager.value("remote/host", "localhost").toString());
+#endif
+
+    ui->chkWithThreads->setChecked(settingManager.value("sample/withThreads", false).toBool());
+
+    QString sampleTypeText = settingManager.value("sample/type", ui->cmbSampleType->itemText(0)).toString();
+    int indexSampleType = ui->cmbSampleType->findText(sampleTypeText, Qt::MatchExactly);
+    if(indexSampleType >= 0) {
+        ui->cmbSampleType->setCurrentIndex(indexSampleType);
+    } else {
+        ui->cmbSampleType->setCurrentIndex(0);
+    }
+
+    ui->txtRetries->setValue(settingManager.value("sample/retries", 5).toInt());
+
+    ui->txtRetryFrequency->setValue(settingManager.value("sample/retryFrequency", 10).toInt());
+
+
+    QString topologyTypeText = settingManager.value("topology/type", ui->cmbTopologyType->itemText(0)).toString();
+    int topologyTypeIndex = ui->cmbTopologyType->findText(topologyTypeText, Qt::MatchExactly);
+    if(topologyTypeIndex >= 0) {
+        ui->cmbTopologyType->setCurrentIndex(topologyTypeIndex);
+    } else {
+        ui->cmbTopologyType->setCurrentIndex(0);
+    }
+
+    ui->txtTopology->setText(settingManager.value("topology/topology", "").toString());
+
+    ui->txtNodes->setText(settingManager.value("topology/nodes", "").toString());
+
+    ui->chkShareNodes->setChecked(settingManager.value("topology/shareNodes", false).toBool());
+
+    //TODO: Get the default from the hardware
+    ui->txtProcsPerNode->setValue(settingManager.value("topology/procsPerNode", 8).toInt());
+
+
+    ui->txtDaemonPath->setText(settingManager.value("paths/daemon", adapter->defaultToolDaemonPath()).toString());
+
+    ui->txtFilterPath->setText(settingManager.value("paths/filter", adapter->defaultFilterPath()).toString());
+
+
+    ui->chkLogFrontEnd->setChecked(settingManager.value("logging/frontEnd", false).toBool());
+
+    ui->chkLogBackEnd->setChecked(settingManager.value("logging/backEnd", false).toBool());
+
+    ui->txtLogPath->setText(settingManager.value("logging/path", (QDesktopServices::storageLocation(QDesktopServices::DataLocation))).toString());
+
+    QString verbosityTypeText = settingManager.value("logging/verbosity", ui->cmbVerbosityType->itemText(0)).toString();
+    int verbosityTypeIndex = ui->cmbVerbosityType->findText(verbosityTypeText, Qt::MatchExactly);
+    if(verbosityTypeIndex >= 0) {
+        ui->cmbVerbosityType->setCurrentIndex(verbosityTypeIndex);
+    } else {
+        ui->cmbVerbosityType->setCurrentIndex(0);
+    }
+
+    ui->chkDebugBackEnds->setChecked(settingManager.value("logging/debugBackEnd", false).toBool());
+
+
+    settingManager.endGroup();
+}
+
 
 void JobControlDialog::setType(Types type)
 {

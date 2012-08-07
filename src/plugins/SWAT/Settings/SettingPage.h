@@ -33,6 +33,7 @@
 #include <QtGui>
 
 #include <SettingManager/ISettingPage.h>
+#include <ConnectionManager/IAdapter.h>
 
 namespace Plugins {
 namespace SWAT {
@@ -53,6 +54,10 @@ public:
 public slots:
     void apply();
     void reset();
+
+    void on_btnDaemonPath_clicked();
+    void on_btnFilterPath_clicked();
+    void on_btnLogPath_clicked();
 
 protected:
     void initialize();
