@@ -58,6 +58,8 @@ SettingPage::SettingPage(QWidget *parent) :
     ui->txtNodes->setPlaceholderText(tr("Node List"));
 #endif
 
+    ui->tabWidget->setCurrentIndex(0);
+
     ui->cmbSampleType->clear();
     ui->cmbSampleType->insertItem(0, tr("Function and Line"), IAdapter::Sample_FunctionAndLine);
     ui->cmbSampleType->insertItem(0, tr("Function and PC"), IAdapter::Sample_FunctionAndPC);
