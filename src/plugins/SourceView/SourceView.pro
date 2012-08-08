@@ -16,17 +16,26 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-TEMPLATE                    = subdirs
-SUBDIRS                     = SWAT CompiledAdapter DirectedGraphView SourceView
+include(../plugins.pri)
 
-SWAT.subdir                 = SWAT
+QT += gui
 
-CompiledAdapter.subdir      = CompiledAdapter
-CompiledAdapter.depends     = SWAT
+CONFIG(debug, debug|release) {
+  TARGET            = SourceViewD
+} else {
+  TARGET            = SourceView
+}
 
-DirectedGraphView.subdir    = DirectedGraphView
-DirectedGraphView.depends   = SWAT
+HEADERS            += SourceViewPlugin.h \
+                      SourceView.h
 
-SourceView.subdir           = SourceView
-SourceView.depends          = SWAT
+SOURCES            += SourceViewPlugin.cpp \
+                      SourceView.cpp
+
+FORMS              += SourceView.ui
+
+LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
+
+#debug: DEFINES    += SOURCEVIEW_DEBUG
+
 
