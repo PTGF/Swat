@@ -35,6 +35,8 @@
 #include <ConnectionManager/ConnectionManager.h>
 #include <ViewManager/IViewFactory.h>
 
+#include <SourceView/ISourceViewFactory.h>
+
 #include "JobControlDialog.h"
 
 namespace Plugins {
@@ -415,6 +417,7 @@ void SWATWidget::hideEvent(QHideEvent *event)
 
 void SWATWidget::sampled(QString content, QUuid id)
 {
+    Q_UNUSED(id)
     loadFromContent(content.toLocal8Bit());
 }
 
@@ -516,6 +519,32 @@ QWidget *SWATWidget::getView(QByteArray content)
     } catch(...) {
         using namespace Core::MainWindow;
         MainWindow::instance().notify(tr("Failed to create view from content."), NotificationWidget::Critical);
+    }
+
+    return NULL;
+}
+
+QPlainTextEdit *SWATWidget::getSourceView()
+{
+    try {
+
+        using namespace Plugins::SourceView;
+        using namespace Core::PluginManager;
+
+        PluginManager &pluginManager = PluginManager::instance();
+        foreach(QObject *object, pluginManager.allObjects()) {
+            ISourceViewFactory *viewFactory = qobject_cast<ISourceViewFactory *>(object);
+            if(viewFactory) {
+                return viewFactory->sourceViewWidget(QString());
+            }
+        }
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to load source: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to load source."), NotificationWidget::Critical);
     }
 
     return NULL;

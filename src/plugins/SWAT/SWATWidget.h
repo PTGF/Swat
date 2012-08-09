@@ -69,6 +69,8 @@ protected:
     virtual void hideEvent(QHideEvent *event);
 
     QWidget *getView(QByteArray content);
+    QPlainTextEdit *getSourceView();
+
 
 protected slots:
     void tabTitleChanged();
