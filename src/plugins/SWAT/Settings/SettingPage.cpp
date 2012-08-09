@@ -99,6 +99,11 @@ void SettingPage::initialize()
     settingManager.beginGroup("Plugins/SWAT");
 
 
+    ui->lstSourcePaths->clear();
+    ui->lstSourcePaths->addItems(settingManager.value("sourcePaths/paths", QStringList()).toStringList());
+    ui->chkSourceWorkingDirectory->setChecked(settingManager.value("sourcePaths/workingDirectory", false).toBool());
+
+
     QString remoteShellText = settingManager.value("remote/shell", ui->cmbRemoteShell->itemText(0)).toString();
     int remoteShellIndex = ui->cmbRemoteShell->findText(remoteShellText, Qt::MatchExactly);
     if(remoteShellIndex >= 0) {
@@ -174,6 +179,12 @@ void SettingPage::apply()
     Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
     settingManager.beginGroup("Plugins/SWAT");
 
+    QStringList sourcePaths;
+    for(int i=0; i < ui->lstSourcePaths->count(); ++i) {
+        sourcePaths << ui->lstSourcePaths->item(i)->text();
+    }
+    settingManager.setValue("sourcePaths/paths", sourcePaths);
+    settingManager.setValue("sourcePaths/workingDirectory", ui->chkSourceWorkingDirectory->isChecked());
 
     settingManager.setValue("remote/shell", ui->cmbRemoteShell->currentText());
     settingManager.setValue("remote/host", ui->txtRemoteHost->text());
@@ -205,6 +216,23 @@ void SettingPage::apply()
 void SettingPage::reset()
 {
     initialize();
+}
+
+
+void SettingPage::on_btnAddSourcePath_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("Source search path"), QDir::currentPath());
+    if(!path.isEmpty()) {
+        ui->lstSourcePaths->addItem(path);
+    }
+
+}
+
+void SettingPage::on_btnRemoveSourcePath_clicked()
+{
+    foreach(QListWidgetItem *item, ui->lstSourcePaths->selectedItems()) {
+        ui->lstSourcePaths->takeItem(ui->lstSourcePaths->row(item));
+    }
 }
 
 

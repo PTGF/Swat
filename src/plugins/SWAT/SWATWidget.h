@@ -68,9 +68,9 @@ protected:
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
 
-    QWidget *getView(QByteArray content);
-    QPlainTextEdit *getSourceView();
+    QWidget *getTraceView(QByteArray content);
 
+    QPlainTextEdit *getSourceView(const QString &content);
 
 protected slots:
     void tabTitleChanged();
@@ -87,9 +87,12 @@ protected slots:
 
     void sampled(QString content, QUuid id);
 
-    void loadFile();
-    void loadFromFile(QString filename);
-    void loadFromContent(QByteArray content, QString title = QString());
+    void loadTraceFile();
+    void loadTraceFromFile(QString filename);
+    void loadTraceFromContent(QByteArray content, QString title = QString());
+
+    void loadSourceFromFile(QString filename);
+    void loadSourceFromContent(QByteArray content, QString title = QString());
 
     void closeJob(int index = -1);
 

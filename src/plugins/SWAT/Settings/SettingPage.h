@@ -59,6 +59,9 @@ public slots:
     void on_btnFilterPath_clicked();
     void on_btnLogPath_clicked();
 
+    void on_btnAddSourcePath_clicked();
+    void on_btnRemoveSourcePath_clicked();
+
 protected:
     void initialize();
 

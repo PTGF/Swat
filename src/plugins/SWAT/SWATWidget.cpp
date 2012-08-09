@@ -81,7 +81,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_LoadFile->setIconVisibleInMenu(true);
             m_LoadFile->setVisible(false);
             m_LoadFile->setProperty("swat_menuitem", QVariant(1));
-            connect(m_LoadFile, SIGNAL(triggered()), this, SLOT(loadFile()));
+            connect(m_LoadFile, SIGNAL(triggered()), this, SLOT(loadTraceFile()));
 
             m_CloseJob = new QAction(tr("Close Job"), this);
             m_CloseJob->setToolTip(tr("Close current SWAT job"));
@@ -418,7 +418,7 @@ void SWATWidget::hideEvent(QHideEvent *event)
 void SWATWidget::sampled(QString content, QUuid id)
 {
     Q_UNUSED(id)
-    loadFromContent(content.toLocal8Bit());
+    loadTraceFromContent(content.toLocal8Bit());
 }
 
 void SWATWidget::closeJob(int index)
@@ -444,7 +444,7 @@ void SWATWidget::closeJob(int index)
     }
 }
 
-void SWATWidget::loadFile()
+void SWATWidget::loadTraceFile()
 {
     static QDir path = QDir::currentPath();
 
@@ -457,13 +457,13 @@ void SWATWidget::loadFile()
     if(!filename.isEmpty()) {
         path.setPath(QFileInfo(filename).absolutePath());
 
-        loadFromFile(filename);
+        loadTraceFromFile(filename);
     }
 
 }
 
 
-void SWATWidget::loadFromFile(QString filename)
+void SWATWidget::loadTraceFromFile(QString filename)
 {
     QFileInfo fileInfo(filename);
 
@@ -480,16 +480,16 @@ void SWATWidget::loadFromFile(QString filename)
 
     file.close();
 
-    loadFromContent(fileContent, fileInfo.completeBaseName());
+    loadTraceFromContent(fileContent, fileInfo.completeBaseName());
 }
 
-void SWATWidget::loadFromContent(QByteArray content, QString title)
+void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
 {
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     mainWindow.setCurrentCentralWidget(this);
 
-    if(QWidget *view = getView(content)) {
+    if(QWidget *view = getTraceView(content)) {
         if(!title.isEmpty()) {
             view->setWindowTitle(title);
         }
@@ -499,16 +499,20 @@ void SWATWidget::loadFromContent(QByteArray content, QString title)
     }
 }
 
-QWidget *SWATWidget::getView(QByteArray content)
+QWidget *SWATWidget::getTraceView(QByteArray content)
 {
     try {
 
-        Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
+        using namespace Core::PluginManager;
+        PluginManager &pluginManager = PluginManager::instance();
+
         foreach(QObject *object, pluginManager.allObjects()) {
             IViewFactory *viewFactory = qobject_cast<IViewFactory *>(object);
             if(viewFactory) {
                 if(viewFactory->viewHandlesFiles()) {
-                    return viewFactory->viewWidget(content);
+                    QWidget *view = viewFactory->viewWidget(content);
+                    view->setParent(this);
+                    return view;
                 }
             }
         }
@@ -524,18 +528,58 @@ QWidget *SWATWidget::getView(QByteArray content)
     return NULL;
 }
 
-QPlainTextEdit *SWATWidget::getSourceView()
+
+void SWATWidget::loadSourceFromFile(QString filename)
+{
+    QFileInfo fileInfo(filename);
+
+    if(!fileInfo.exists()) {
+        throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QFile file(fileInfo.absoluteFilePath());
+    if(!file.open(QIODevice::ReadOnly)) {
+        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QByteArray fileContent = file.readAll();
+
+    file.close();
+
+    loadSourceFromContent(fileContent, fileInfo.fileName());
+}
+
+void SWATWidget::loadSourceFromContent(QByteArray content, QString title)
+{
+    using namespace Core::MainWindow;
+    MainWindow &mainWindow = MainWindow::instance();
+    mainWindow.setCurrentCentralWidget(this);
+
+    if(QPlainTextEdit *view = getSourceView(content)) {
+        if(!title.isEmpty()) {
+            view->setWindowTitle(title);
+        }
+
+        int index = addTab(view, view->windowTitle());
+        setCurrentIndex(index);
+    }
+}
+
+QPlainTextEdit *SWATWidget::getSourceView(const QString &content)
 {
     try {
 
-        using namespace Plugins::SourceView;
         using namespace Core::PluginManager;
+        using namespace Plugins::SourceView;
 
         PluginManager &pluginManager = PluginManager::instance();
+
         foreach(QObject *object, pluginManager.allObjects()) {
             ISourceViewFactory *viewFactory = qobject_cast<ISourceViewFactory *>(object);
             if(viewFactory) {
-                return viewFactory->sourceViewWidget(QString());
+                QPlainTextEdit *view = viewFactory->sourceViewWidget(content);
+                view->setParent(this);
+                return view;
             }
         }
 
