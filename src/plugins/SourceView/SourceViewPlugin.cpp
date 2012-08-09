@@ -30,10 +30,6 @@
 
 #include <PluginManager/PluginManager.h>
 
-#include "SourceView.h"
-
-using namespace Plugins::SWAT;
-
 namespace Plugins {
 namespace SourceView {
 
@@ -44,9 +40,6 @@ namespace SourceView {
 /*! \class SourceViewPlugin
     \version 0.1.dev
     \brief
-
-    \par Depends on Plugins:
-         SWAT
 
     \todo Document this more explicitly.
  */
@@ -60,7 +53,6 @@ SourceViewPlugin::SourceViewPlugin(QObject *parent) :
 {
     m_Name = "SourceView";
     m_Version = "0.1.dev";
-    m_Dependencies.append( Core::PluginManager::Dependency("SWAT", "^0\\.1.*$") );
 }
 
 /*!
@@ -81,14 +73,14 @@ bool SourceViewPlugin::initialize(QStringList &args, QString *err)
     Q_UNUSED(args)
     Q_UNUSED(err)
 
-    try {
+//    try {
 
-        Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
-        pluginManager.addObject(this);
+//        Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
+//        pluginManager.addObject(this);
 
-    } catch(...) {
-        return false;
-    }
+//    } catch(...) {
+//        return false;
+//    }
 
     return true;
 }
@@ -129,33 +121,6 @@ QString SourceViewPlugin::version()
 QList<Core::PluginManager::Dependency> SourceViewPlugin::dependencies()
 {
     return m_Dependencies;
-}
-
-QString SourceViewPlugin::viewName()
-{
-    return tr("Source");
-}
-
-bool SourceViewPlugin::viewHandles(QAbstractItemModel *model)
-{
-    Q_UNUSED(model)
-    return false;
-}
-
-QAbstractItemView *SourceViewPlugin::viewWidget(QAbstractItemModel *model)
-{
-    Q_UNUSED(model)
-    return NULL;
-}
-
-bool SourceViewPlugin::viewHandlesFiles()
-{
-    return true;
-}
-
-QWidget *SourceViewPlugin::viewWidget(const QByteArray &content)
-{
-    return new SourceView(content);
 }
 
 

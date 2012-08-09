@@ -55,7 +55,7 @@ namespace CompiledAdapter {
    \fn CompiledAdapterPlugin::CompiledAdapterPlugin()
    \brief Constructor.
  */
-CompiledAdapterPlugin::CompiledAdapterPlugin(QObject *parent = 0) :
+CompiledAdapterPlugin::CompiledAdapterPlugin(QObject *parent) :
     QObject(parent)
 {
     m_Name = "CompiledAdapter";

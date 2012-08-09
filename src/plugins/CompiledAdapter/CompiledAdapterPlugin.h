@@ -30,7 +30,6 @@
 #define COMPILEDADAPTERPLUGIN_H
 
 #include <QtCore>
-#include <QtPlugin>
 #include <PluginManager/IPlugin.h>
 #include "CompiledAdapter.h"
 
@@ -45,7 +44,7 @@ class CompiledAdapterPlugin :
     Q_INTERFACES(Core::PluginManager::IPlugin)
 
 public:
-    CompiledAdapterPlugin(QObject *parent);
+    CompiledAdapterPlugin(QObject *parent = 0);
 
     /* IPlugin Interface */
     ~CompiledAdapterPlugin();

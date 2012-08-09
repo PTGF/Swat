@@ -28,5 +28,3 @@ DirectedGraphView.subdir    = DirectedGraphView
 DirectedGraphView.depends   = SWAT
 
 SourceView.subdir           = SourceView
-SourceView.depends          = SWAT
-

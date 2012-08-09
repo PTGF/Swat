@@ -35,24 +35,56 @@
 #include <QtDebug>
 #endif
 
+#include "SyntaxHighlighter.h"
+
 namespace Plugins {
 namespace SourceView {
 
-namespace Ui {
-class SourceView;
-}
-
-class SourceView : public QWidget
+class SourceView : public QPlainTextEdit
 {
     Q_OBJECT
-
 public:
-    explicit SourceView(const QByteArray &content, QWidget * parent = 0);
+    explicit SourceView(QWidget *parent = 0);
     ~SourceView();
 
-private:
-    Ui::SourceView *ui;
+    void setCurrentLineNumber(const int &lineNumber);
 
+    void setModel(QAbstractItemModel *model);
+    void setFilePath(const QString &filePath);
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+    void sideBarAreaPaintEvent(QPaintEvent *event);
+    int sideBarAreaWidth();
+    void refreshStatements();
+
+    bool event(QEvent *event);
+
+private slots:
+    void updateSideBarAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateSideBarArea(const QRect &, int);
+
+private:
+    QWidget *m_SideBarArea;
+    SyntaxHighlighter m_SyntaxHighlighter;
+
+    QMap<int, QModelIndex> m_Statements;
+    QAbstractItemModel *m_Model;
+    QString m_FilePath;
+
+    friend class SideBarArea;
+};
+
+class SideBarArea : public QWidget
+{
+public:
+    SideBarArea(SourceView *sourceView) : QWidget(sourceView) { m_SourceView = sourceView; }
+    QSize sizeHint() const { return QSize(m_SourceView->sideBarAreaWidth(), 0); }
+protected:
+    void paintEvent(QPaintEvent *event) { m_SourceView->sideBarAreaPaintEvent(event); }
+private:
+    SourceView *m_SourceView;
 };
 
 } // namespace SourceView

@@ -1,12 +1,11 @@
 /*!
-   \file SourceViewPlugin.cpp
+   \file
    \author Dane Gardner <dane.gardner@gmail.com>
    \version
 
    \section LICENSE
-   This file is part of the StackWalker Analysis Tool (SWAT)
-   Copyright (C) 2012-2012 Argo Navis Technologies, LLC
-   Copyright (C) 2012-2012 University of Wisconsin
+   This file is part of the Parallel Tools GUI Framework (PTGF)
+   Copyright (C) 2010-2011 Argo Navis Technologies, LLC
 
    This library is free software; you can redistribute it and/or modify it
    under the terms of the GNU Lesser General Public License as published by the
@@ -26,42 +25,40 @@
 
  */
 
-#ifndef SOURCEVIEWPLUGINasdf_H
-#define SOURCEVIEWPLUGINasdf_H
+#ifndef SYNTAXHIGHLIGHTER_H
+#define SYNTAXHIGHLIGHTER_H
 
 #include <QtCore>
 #include <QtGui>
-#include <PluginManager/IPlugin.h>
 
 namespace Plugins {
 namespace SourceView {
 
-class SourceViewPlugin :
-        public QObject,
-        public Core::PluginManager::IPlugin
+class SyntaxHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
-    Q_INTERFACES(Core::PluginManager::IPlugin)
-
 public:
-    SourceViewPlugin(QObject *parent = 0);
+    explicit SyntaxHighlighter(QTextDocument *parent);
 
-    /* IPlugin Interface */
-    ~SourceViewPlugin();
-    bool initialize(QStringList &args, QString *err);
-    void shutdown();
-    QString name();
-    QString version();
-    QList<Core::PluginManager::Dependency> dependencies();
+    void init();
 
-protected:
-    QString m_Name;
-    QString m_Version;
-    QList<Core::PluginManager::Dependency> m_Dependencies;
+    void highlightBlock(const QString &text);
+
+private:
+    QRegExp m_Keywords;
+    QRegExp m_DataTypes;
+
+    enum States {
+        State_NormalState = -1,
+        State_InsideComment,
+        State_InsideDoubleQuote,
+        State_InsideSingleQuote,
+        State_InsideAngleBracketQuote
+    };
 
 };
 
 } // namespace SourceView
 } // namespace Plugins
 
-#endif // SOURCEVIEWPLUGIN_H
+#endif // SYNTAXHIGHLIGHTER_H

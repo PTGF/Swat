@@ -18,7 +18,7 @@
 
 include(../plugins.pri)
 
-QT += gui
+QT                 += gui
 
 CONFIG(debug, debug|release) {
   TARGET            = SourceViewD
@@ -27,14 +27,12 @@ CONFIG(debug, debug|release) {
 }
 
 HEADERS            += SourceViewPlugin.h \
-                      SourceView.h
+                      SourceView.h \
+                      SyntaxHighlighter.h
 
 SOURCES            += SourceViewPlugin.cpp \
-                      SourceView.cpp
-
-FORMS              += SourceView.ui
-
-LIBS               += -L$$quote($${BUILD_PATH}/plugins/SWAT/$${DIR_POSTFIX}) -lSWAT$${LIB_POSTFIX}
+                      SourceView.cpp \
+                      SyntaxHighlighter.cpp
 
 #debug: DEFINES    += SOURCEVIEW_DEBUG
 
