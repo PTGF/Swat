@@ -553,7 +553,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     statError = frontEnd->sampleStackTraces(sampleType, options.withThreads, options.clearOnSample,
                                             options.traceCount, options.traceFrequency,
                                             options.retryCount, options.retryFrequency,
-                                            false, "NULL");
+                                            false, const_cast<char *>("NULL"));
     if(statError != STAT_OK) {
         throw tr("Failed to sample stack trace: %1").arg(frontEnd->getLastErrorMessage());
     }
