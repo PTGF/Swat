@@ -32,6 +32,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include <PrettyWidgets/TabWidget.h>
+
 #include "SWATLibrary.h"
 
 namespace Plugins {
@@ -43,7 +45,7 @@ namespace Ui {
     class SWATWidget;
 }
 
-class SWAT_EXPORT SWATWidget : public QTabWidget
+class SWAT_EXPORT SWATWidget : public TabWidget
 {
     Q_OBJECT
 
@@ -70,8 +72,6 @@ protected:
 
     QWidget *getTraceView(QByteArray content);
 
-    QPlainTextEdit *getSourceView(const QString &content);
-
 protected slots:
     void tabTitleChanged();
 
@@ -90,9 +90,6 @@ protected slots:
     void loadTraceFile();
     void loadTraceFromFile(QString filename);
     void loadTraceFromContent(QByteArray content, QString title = QString());
-
-    void loadSourceFromFile(QString filename);
-    void loadSourceFromContent(QByteArray content, QString title = QString());
 
     void closeJob(int index = -1);
 

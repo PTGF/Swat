@@ -14,22 +14,62 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QSlider" name="sldZoom">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+    <widget class="TabWidget" name="tabWidget">
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::West</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="documentMode">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="tabStack">
+      <attribute name="title">
+       <string>Stack</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="layStack">
+       <property name="margin">
+        <number>0</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="txtFilter"/>
-     </item>
-    </layout>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QSlider" name="sldZoom">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="txtFilter"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TabWidget</class>
+   <extends>QTabWidget</extends>
+   <header location="global">PrettyWidgets/TabWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

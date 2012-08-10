@@ -56,6 +56,11 @@ public:
 
     QGraphVizView *view();
 
+protected:
+    void openSourceFile(QString filename, int lineNumber = 0);
+    void loadSourceFromFile(QString filename);
+    void loadSourceFromContent(QByteArray content, QString title);
+    QPlainTextEdit *getSourceView(const QString &content);
 
 protected slots:
     void on_txtFilter_textChanged(const QString &);
@@ -66,7 +71,7 @@ private:
     DirectedGraphScene *m_Scene;
     QGraphVizView *m_View;
 
-
+    friend class DirectedGraphNodeDialog;
 };
 
 } // namespace DirectedGraphView

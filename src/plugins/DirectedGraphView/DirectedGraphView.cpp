@@ -30,6 +30,9 @@
 
 #include <QGraphVizView.h>
 
+#include <PluginManager/PluginManager.h>
+#include <SourceView/ISourceViewFactory.h>
+
 #include "DirectedGraphScene.h"
 #include "DirectedGraphNode.h"
 #include "DirectedGraphNodeDialog.h"
@@ -51,7 +54,7 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
 
     setWindowTitle(tr("Directed Graph View"));
 
-    ui->verticalLayout->insertWidget(0, m_View);
+    ui->layStack->insertWidget(0, m_View);
 
     connect(m_Scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 }
@@ -89,6 +92,67 @@ void DirectedGraphView::selectionChanged()
             dlg->exec();
         }
     }
+}
+
+void DirectedGraphView::openSourceFile(QString filename, int lineNumber)
+{
+    loadSourceFromFile(filename);
+    //TODO: Set view line number
+}
+
+void DirectedGraphView::loadSourceFromFile(QString filename)
+{
+    QFileInfo fileInfo(filename);
+
+    if(!fileInfo.exists()) {
+        throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QFile file(fileInfo.absoluteFilePath());
+    if(!file.open(QIODevice::ReadOnly)) {
+        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
+    }
+
+    QByteArray fileContent = file.readAll();
+
+    file.close();
+
+    loadSourceFromContent(fileContent, fileInfo.fileName());
+}
+
+void DirectedGraphView::loadSourceFromContent(QByteArray content, QString title)
+{
+    if(QPlainTextEdit *view = getSourceView(content)) {
+        if(!title.isEmpty()) {
+            view->setWindowTitle(title);
+        }
+
+        int index = ui->tabWidget->addTab(view, view->windowTitle());
+        ui->tabWidget->setCurrentIndex(index);
+    }
+}
+
+QPlainTextEdit *DirectedGraphView::getSourceView(const QString &content)
+{
+    try {
+
+        using namespace Core::PluginManager;
+        using namespace Plugins::SourceView;
+
+        PluginManager &pluginManager = PluginManager::instance();
+
+        foreach(QObject *object, pluginManager.allObjects()) {
+            ISourceViewFactory *viewFactory = qobject_cast<ISourceViewFactory *>(object);
+            if(viewFactory) {
+                QPlainTextEdit *view = viewFactory->sourceViewWidget(content);
+                view->setParent(this);
+                return view;
+            }
+        }
+
+    } catch(...) { }
+
+    return NULL;
 }
 
 

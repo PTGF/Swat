@@ -28,6 +28,7 @@
 #include "DirectedGraphNodeDialog.h"
 #include "ui_DirectedGraphNodeDialog.h"
 
+#include "DirectedGraphView.h"
 #include "DirectedGraphNode.h"
 
 namespace Plugins {
@@ -118,9 +119,16 @@ void DirectedGraphNodeDialog::on_btnFocus_clicked()
 
 void DirectedGraphNodeDialog::on_btnViewSource_clicked()
 {
-    if(!m_Node) { return; }
+    if(!m_Node) {
+        return;
+    }
 
-    //TODO:
+    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    if(!view) {
+        return;
+    }
+
+    view->openSourceFile(m_Node->sourceFile(), m_Node->sourceLine());
 }
 
 

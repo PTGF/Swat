@@ -43,7 +43,7 @@ namespace Plugins {
 namespace SWAT {
 
 SWATWidget::SWATWidget(QWidget *parent) :
-    QTabWidget(parent),
+    TabWidget(parent),
     ui(new Ui::SWATWidget)
 {
     ui->setupUi(this);
@@ -132,18 +132,7 @@ void SWATWidget::tabInserted(int index)
 {
     Q_UNUSED(index)
 
-    if(this->count() < 2) {
-        this->tabBar()->hide();
-    } else {
-        this->tabBar()->show();
-    }
-
-    /* Set the stylesheet to nothing if we have tabs, otherwise we'll run into display issues */
-    if(count() <= 0) {
-        setStyleSheet(m_StyleSheet);
-    } else {
-        setStyleSheet(QString());
-    }
+    TabWidget::tabInserted(index);
 
     m_CloseJob->setEnabled(count());
 }
@@ -152,18 +141,7 @@ void SWATWidget::tabRemoved(int index)
 {
     Q_UNUSED(index)
 
-    if(this->count() < 2) {
-        this->tabBar()->hide();
-    } else {
-        this->tabBar()->show();
-    }
-
-    /* Set the stylesheet to nothing if we have tabs, otherwise we'll run into display issues */
-    if(count() <= 0) {
-        setStyleSheet(m_StyleSheet);
-    } else {
-        setStyleSheet(QString());
-    }
+    TabWidget::tabRemoved(index);
 
     m_CloseJob->setEnabled(count());
 }
@@ -527,73 +505,6 @@ QWidget *SWATWidget::getTraceView(QByteArray content)
 
     return NULL;
 }
-
-
-void SWATWidget::loadSourceFromFile(QString filename)
-{
-    QFileInfo fileInfo(filename);
-
-    if(!fileInfo.exists()) {
-        throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
-    }
-
-    QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::ReadOnly)) {
-        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
-    }
-
-    QByteArray fileContent = file.readAll();
-
-    file.close();
-
-    loadSourceFromContent(fileContent, fileInfo.fileName());
-}
-
-void SWATWidget::loadSourceFromContent(QByteArray content, QString title)
-{
-    using namespace Core::MainWindow;
-    MainWindow &mainWindow = MainWindow::instance();
-    mainWindow.setCurrentCentralWidget(this);
-
-    if(QPlainTextEdit *view = getSourceView(content)) {
-        if(!title.isEmpty()) {
-            view->setWindowTitle(title);
-        }
-
-        int index = addTab(view, view->windowTitle());
-        setCurrentIndex(index);
-    }
-}
-
-QPlainTextEdit *SWATWidget::getSourceView(const QString &content)
-{
-    try {
-
-        using namespace Core::PluginManager;
-        using namespace Plugins::SourceView;
-
-        PluginManager &pluginManager = PluginManager::instance();
-
-        foreach(QObject *object, pluginManager.allObjects()) {
-            ISourceViewFactory *viewFactory = qobject_cast<ISourceViewFactory *>(object);
-            if(viewFactory) {
-                QPlainTextEdit *view = viewFactory->sourceViewWidget(content);
-                view->setParent(this);
-                return view;
-            }
-        }
-
-    } catch(QString err) {
-        using namespace Core::MainWindow;
-        MainWindow::instance().notify(tr("Failed to load source: %1").arg(err), NotificationWidget::Critical);
-    } catch(...) {
-        using namespace Core::MainWindow;
-        MainWindow::instance().notify(tr("Failed to load source."), NotificationWidget::Critical);
-    }
-
-    return NULL;
-}
-
 
 
 } // namespace SWAT
