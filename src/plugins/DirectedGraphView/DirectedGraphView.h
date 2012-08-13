@@ -40,11 +40,22 @@ class QGraphVizView;
 namespace Plugins {
 namespace DirectedGraphView {
 
+class DirectedGraphView;
 class DirectedGraphScene;
 
 namespace Ui {
 class DirectedGraphView;
 }
+
+//class HideMPICommand : public QUndoCommand
+//{
+//public:
+//    HideMPI(DirectedGraphView *view) : m_DirectedGraphView(view) { }
+//    void undo() { }
+//    void redo() { }
+//private:
+//    DirectedGraphView *m_DirectedGraphView;
+//};
 
 class DirectedGraphView : public QWidget
 {
@@ -55,6 +66,17 @@ public:
     ~DirectedGraphView();
 
     QGraphVizView *view();
+
+public slots:
+    void undo();
+    void redo();
+
+//    void doExpand();
+//    void doExpandDepth();
+//    void doCollapse();
+//    void doCollapseDepth();
+//    void doExpandChildren();
+    void doHideMPI();
 
 protected:
     void openSourceFile(QString filename, int lineNumber = 0);
@@ -70,8 +92,10 @@ private:
     Ui::DirectedGraphView *ui;
     DirectedGraphScene *m_Scene;
     QGraphVizView *m_View;
+    QUndoStack *m_UndoStack;
 
     friend class DirectedGraphNodeDialog;
+
 };
 
 } // namespace DirectedGraphView

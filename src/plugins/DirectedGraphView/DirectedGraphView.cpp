@@ -57,6 +57,8 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
     ui->layStack->insertWidget(0, m_View);
 
     connect(m_Scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+
+    m_UndoStack = new QUndoStack(this);
 }
 
 DirectedGraphView::~DirectedGraphView()
@@ -68,6 +70,23 @@ QGraphVizView *DirectedGraphView::view()
 {
     return m_View;
 }
+
+void DirectedGraphView::undo()
+{
+    m_UndoStack->undo();
+}
+
+void DirectedGraphView::redo()
+{
+    m_UndoStack->redo();
+}
+
+void DirectedGraphView::doHideMPI()
+{
+//    m_UndoStack->push();
+}
+
+
 
 void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
 {
