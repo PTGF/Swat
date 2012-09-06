@@ -377,6 +377,8 @@ void SWATWidget::showEvent(QShowEvent *event)
             action->setVisible(true);
         }
     }
+
+    TabWidget::showEvent(event);
 }
 
 void SWATWidget::hideEvent(QHideEvent *event)
@@ -390,6 +392,8 @@ void SWATWidget::hideEvent(QHideEvent *event)
             action->setVisible(false);
         }
     }
+
+    TabWidget::hideEvent(event);
 }
 
 

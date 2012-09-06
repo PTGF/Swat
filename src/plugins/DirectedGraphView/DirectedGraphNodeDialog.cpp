@@ -100,7 +100,13 @@ void DirectedGraphNodeDialog::on_btnCollapse_toggled(bool checked)
 {
     if(!m_Node) { return; }
 
-    m_Node->setCollapsed(checked);
+    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    if(!view) {
+        //TODO: Error
+        return;
+    }
+
+    checked ? view->doCollapse(m_Node) : view->doExpand(m_Node);
 }
 
 void DirectedGraphNodeDialog::on_btnCollapseDepth_clicked()

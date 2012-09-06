@@ -122,5 +122,24 @@ DirectedGraphScene::EdgeInfo DirectedGraphNode::edgeInfo()
 }
 
 
+DirectedGraphNode *DirectedGraphNode::parentNode()
+{
+    QList<QGraphVizEdge *> edges = headEdges();
+    if(edges.count() == 1) {
+        return qgraphicsitem_cast<DirectedGraphNode *>(edges.at(0)->tail());
+    }
+    return NULL;
+}
+
+QList<DirectedGraphNode *> DirectedGraphNode::childNodes()
+{
+    QList<DirectedGraphNode *> tailNodes;
+    foreach(QGraphVizEdge *edge, tailEdges()) {
+        tailNodes.append(qgraphicsitem_cast<DirectedGraphNode *>(edge->head()));
+    }
+    return tailNodes;
+}
+
+
 } // namespace DirectedGraphView
 } // namespace Plugins

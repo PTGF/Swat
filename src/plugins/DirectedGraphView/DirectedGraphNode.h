@@ -44,7 +44,7 @@ class DirectedGraphScene;
 class DirectedGraphNode : public QGraphVizNode
 {
 public:
-    explicit DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent = 0);
+    explicit DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parentNode = 0);
 
     qint64 nodeId();
     int nodeDepth();
@@ -61,6 +61,9 @@ public:
     QString shortEdgeLabel();
     QString processCount();
     QStringList processList();
+
+    DirectedGraphNode *parentNode();
+    QList<DirectedGraphNode *> childNodes();
 
 protected:
     DirectedGraphScene::NodeInfo nodeInfo();

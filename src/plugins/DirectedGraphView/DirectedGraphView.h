@@ -42,20 +42,40 @@ namespace DirectedGraphView {
 
 class DirectedGraphView;
 class DirectedGraphScene;
+class DirectedGraphNode;
+class DirectedGraphEdge;
 
 namespace Ui {
 class DirectedGraphView;
 }
 
-//class HideMPICommand : public QUndoCommand
-//{
-//public:
-//    HideMPI(DirectedGraphView *view) : m_DirectedGraphView(view) { }
-//    void undo() { }
-//    void redo() { }
-//private:
-//    DirectedGraphView *m_DirectedGraphView;
-//};
+class HideMPICommand : public QUndoCommand
+{
+public:
+    HideMPICommand(DirectedGraphView *view, bool hide = true);
+    void undo();
+    void redo();
+
+protected:
+    QStringList mpiFunctions();
+
+private:
+    DirectedGraphView *m_DirectedGraphView;
+    QList<DirectedGraphNode *> m_Nodes;
+    bool m_Hide;
+};
+
+class CollapseNodeCommand : public QUndoCommand
+{
+public:
+    CollapseNodeCommand(DirectedGraphNode *node, bool collapse = true);
+    void undo();
+    void redo();
+
+private:
+    DirectedGraphNode *m_Node;
+    bool m_Collapse;
+};
 
 class DirectedGraphView : public QWidget
 {
@@ -71,9 +91,9 @@ public slots:
     void undo();
     void redo();
 
-//    void doExpand();
+    void doExpand(DirectedGraphNode *node);
+    void doCollapse(DirectedGraphNode *node);
 //    void doExpandDepth();
-//    void doCollapse();
 //    void doCollapseDepth();
 //    void doExpandChildren();
     void doHideMPI();
@@ -83,6 +103,11 @@ protected:
     void loadSourceFromFile(QString filename);
     void loadSourceFromContent(QByteArray content, QString title);
     QPlainTextEdit *getSourceView(const QString &content);
+
+    DirectedGraphNode *rootNode();
+
+    virtual void showEvent(QShowEvent *event);
+    virtual void hideEvent(QHideEvent *event);
 
 protected slots:
     void on_txtFilter_textChanged(const QString &);
@@ -94,7 +119,15 @@ private:
     QGraphVizView *m_View;
     QUndoStack *m_UndoStack;
 
+    QList<DirectedGraphNode *> m_Nodes;
+    QList<DirectedGraphEdge *> m_Edges;
+
+    QUuid m_Id;
+
+    QAction *m_HideMPI;
+
     friend class DirectedGraphNodeDialog;
+    friend class HideMPICommand;
 
 };
 
