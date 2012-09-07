@@ -49,32 +49,105 @@ namespace Ui {
 class DirectedGraphView;
 }
 
-class HideMPICommand : public QUndoCommand
+class UndoCommand : public QUndoCommand
 {
 public:
-    HideMPICommand(DirectedGraphView *view, bool hide = true);
+    UndoCommand(DirectedGraphView *view) : m_View(view), m_Failed(false) { }
+    bool failed() { return m_Failed; }
+
+protected:
+    DirectedGraphView *view() const { return m_View; }
+    void setFailed(bool failed) { m_Failed = failed; }
+
+private:
+    DirectedGraphView *m_View;
+    bool m_Failed;
+};
+
+class ExpandAllCommand : public UndoCommand
+{
+public:
+    ExpandAllCommand(DirectedGraphView *view);
+    bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
 
+    int id() const { return 5; }
+
 protected:
+    void findNodes();
+
+private:
+    QList<DirectedGraphNode *> m_Nodes;
+};
+
+class HideMPICommand : public UndoCommand
+{
+public:
+    HideMPICommand(DirectedGraphView *view);
+    bool mergeWith(const QUndoCommand *other);
+    void undo();
+    void redo();
+
+    int id() const { return 4; }
+
+protected:
+    void findNodes();
     QStringList mpiFunctions();
 
 private:
-    DirectedGraphView *m_DirectedGraphView;
     QList<DirectedGraphNode *> m_Nodes;
-    bool m_Hide;
 };
 
-class CollapseNodeCommand : public QUndoCommand
+class CollapseNodeCommand : public UndoCommand
 {
 public:
-    CollapseNodeCommand(DirectedGraphNode *node, bool collapse = true);
+    CollapseNodeCommand(DirectedGraphView *view, DirectedGraphNode *node, bool collapse = true);
+    bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
+
+    int id() const { return 1; }
 
 private:
     DirectedGraphNode *m_Node;
     bool m_Collapse;
+};
+
+class CollapseNodeDepthCommand : public UndoCommand
+{
+public:
+    CollapseNodeDepthCommand(DirectedGraphView *view, int depth);
+    bool mergeWith(const QUndoCommand *other);
+    void undo();
+    void redo();
+
+    int id() const { return 2; }
+
+protected:
+    void findNodes();
+
+private:
+    int m_Depth;
+    QList<DirectedGraphNode *> m_Nodes;
+};
+
+class FocusNodeCommand : public UndoCommand
+{
+public:
+    FocusNodeCommand(DirectedGraphView *view, DirectedGraphNode *node);
+    bool mergeWith(const QUndoCommand *other);
+    void undo();
+    void redo();
+
+    int id() const { return 3; }
+
+protected:
+    void findNodes();
+
+private:
+    DirectedGraphNode *m_Node;
+    QList<DirectedGraphNode *> m_Nodes;
 };
 
 class DirectedGraphView : public QWidget
@@ -91,12 +164,12 @@ public slots:
     void undo();
     void redo();
 
+    void doExpandAll();
+    void doHideMPI();
     void doExpand(DirectedGraphNode *node);
     void doCollapse(DirectedGraphNode *node);
-//    void doExpandDepth();
-//    void doCollapseDepth();
-//    void doExpandChildren();
-    void doHideMPI();
+    void doCollapseDepth(int depth);
+    void doFocus(DirectedGraphNode *node);
 
 protected:
     void openSourceFile(QString filename, int lineNumber = 0);
@@ -124,10 +197,16 @@ private:
 
     QUuid m_Id;
 
+    QAction *m_ExpandAll;
     QAction *m_HideMPI;
 
     friend class DirectedGraphNodeDialog;
+
+    friend class ExpandAllCommand;
     friend class HideMPICommand;
+    friend class CollapseNodeCommand;
+    friend class CollapseNodeDepthCommand;
+    friend class FocusNodeCommand;
 
 };
 

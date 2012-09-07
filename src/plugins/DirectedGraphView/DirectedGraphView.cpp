@@ -47,6 +47,7 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
     m_Scene(NULL),
     m_View(NULL),
     m_Id(QUuid::createUuid()),
+    m_ExpandAll(NULL),
     m_HideMPI(NULL)
 {
     ui->setupUi(this);
@@ -95,6 +96,14 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
         }
 
         if(action->text() == tr("Tools")) {
+            m_ExpandAll = new QAction(tr("Expand All"), this);
+            m_ExpandAll->setToolTip(tr("Expand all functions in the current stack trace"));
+            m_ExpandAll->setIcon(QIcon(":/SWAT/app.gif"));
+            m_ExpandAll->setIconVisibleInMenu(true);
+            m_ExpandAll->setVisible(false);
+            m_ExpandAll->setProperty("swatView_menuitem", m_Id.toString());
+            connect(m_ExpandAll, SIGNAL(triggered()), this, SLOT(doExpandAll()));
+
             m_HideMPI = new QAction(tr("Hide MPI Functions"), this);
             m_HideMPI->setToolTip(tr("Collapse all MPI functions in the current stack trace"));
             m_HideMPI->setIcon(QIcon(":/SWAT/app.gif"));
@@ -112,9 +121,11 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
             }
 
             if(before) {
+                action->menu()->insertAction(before, m_ExpandAll);
                 action->menu()->insertAction(before, m_HideMPI);
                 action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
             } else {
+                action->menu()->addAction(m_ExpandAll);
                 action->menu()->addAction(m_HideMPI);
                 action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
             }
@@ -144,15 +155,9 @@ void DirectedGraphView::redo()
 }
 
 
-
-void DirectedGraphView::doCollapse(DirectedGraphNode *node)
+void DirectedGraphView::doExpandAll()
 {
-    m_UndoStack->push(new CollapseNodeCommand(node, true));
-}
-
-void DirectedGraphView::doExpand(DirectedGraphNode *node)
-{
-    m_UndoStack->push(new CollapseNodeCommand(node, false));
+    m_UndoStack->push(new ExpandAllCommand(this));
 }
 
 void DirectedGraphView::doHideMPI()
@@ -160,7 +165,25 @@ void DirectedGraphView::doHideMPI()
     m_UndoStack->push(new HideMPICommand(this));
 }
 
+void DirectedGraphView::doCollapse(DirectedGraphNode *node)
+{
+    m_UndoStack->push(new CollapseNodeCommand(this, node, true));
+}
 
+void DirectedGraphView::doExpand(DirectedGraphNode *node)
+{
+    m_UndoStack->push(new CollapseNodeCommand(this, node, false));
+}
+
+void DirectedGraphView::doCollapseDepth(int depth)
+{
+    m_UndoStack->push(new CollapseNodeDepthCommand(this, depth));
+}
+
+void DirectedGraphView::doFocus(DirectedGraphNode *node)
+{
+    m_UndoStack->push(new FocusNodeCommand(this, node));
+}
 
 
 void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
@@ -296,39 +319,299 @@ void DirectedGraphView::hideEvent(QHideEvent *event)
 
 
 
-CollapseNodeCommand::CollapseNodeCommand(DirectedGraphNode *node, bool collapse) :
+ExpandAllCommand::ExpandAllCommand(DirectedGraphView *view) :
+    UndoCommand(view)
+{
+    setText(QObject::tr("Expand all nodes"));
+}
+
+void ExpandAllCommand::undo()
+{
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(true);
+    }
+}
+
+void ExpandAllCommand::redo()
+{
+    UndoCommand::redo();
+
+    if(failed()) { return; }
+
+    if(m_Nodes.isEmpty()) {
+        findNodes();
+    }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(false);
+    }
+
+    setFailed(m_Nodes.isEmpty());
+}
+
+void ExpandAllCommand::findNodes()
+{
+    QList<DirectedGraphNode *> visited;
+    QQueue<DirectedGraphNode *> queue;
+
+    visited.append(view()->rootNode());
+    queue.enqueue(view()->rootNode());
+
+    while(!queue.isEmpty()) {
+        DirectedGraphNode *node = queue.dequeue();
+
+        if(node->collapsed()) {
+            m_Nodes.append(node);
+        }
+
+        foreach(DirectedGraphNode *child, node->childNodes()) {
+            if(!visited.contains(child)) {
+                visited.append(child);
+                queue.enqueue(child);
+            }
+        }
+    }
+}
+
+bool ExpandAllCommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const ExpandAllCommand *command = static_cast<const ExpandAllCommand *>(other);
+    if(view() != command->view()) {
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+CollapseNodeCommand::CollapseNodeCommand(DirectedGraphView *view, DirectedGraphNode *node, bool collapse) :
+    UndoCommand(view),
     m_Node(node),
     m_Collapse(collapse)
 {
     if(collapse) {
-        setText(QApplication::tr("Collapse node"));
+        setText(QObject::tr("Collapse node"));
     } else {
-        setText(QApplication::tr("Expand node"));
+        setText(QObject::tr("Expand node"));
     }
 }
 
 void CollapseNodeCommand::undo()
 {
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
     m_Node->setCollapsed(!m_Collapse);
 }
 
 void CollapseNodeCommand::redo()
 {
+    UndoCommand::redo();
+
+    if(failed()) { return; }
+
+    if(m_Node->collapsed() == m_Collapse) {
+        setFailed(true);
+        return;
+    }
+
     m_Node->setCollapsed(m_Collapse);
+}
+
+bool CollapseNodeCommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const CollapseNodeCommand *command = static_cast<const CollapseNodeCommand *>(other);
+    if(view() != command->view() || m_Node != command->m_Node || m_Collapse != command->m_Collapse) {
+        return false;
+    }
+
+    return true;
 }
 
 
 
 
-HideMPICommand::HideMPICommand(DirectedGraphView *view, bool hide) :
-    m_DirectedGraphView(view),
-    m_Hide(hide)
+CollapseNodeDepthCommand::CollapseNodeDepthCommand(DirectedGraphView *view, int depth) :
+    UndoCommand(view),
+    m_Depth(depth)
 {
-    if(hide) {
-        setText(QApplication::tr("Hide MPI Functions"));
-    } else {
-        setText(QApplication::tr("Show MPI Functions"));
+    setText(QObject::tr("Collapse to Node Depth"));
+}
+
+void CollapseNodeDepthCommand::undo()
+{
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(false);
     }
+}
+
+void CollapseNodeDepthCommand::redo()
+{
+    UndoCommand::redo();
+
+    if(m_Nodes.isEmpty()) {
+        findNodes();
+    }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(true);
+    }
+
+    setFailed(m_Nodes.isEmpty());
+}
+
+void CollapseNodeDepthCommand::findNodes()
+{
+    QList<DirectedGraphNode *> checked;
+    QQueue<DirectedGraphNode *> queue;
+
+    DirectedGraphNode *root = view()->rootNode();
+    checked.append(root);
+    queue.enqueue(root);
+
+    while(!queue.isEmpty()) {
+        DirectedGraphNode *node = queue.dequeue();
+
+        if(node->nodeDepth() == m_Depth) {
+            if(!node->collapsed()) {
+                m_Nodes.append(node);
+            }
+        } else {
+            foreach(DirectedGraphNode *child, node->childNodes()) {
+                if(!checked.contains(child)) {
+                    checked.append(child);
+                    queue.enqueue(child);
+                }
+            }
+        }
+    }
+}
+
+bool CollapseNodeDepthCommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const CollapseNodeDepthCommand *command = static_cast<const CollapseNodeDepthCommand *>(other);
+    if(view() != command->view() || m_Depth != command->m_Depth) {
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+FocusNodeCommand::FocusNodeCommand(DirectedGraphView *view, DirectedGraphNode *node) :
+    UndoCommand(view),
+    m_Node(node)
+{
+    setText(QObject::tr("Focus on Node"));
+}
+
+void FocusNodeCommand::undo()
+{
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(false);
+    }
+}
+
+void FocusNodeCommand::redo()
+{
+    UndoCommand::redo();
+
+    if(m_Nodes.isEmpty()) {
+        findNodes();
+    }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(true);
+    }
+
+    setFailed(m_Nodes.isEmpty());
+}
+
+void FocusNodeCommand::findNodes()
+{
+    DirectedGraphNode *root = view()->rootNode();
+
+    QList<DirectedGraphNode *> related;
+    DirectedGraphNode *parent = m_Node;
+    while(parent) {
+        related.append(parent);
+        parent = parent->parentNode();
+    }
+
+    QList<DirectedGraphNode *> checked;
+    QQueue<DirectedGraphNode *> queue;
+    checked.append(root);
+    queue.enqueue(root);
+
+    while(!queue.isEmpty()) {
+        DirectedGraphNode *node = queue.dequeue();
+
+        if(!related.contains(node)) {
+            if(!node->collapsed()) {
+                m_Nodes.append(node);
+            }
+        } else {
+            foreach(DirectedGraphNode *child, node->childNodes()) {
+                if(!checked.contains(child) && child != m_Node) {
+                    checked.append(child);
+                    queue.enqueue(child);
+                }
+            }
+        }
+    }
+
+}
+
+bool FocusNodeCommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const FocusNodeCommand *command = static_cast<const FocusNodeCommand *>(other);
+    if(view() != command->view() || m_Node != command->m_Node) {
+        return false;
+    }
+
+    return true;
+}
+
+
+
+
+HideMPICommand::HideMPICommand(DirectedGraphView *view) :
+    UndoCommand(view)
+{
+    setText(QObject::tr("Hide MPI Functions"));
 }
 
 QStringList HideMPICommand::mpiFunctions()
@@ -396,24 +679,39 @@ QStringList HideMPICommand::mpiFunctions()
 
 void HideMPICommand::undo()
 {
-    while(!m_Nodes.isEmpty()) {
-        m_Nodes.takeLast()->setCollapsed(!m_Hide);
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(false);
     }
 }
 
 void HideMPICommand::redo()
 {
-    // Breadth-first search for all MPI_ functions
+    UndoCommand::redo();
 
-    m_Nodes.clear();
+    if(m_Nodes.isEmpty()) {
+        findNodes();
+    }
 
-    QStringList checked;
+    foreach(DirectedGraphNode *node, m_Nodes) {
+        node->setCollapsed(true);
+    }
+
+    setFailed(m_Nodes.isEmpty());
+}
+
+void HideMPICommand::findNodes()
+{
+    QList<DirectedGraphNode *> checked;
     QQueue<DirectedGraphNode *> queue;
 
     QStringList functions = this->mpiFunctions();
 
-    DirectedGraphNode *root = m_DirectedGraphView->rootNode();
-    checked.append(root->getGVName());
+    DirectedGraphNode *root = view()->rootNode();
+    checked.append(root);
     queue.enqueue(root);
 
     static const QRegExp pmpi = QRegExp("^pmpi", Qt::CaseInsensitive);
@@ -428,17 +726,32 @@ void HideMPICommand::redo()
         }
 
         if(functions.contains(label)) {
-            node->setCollapsed(m_Hide);
-            m_Nodes.append(node);
+            if(!node->collapsed()) {
+                m_Nodes.append(node);
+            }
         } else {
             foreach(DirectedGraphNode *child, node->childNodes()) {
-                if(!checked.contains(child->getGVName())) {
-                    checked.append(child->getGVName());
+                if(!checked.contains(child)) {
+                    checked.append(child);
                     queue.enqueue(child);
                 }
             }
         }
     }
+}
+
+bool HideMPICommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const HideMPICommand *command = static_cast<const HideMPICommand *>(other);
+    if(view() != command->view()) {
+        return false;
+    }
+
+    return true;
 }
 
 

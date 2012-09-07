@@ -113,14 +113,26 @@ void DirectedGraphNodeDialog::on_btnCollapseDepth_clicked()
 {
     if(!m_Node) { return; }
 
-    //TODO:
+    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    if(!view) {
+        //TODO: Error
+        return;
+    }
+
+    view->doCollapseDepth(m_Node->nodeDepth());
 }
 
 void DirectedGraphNodeDialog::on_btnFocus_clicked()
 {
     if(!m_Node) { return; }
 
-    //TODO:
+    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    if(!view) {
+        //TODO: Error
+        return;
+    }
+
+    view->doFocus(m_Node);
 }
 
 void DirectedGraphNodeDialog::on_btnViewSource_clicked()
