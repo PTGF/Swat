@@ -18,6 +18,8 @@
 
 include(../plugins.pri)
 
+include(QGraphViz.pri)
+
 #TODO: Break this out into its own file
 LIBS         += -L$$quote($${BUILD_PATH}/plugins/Welcome/$${DIR_POSTFIX}) -lWelcome$${LIB_POSTFIX}
 
@@ -35,7 +37,11 @@ SOURCES      += SWATPlugin.cpp \
                 ConnectionManager/IAdapter.cpp \
                 JobControlDialog.cpp \
                 ConnectionManager/ConnectionManager.cpp \
-                ViewManager/IViewFactory.cpp
+                DirectedGraph/DirectedGraphView.cpp \
+                DirectedGraph/DirectedGraphScene.cpp \
+                DirectedGraph/DirectedGraphNode.cpp \
+                DirectedGraph/DirectedGraphEdge.cpp \
+                DirectedGraph/DirectedGraphNodeDialog.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -47,19 +53,27 @@ HEADERS      += SWATPlugin.h \
                 ConnectionManager/IAdapter.h \
                 JobControlDialog.h \
                 ConnectionManager/ConnectionManager.h \
-                ViewManager/IViewFactory.h \
-                ViewManager/ViewManagerLibrary.h
+                DirectedGraph/DirectedGraphView.h \
+                DirectedGraph/DirectedGraphScene.h \
+                DirectedGraph/DirectedGraphNode.h \
+                DirectedGraph/DirectedGraphEdge.h \
+                DirectedGraph/DirectedGraphNodeDialog.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \
                 Settings/SettingPage.ui \
-                JobControlDialog.ui
+                JobControlDialog.ui \
+                DirectedGraph/DirectedGraphView.ui \
+                DirectedGraph/DirectedGraphNodeDialog.ui
 
 RESOURCES    += Resources/SWAT.qrc
 
-QT           += xml
+QT           += gui xml
 
 DEFINES      += SWAT_LIBRARY CONNECTIONMANAGER_LIBRARY VIEWMANAGER_LIBRARY
+
+#debug: DEFINES     += DIRECTEDGRAPHVIEW_DEBUG
+
 
 OTHER_FILES += Welcome/WelcomeData.xml
 win32: welcomeData.path = /swat/

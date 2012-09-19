@@ -25,32 +25,60 @@
 
  */
 
-#ifndef IVIEWFACTORYA_H
-#define IVIEWFACTORYA_H
+#ifndef DIRECTEDGRAPHSCENE_H
+#define DIRECTEDGRAPHSCENE_H
 
 #include <QtCore>
 #include <QtGui>
-#include "ViewManagerLibrary.h"
+
+#include <QGraphVizScene.h>
 
 namespace Plugins {
 namespace SWAT {
 
-class VIEWMANAGER_EXPORT IViewFactory
+class DirectedGraphScene : public QGraphVizScene
 {
+    Q_OBJECT
 public:
-    virtual QString viewName() = 0;
+    explicit DirectedGraphScene(QString content, QObject *parent = 0);
 
-    virtual bool viewHandles(QAbstractItemModel *model) = 0;
-    virtual QAbstractItemView *viewWidget(QAbstractItemModel *model) = 0;
+protected:
+    struct NodeInfo {
+        QString longLabel;
+        QString shortLabel;
 
-    //TODO: Move all SWAT views to QAbstractItemView
-    virtual bool viewHandlesFiles() = 0;
-    virtual QWidget *viewWidget(const QByteArray &content) = 0;
+        QString functionName;
+        quint64 programCounter;
+        QString sourceFile;
+        quint32 sourceLine;
+        QString iter_string;
+    };
+
+    struct EdgeInfo {
+        QString longLabel;
+        QString shortLabel;
+
+        QString processCount;
+        QStringList processList;
+    };
+
+    QGraphVizNode *createNode(node_t *node);
+    QGraphVizEdge *createEdge(edge_t *edge);
+
+    QString preprocessContent(const QString &content);
+    NodeInfo getNodeInfo(QString label);
+    EdgeInfo getEdgeInfo(QString label);
+
+private:
+    QHash<int, NodeInfo> m_NodeInfos;
+    QHash<int, EdgeInfo> m_EdgeInfos;
+
+    friend class DirectedGraphNode;
+    friend class DirectedGraphEdge;
+    friend class DirectedGraphView;
 };
 
 } // namespace SWAT
 } // namespace Plugins
 
-Q_DECLARE_INTERFACE(Plugins::SWAT::IViewFactory, "org.krellinst.swat.IViewFactory/0.1")
-
-#endif // IVIEWFACTORY_H
+#endif // DIRECTEDGRAPHSCENE_H

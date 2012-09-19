@@ -39,7 +39,7 @@
 #include "DirectedGraphNodeDialog.h"
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
 DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent) :
     QWidget(parent),
@@ -757,5 +757,5 @@ bool HideMPICommand::mergeWith(const QUndoCommand *other)
 
 
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins

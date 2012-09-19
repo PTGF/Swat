@@ -25,60 +25,63 @@
 
  */
 
-#ifndef DIRECTEDGRAPHSCENE_H
-#define DIRECTEDGRAPHSCENE_H
+#ifndef DIRECTEDGRAPHNODE_H
+#define DIRECTEDGRAPHNODE_H
 
 #include <QtCore>
 #include <QtGui>
 
-#include <QGraphVizScene.h>
+#include <QGraphVizNode.h>
+
+#include "DirectedGraphScene.h"
+
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
-class DirectedGraphScene : public QGraphVizScene
+class DirectedGraphScene;
+
+class DirectedGraphNode : public QGraphVizNode
 {
-    Q_OBJECT
 public:
-    explicit DirectedGraphScene(QString content, QObject *parent = 0);
+    explicit DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parentNode = 0);
+
+    qint64 nodeId();
+    int nodeDepth();
+
+    QString label();
+    QString shortLabel();
+    QString functionName();
+    quint64 programCounter();
+    QString sourceFile();
+    quint32 sourceLine();
+    QString iter();
+
+    QString edgeLabel();
+    QString shortEdgeLabel();
+    QString processCount();
+    QStringList processList();
+
+    DirectedGraphNode *parentNode();
+    QList<DirectedGraphNode *> childNodes();
 
 protected:
-    struct NodeInfo {
-        QString longLabel;
-        QString shortLabel;
-
-        QString functionName;
-        quint64 programCounter;
-        QString sourceFile;
-        quint32 sourceLine;
-        QString iter_string;
-    };
-
-    struct EdgeInfo {
-        QString longLabel;
-        QString shortLabel;
-
-        QString processCount;
-        QStringList processList;
-    };
-
-    QGraphVizNode *createNode(node_t *node);
-    QGraphVizEdge *createEdge(edge_t *edge);
-
-    QString preprocessContent(const QString &content);
-    NodeInfo getNodeInfo(QString label);
-    EdgeInfo getEdgeInfo(QString label);
+    DirectedGraphScene::NodeInfo nodeInfo();
+    DirectedGraphScene::EdgeInfo edgeInfo();
 
 private:
-    QHash<int, NodeInfo> m_NodeInfos;
-    QHash<int, EdgeInfo> m_EdgeInfos;
+    DirectedGraphScene *m_Scene;
 
-    friend class DirectedGraphNode;
-    friend class DirectedGraphEdge;
+    int m_Depth;
+    qint64 m_NodeId;
+    DirectedGraphScene::NodeInfo m_NodeInfo;
+    DirectedGraphScene::EdgeInfo m_EdgeInfo;
+
+    friend class DirectedGraphScene;
     friend class DirectedGraphView;
 };
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHSCENE_H
+#endif // DIRECTEDGRAPHNODE_H

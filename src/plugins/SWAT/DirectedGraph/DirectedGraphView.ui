@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Plugins::DirectedGraphView::DirectedGraphView</class>
- <widget class="QWidget" name="Plugins::DirectedGraphView::DirectedGraphView">
+ <class>Plugins::SWAT::DirectedGraphView</class>
+ <widget class="QWidget" name="Plugins::SWAT::DirectedGraphView">
   <property name="geometry">
    <rect>
     <x>0</x>

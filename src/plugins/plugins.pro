@@ -17,13 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 TEMPLATE                    = subdirs
-SUBDIRS                     = SWAT CompiledAdapter DirectedGraphView
+SUBDIRS                     = SWAT CompiledAdapter
 
 SWAT.subdir                 = SWAT
 
 CompiledAdapter.subdir      = CompiledAdapter
 CompiledAdapter.depends     = SWAT
-
-DirectedGraphView.subdir    = DirectedGraphView
-DirectedGraphView.depends   = SWAT
 

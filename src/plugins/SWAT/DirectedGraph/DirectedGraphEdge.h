@@ -25,15 +25,33 @@
 
  */
 
-#ifndef VIEWMANAGERLIBRARY_H
-#define VIEWMANAGERLIBRARY_H
+#ifndef DIRECTEDGRAPHEDGE_H
+#define DIRECTEDGRAPHEDGE_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore>
+#include <QtGui>
 
-#if defined(VIEWMANAGER_LIBRARY)
-#  define VIEWMANAGER_EXPORT Q_DECL_EXPORT
-#else
-#  define VIEWMANAGER_EXPORT Q_DECL_IMPORT
-#endif
+#include <QGraphVizEdge.h>
 
-#endif // VIEWMANAGERLIBRARY_H
+namespace Plugins {
+namespace SWAT {
+
+class DirectedGraphScene;
+
+class DirectedGraphEdge : public QGraphVizEdge
+{
+public:
+    explicit DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent = 0);
+
+protected:
+    QString processList();
+
+private:
+    DirectedGraphScene *m_Scene;
+
+};
+
+} // namespace SWAT
+} // namespace Plugins
+
+#endif // DIRECTEDGRAPHEDGE_H

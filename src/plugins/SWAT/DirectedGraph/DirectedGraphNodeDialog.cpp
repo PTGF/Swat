@@ -32,7 +32,7 @@
 #include "DirectedGraphNode.h"
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
 DirectedGraphNodeDialog::DirectedGraphNodeDialog(QWidget *parent) :
     QDialog(parent),
@@ -150,5 +150,5 @@ void DirectedGraphNodeDialog::on_btnViewSource_clicked()
 }
 
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins

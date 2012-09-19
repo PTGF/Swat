@@ -31,7 +31,7 @@
 
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
 DirectedGraphNode::DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent) :
     QGraphVizNode(node, scene, parent),
@@ -141,5 +141,5 @@ QList<DirectedGraphNode *> DirectedGraphNode::childNodes()
 }
 
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins

@@ -31,7 +31,7 @@
 #include "DirectedGraphEdge.h"
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
 DirectedGraphScene::DirectedGraphScene(QString content, QObject *parent) :
     QGraphVizScene(parent)
@@ -183,5 +183,5 @@ DirectedGraphScene::EdgeInfo DirectedGraphScene::getEdgeInfo(QString label)
 }
 
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins

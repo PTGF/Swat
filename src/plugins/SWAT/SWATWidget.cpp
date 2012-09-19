@@ -33,8 +33,8 @@
 #include <MainWindow/NotificationWidget.h>
 #include <PluginManager/PluginManager.h>
 #include <ConnectionManager/ConnectionManager.h>
-#include <ViewManager/IViewFactory.h>
 
+#include <DirectedGraph/DirectedGraphView.h>
 #include <SourceView/ISourceViewFactory.h>
 
 #include "JobControlDialog.h"
@@ -471,7 +471,7 @@ void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
     MainWindow &mainWindow = MainWindow::instance();
     mainWindow.setCurrentCentralWidget(this);
 
-    if(QWidget *view = getTraceView(content)) {
+    if(DirectedGraphView *view = getTraceView(content)) {
         if(!title.isEmpty()) {
             view->setWindowTitle(title);
         }
@@ -481,23 +481,11 @@ void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
     }
 }
 
-QWidget *SWATWidget::getTraceView(QByteArray content)
+DirectedGraphView *SWATWidget::getTraceView(QByteArray content)
 {
     try {
 
-        using namespace Core::PluginManager;
-        PluginManager &pluginManager = PluginManager::instance();
-
-        foreach(QObject *object, pluginManager.allObjects()) {
-            IViewFactory *viewFactory = qobject_cast<IViewFactory *>(object);
-            if(viewFactory) {
-                if(viewFactory->viewHandlesFiles()) {
-                    QWidget *view = viewFactory->viewWidget(content);
-                    view->setParent(this);
-                    return view;
-                }
-            }
-        }
+        return new DirectedGraphView(content, this);
 
     } catch(QString err) {
         using namespace Core::MainWindow;

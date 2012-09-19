@@ -70,7 +70,7 @@ protected:
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
 
-    QWidget *getTraceView(QByteArray content);
+    DirectedGraphView *getTraceView(QByteArray content);
 
 protected slots:
     void tabTitleChanged();

@@ -38,7 +38,7 @@
 class QGraphVizView;
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
 class DirectedGraphView;
 class DirectedGraphScene;
@@ -210,7 +210,7 @@ private:
 
 };
 
-} // namespace DirectedGraphView
+} // namespace SWAT
 } // namespace Plugins
 
 #endif // DIRECTEDGRAPHVIEW_H

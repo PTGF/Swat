@@ -25,28 +25,48 @@
 
  */
 
-#include "DirectedGraphEdge.h"
+#ifndef DIRECTEDGRAPHNODEDIALOG_H
+#define DIRECTEDGRAPHNODEDIALOG_H
 
-#include <QGraphVizNode.h>
-#include "DirectedGraphScene.h"
+#include <QDialog>
 
 namespace Plugins {
-namespace DirectedGraphView {
+namespace SWAT {
 
-DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
-    QGraphVizEdge(edge, scene, parent),
-    m_Scene(scene)
-{
+class DirectedGraphNode;
+
+namespace Ui {
+class DirectedGraphNodeDialog;
 }
 
-QString DirectedGraphEdge::processList()
+class DirectedGraphNodeDialog : public QDialog
 {
-    QString longLabel = m_Scene->m_EdgeInfos.value(head()->getGVName().toLongLong()).longLabel;
-    if(longLabel.isEmpty()) {
-        longLabel = labelText();
-    }
-    return longLabel;
-}
+    Q_OBJECT
 
-} // namespace DirectedGraphView
+public:
+    explicit DirectedGraphNodeDialog(QWidget *parent = 0);
+    ~DirectedGraphNodeDialog();
+
+    void setNode(DirectedGraphNode *node);
+    DirectedGraphNode *node();
+
+protected:
+    void updateStackFrame();
+    void updateLeafTasks();
+    void setTotalTasks(QString totalTaskCount, QString totalTasks);
+
+protected slots:
+    void on_btnCollapse_toggled(bool checked);
+    void on_btnCollapseDepth_clicked();
+    void on_btnFocus_clicked();
+    void on_btnViewSource_clicked();
+
+private:
+    Ui::DirectedGraphNodeDialog *ui;
+    DirectedGraphNode *m_Node;
+};
+
+} // namespace SWAT
 } // namespace Plugins
+
+#endif // DIRECTEDGRAPHNODEDIALOG_H
