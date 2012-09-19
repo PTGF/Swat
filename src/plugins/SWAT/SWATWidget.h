@@ -40,6 +40,7 @@ namespace Plugins {
 namespace SWAT {
 
 class IAdapter;
+class DirectedGraphView;
 
 namespace Ui {
     class SWATWidget;
