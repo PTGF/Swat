@@ -43,9 +43,6 @@ class DirectedGraphEdge : public QGraphVizEdge
 public:
     explicit DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent = 0);
 
-protected:
-    QString processList();
-
 private:
     DirectedGraphScene *m_Scene;
 

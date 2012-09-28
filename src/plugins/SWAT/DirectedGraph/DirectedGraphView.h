@@ -31,6 +31,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include <PrettyWidgets/TabWidget.h>
+
 #ifdef QT_DEBUG
 #include <QtDebug>
 #endif
@@ -81,24 +83,6 @@ private:
     QList<DirectedGraphNode *> m_Nodes;
 };
 
-class HideMPICommand : public UndoCommand
-{
-public:
-    HideMPICommand(DirectedGraphView *view);
-    bool mergeWith(const QUndoCommand *other);
-    void undo();
-    void redo();
-
-    int id() const { return 4; }
-
-protected:
-    void findNodes();
-    QStringList mpiFunctions();
-
-private:
-    QList<DirectedGraphNode *> m_Nodes;
-};
-
 class CollapseNodeCommand : public UndoCommand
 {
 public:
@@ -132,25 +116,7 @@ private:
     QList<DirectedGraphNode *> m_Nodes;
 };
 
-class FocusNodeCommand : public UndoCommand
-{
-public:
-    FocusNodeCommand(DirectedGraphView *view, DirectedGraphNode *node);
-    bool mergeWith(const QUndoCommand *other);
-    void undo();
-    void redo();
-
-    int id() const { return 3; }
-
-protected:
-    void findNodes();
-
-private:
-    DirectedGraphNode *m_Node;
-    QList<DirectedGraphNode *> m_Nodes;
-};
-
-class DirectedGraphView : public QWidget
+class DirectedGraphView : public TabWidget
 {
     Q_OBJECT
 
@@ -158,56 +124,43 @@ public:
     explicit DirectedGraphView(const QByteArray &content, QWidget * parent = 0);
     ~DirectedGraphView();
 
-    QGraphVizView *view();
+    virtual QGraphVizView *view();
+    virtual DirectedGraphScene *scene();
+    DirectedGraphNode *rootNode();
 
 public slots:
     void undo();
     void redo();
 
     void doExpandAll();
-    void doHideMPI();
     void doExpand(DirectedGraphNode *node);
     void doCollapse(DirectedGraphNode *node);
     void doCollapseDepth(int depth);
-    void doFocus(DirectedGraphNode *node);
 
 protected:
-    void openSourceFile(QString filename, int lineNumber = 0);
-    void loadSourceFromFile(QString filename);
-    void loadSourceFromContent(QByteArray content, QString title);
-    QPlainTextEdit *getSourceView(const QString &content);
-
-    DirectedGraphNode *rootNode();
-
+    QUuid id();
+    QUndoStack *undoStack();
+    virtual DirectedGraphScene *createScene(const QByteArray &content);
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
 
 protected slots:
     void on_txtFilter_textChanged(const QString &);
-    void selectionChanged();
 
 private:
-    Ui::DirectedGraphView *ui;
     DirectedGraphScene *m_Scene;
     QGraphVizView *m_View;
     QUndoStack *m_UndoStack;
+    QUuid m_Id;
 
     QList<DirectedGraphNode *> m_Nodes;
     QList<DirectedGraphEdge *> m_Edges;
 
-    QUuid m_Id;
-
     QAction *m_ExpandAll;
-    QAction *m_HideMPI;
-
-    friend class DirectedGraphNodeDialog;
 
     friend class ExpandAllCommand;
-    friend class HideMPICommand;
     friend class CollapseNodeCommand;
     friend class CollapseNodeDepthCommand;
-    friend class FocusNodeCommand;
-
 };
 
 } // namespace SWAT

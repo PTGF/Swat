@@ -40,7 +40,7 @@ namespace Plugins {
 namespace SWAT {
 
 class IAdapter;
-class DirectedGraphView;
+class STATView;
 
 namespace Ui {
     class SWATWidget;
@@ -71,7 +71,7 @@ protected:
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
 
-    DirectedGraphView *getTraceView(QByteArray content);
+    STATView *getTraceView(QByteArray content);
 
 protected slots:
     void tabTitleChanged();

@@ -33,22 +33,22 @@
 namespace Plugins {
 namespace SWAT {
 
-class DirectedGraphNode;
+class STATNode;
 
 namespace Ui {
-class DirectedGraphNodeDialog;
+class STATNodeDialog;
 }
 
-class DirectedGraphNodeDialog : public QDialog
+class STATNodeDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DirectedGraphNodeDialog(QWidget *parent = 0);
-    ~DirectedGraphNodeDialog();
+    explicit STATNodeDialog(QWidget *parent = 0);
+    ~STATNodeDialog();
 
-    void setNode(DirectedGraphNode *node);
-    DirectedGraphNode *node();
+    void setNode(STATNode *node);
+    STATNode *node();
 
 protected:
     void updateStackFrame();
@@ -62,8 +62,9 @@ protected slots:
     void on_btnViewSource_clicked();
 
 private:
-    Ui::DirectedGraphNodeDialog *ui;
-    DirectedGraphNode *m_Node;
+    Ui::STATNodeDialog *ui;
+    STATNode *m_Node;
+
 };
 
 } // namespace SWAT

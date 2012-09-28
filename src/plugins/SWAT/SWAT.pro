@@ -41,7 +41,12 @@ SOURCES      += SWATPlugin.cpp \
                 DirectedGraph/DirectedGraphScene.cpp \
                 DirectedGraph/DirectedGraphNode.cpp \
                 DirectedGraph/DirectedGraphEdge.cpp \
-                DirectedGraph/DirectedGraphNodeDialog.cpp
+                DirectedGraph/STATView.cpp \
+                DirectedGraph/SWATView.cpp \
+                DirectedGraph/STATEdge.cpp \
+                DirectedGraph/STATScene.cpp \
+                DirectedGraph/STATNode.cpp \
+                DirectedGraph/STATNodeDialog.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -57,14 +62,18 @@ HEADERS      += SWATPlugin.h \
                 DirectedGraph/DirectedGraphScene.h \
                 DirectedGraph/DirectedGraphNode.h \
                 DirectedGraph/DirectedGraphEdge.h \
-                DirectedGraph/DirectedGraphNodeDialog.h
+                DirectedGraph/STATView.h \
+                DirectedGraph/SWATView.h \
+                DirectedGraph/STATEdge.h \
+                DirectedGraph/STATScene.h \
+                DirectedGraph/STATNode.h \
+                DirectedGraph/STATNodeDialog.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \
                 Settings/SettingPage.ui \
                 JobControlDialog.ui \
-                DirectedGraph/DirectedGraphView.ui \
-                DirectedGraph/DirectedGraphNodeDialog.ui
+                DirectedGraph/STATNodeDialog.ui
 
 RESOURCES    += Resources/SWAT.qrc
 

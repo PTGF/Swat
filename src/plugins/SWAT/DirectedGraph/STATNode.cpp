@@ -25,18 +25,53 @@
 
  */
 
-#include "DirectedGraphEdge.h"
+#include "STATScene.h"
+#include "STATNode.h"
 
-#include <QGraphVizNode.h>
-#include "DirectedGraphScene.h"
+#include <QDebug>
 
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
-    QGraphVizEdge(edge, scene, parent),
+STATNode::STATNode(node_t *node, STATScene *scene, QGraphicsItem *parent) :
+    DirectedGraphNode(node, scene, parent),
     m_Scene(scene)
 {
+}
+
+QString STATNode::functionName()
+{
+    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_FunctionName).toString();
+}
+
+quint64 STATNode::programCounter()
+{
+    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_ProgramCounter).toULongLong();
+}
+
+QString STATNode::sourceFile()
+{
+    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceFile).toString();
+}
+
+quint32 STATNode::sourceLine()
+{
+    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceLine).toUInt();
+}
+
+QString STATNode::iter()
+{
+    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_IterString).toString();
+}
+
+QString STATNode::processCount()
+{
+    return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessCount).toString();
+}
+
+QStringList STATNode::processList()
+{
+    return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessList).toStringList();
 }
 
 } // namespace SWAT

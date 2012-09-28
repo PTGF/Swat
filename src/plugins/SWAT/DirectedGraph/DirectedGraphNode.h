@@ -51,31 +51,17 @@ public:
 
     QString label();
     QString shortLabel();
-    QString functionName();
-    quint64 programCounter();
-    QString sourceFile();
-    quint32 sourceLine();
-    QString iter();
-
     QString edgeLabel();
     QString shortEdgeLabel();
-    QString processCount();
-    QStringList processList();
 
     DirectedGraphNode *parentNode();
     QList<DirectedGraphNode *> childNodes();
-
-protected:
-    DirectedGraphScene::NodeInfo nodeInfo();
-    DirectedGraphScene::EdgeInfo edgeInfo();
 
 private:
     DirectedGraphScene *m_Scene;
 
     int m_Depth;
     qint64 m_NodeId;
-    DirectedGraphScene::NodeInfo m_NodeInfo;
-    DirectedGraphScene::EdgeInfo m_EdgeInfo;
 
     friend class DirectedGraphScene;
     friend class DirectedGraphView;

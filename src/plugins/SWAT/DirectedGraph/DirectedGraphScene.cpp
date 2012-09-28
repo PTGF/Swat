@@ -36,6 +36,7 @@ namespace SWAT {
 DirectedGraphScene::DirectedGraphScene(QString content, QObject *parent) :
     QGraphVizScene(parent)
 {
+    qDebug() << "DirectedGraphScene()";
     setContent(preprocessContent(content));
 }
 
@@ -63,16 +64,20 @@ QString DirectedGraphScene::preprocessContent(const QString &content)
         if(rxNode.indexIn(line) >= 0 && rxNode.captureCount() == 1) {           // Is node
             if(rxLabel.indexIn(line) >= 0 && rxLabel.captureCount() == 1) {     // With label
                 QString label = rxLabel.cap(1);
-                NodeInfo nodeInfo = getNodeInfo(label);
-                m_NodeInfos.insert(rxNode.cap(1).toLongLong(), nodeInfo);
-                line = line.replace(label, nodeInfo.shortLabel);
+                qint64 id = rxNode.cap(1).toLongLong();
+
+                processNodeLabel(id, label);
+
+                line = line.replace(label, nodeInfo(id, NodeInfoType_ShortLabel).toString());
             }
         } else if(rxEdge.indexIn(line) >= 0 && rxEdge.captureCount() == 2) {    // Is edge
             if(rxLabel.indexIn(line) >= 0 && rxLabel.captureCount() == 1) {     // With label
                 QString label = rxLabel.cap(1);
-                EdgeInfo edgeInfo = getEdgeInfo(label);
-                m_EdgeInfos.insert(rxEdge.cap(2).toLongLong(), edgeInfo);
-                line = line.replace(label, edgeInfo.shortLabel);
+                qint64 id = rxEdge.cap(2).toLongLong();
+
+                processEdgeLabel(id, label);
+
+                line = line.replace(label, edgeInfo(id, EdgeInfoType_ShortLabel).toString());
             }
         }
 
@@ -82,106 +87,69 @@ QString DirectedGraphScene::preprocessContent(const QString &content)
     return retval;
 }
 
-DirectedGraphScene::NodeInfo DirectedGraphScene::getNodeInfo(QString label)
+void DirectedGraphScene::processNodeLabel(quint64 id, QString label)
 {
+
     static const quint8 maxNodeLabelSize = 64;
-    static QRegExp rxFullText = QRegExp("^([\\d\\w\\_\\-\\.]+)(?:@([\\d\\w\\_\\-\\.\\/\\\\]+)(?:\\:(\\d+))?)?(?:\\$(.+))?");
 
-    NodeInfo nodeInfo;
-
-    nodeInfo.longLabel = label.trimmed();
-    if(rxFullText.indexIn(nodeInfo.longLabel) >= 0) {
-        nodeInfo.functionName = rxFullText.cap(1);
-        nodeInfo.longLabel = nodeInfo.functionName;
-
-        if(!rxFullText.cap(2).isEmpty()) {
-            if(!rxFullText.cap(3).isEmpty()) {
-                nodeInfo.sourceFile = rxFullText.cap(2);
-                nodeInfo.sourceLine = rxFullText.cap(3).toULong();
-
-                nodeInfo.longLabel += QString("@%1:%2").arg(QFileInfo(nodeInfo.sourceFile).fileName()).arg(nodeInfo.sourceLine);
-
-            } else {
-                nodeInfo.programCounter = rxFullText.cap(2).toULongLong(0, 16);
-                nodeInfo.longLabel += QString("@%1").arg(nodeInfo.programCounter);
-            }
-        }
-
-        if(!rxFullText.cap(4).isEmpty()) {
-            nodeInfo.iter_string = rxFullText.cap(4);
-            nodeInfo.longLabel += QString("$%1").arg(nodeInfo.iter_string);
-        }
+    QString shortLabel = label;
+    if(shortLabel.count() > maxNodeLabelSize) {
+        shortLabel = "..." + shortLabel.right(maxNodeLabelSize - 3);
     }
 
-    nodeInfo.shortLabel = nodeInfo.longLabel;
-    if(nodeInfo.shortLabel.count() > maxNodeLabelSize) {
-        nodeInfo.shortLabel = "..." + nodeInfo.shortLabel.right(maxNodeLabelSize - 3);
-    }
+    setNodeInfo(id, NodeInfoType_LongLabel, label);
+    setNodeInfo(id, NodeInfoType_ShortLabel, shortLabel);
 
-    return nodeInfo;
 }
 
-DirectedGraphScene::EdgeInfo DirectedGraphScene::getEdgeInfo(QString label)
+void DirectedGraphScene::processEdgeLabel(quint64 id, QString label)
 {
     static const quint8 maxEdgeLabelSize = 24;
-    static QRegExp rxLabel = QRegExp("(?:(\\d+):)*\\[(.*)\\]");
-    static QRegExp rxRange = QRegExp("(\\d+)\\-(\\d+)");
 
-    EdgeInfo edgeInfo;
-
-    if(rxLabel.indexIn(label) >= 0) {
-        if(rxLabel.cap(2).isEmpty()) {
-            edgeInfo.processList = rxLabel.cap(1).split(',');
-        } else {
-            edgeInfo.processCount = rxLabel.cap(1);
-            edgeInfo.processList = rxLabel.cap(2).split(',');
-        }
+    QString shortLabel = label;
+    if(shortLabel.count() > maxEdgeLabelSize) {
+        shortLabel = shortLabel.left(maxEdgeLabelSize - 3) + "...";
     }
 
-    if(edgeInfo.processCount.isEmpty()) {
-        if(edgeInfo.processList.contains("...")) {
-            edgeInfo.processCount = "?";    // Can't count a truncated proc list
-        } else {
-            bool okay;
-            quint64 processCount = 0;
+    setEdgeInfo(id, EdgeInfoType_LongLabel, label);
+    setEdgeInfo(id, EdgeInfoType_ShortLabel, shortLabel);
 
-            // Iterate through the list and count the procs
-            foreach(QString processes, edgeInfo.processList) {
-                if(rxRange.indexIn(processes) >= 0 && rxRange.captureCount() == 2) {
-                    quint64 first = rxRange.cap(1).toULongLong(&okay);
-                    if(!okay) { continue; }
-
-                    quint64 last = rxRange.cap(2).toULongLong(&okay);
-                    if(!okay) { continue; }
-
-                    processCount += (last - first) + 1;
-                } else {
-                    ++processCount;
-                }
-            }
-
-            edgeInfo.processCount = QString::number(processCount);
-        }
-    }
-
-    edgeInfo.longLabel = QString("%1:[%2]").arg(edgeInfo.processCount).arg(edgeInfo.processList.join(","));
-
-    // Reduce the length of the printed label and add an ellipsis
-    QStringList processList = edgeInfo.processList;
-    if((3 + edgeInfo.processCount.count() + edgeInfo.processList.join(",").count()) > maxEdgeLabelSize) {
-        processList.removeOne("...");    // In case there's already an ellipsis
-
-        while((6 + edgeInfo.processCount.count() + processList.join(",").count()) > maxEdgeLabelSize) {
-            processList.pop_back();
-        }
-
-        processList.append("...");
-    }
-    edgeInfo.shortLabel = QString("%1:[%2]").arg(edgeInfo.processCount).arg(processList.join(","));
-
-    return edgeInfo;
 }
 
+
+void DirectedGraphScene::setNodeInfo(const qint64 &id, const int &type, const QVariant &value)
+{
+    m_NodeInfos[id][type] = value;
+}
+
+QVariant DirectedGraphScene::nodeInfo(const qint64 &id, const int &type, const QVariant &defaultValue) const
+{
+    if(m_NodeInfos.contains(id)) {
+        info nodeInfo = m_NodeInfos.value(id);
+        if(nodeInfo.contains(type)) {
+            return nodeInfo.value(type);
+        }
+    }
+
+    return defaultValue;
+}
+
+void DirectedGraphScene::setEdgeInfo(const qint64 &id, const int &type, const QVariant &value)
+{
+    m_EdgeInfos[id][type] = value;
+}
+
+QVariant DirectedGraphScene::edgeInfo(const qint64 &id, const int &type, const QVariant &defaultValue) const
+{
+    if(m_EdgeInfos.contains(id)) {
+        info edgeInfo = m_EdgeInfos.value(id);
+        if(edgeInfo.contains(type)) {
+            return edgeInfo.value(type);
+        }
+    }
+
+    return defaultValue;
+}
 
 } // namespace SWAT
 } // namespace Plugins

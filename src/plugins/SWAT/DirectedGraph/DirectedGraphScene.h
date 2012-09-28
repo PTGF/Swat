@@ -42,36 +42,34 @@ class DirectedGraphScene : public QGraphVizScene
 public:
     explicit DirectedGraphScene(QString content, QObject *parent = 0);
 
+    QVariant nodeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;
+    QVariant edgeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;
+
 protected:
-    struct NodeInfo {
-        QString longLabel;
-        QString shortLabel;
-
-        QString functionName;
-        quint64 programCounter;
-        QString sourceFile;
-        quint32 sourceLine;
-        QString iter_string;
+    enum NodeInfoTypes {
+        NodeInfoType_LongLabel = 0,
+        NodeInfoType_ShortLabel = 1
     };
 
-    struct EdgeInfo {
-        QString longLabel;
-        QString shortLabel;
-
-        QString processCount;
-        QStringList processList;
+    enum EdgeInfoTypes {
+        EdgeInfoType_LongLabel = 0,
+        EdgeInfoType_ShortLabel = 1
     };
+
+    virtual QString preprocessContent(const QString &content);
+    virtual void processNodeLabel(quint64 id, QString label);
+    virtual void processEdgeLabel(quint64 id, QString label);
 
     QGraphVizNode *createNode(node_t *node);
     QGraphVizEdge *createEdge(edge_t *edge);
 
-    QString preprocessContent(const QString &content);
-    NodeInfo getNodeInfo(QString label);
-    EdgeInfo getEdgeInfo(QString label);
+    void setNodeInfo(const qint64 &id, const int &type, const QVariant &value);
+    void setEdgeInfo(const qint64 &id, const int &type, const QVariant &value);
 
 private:
-    QHash<int, NodeInfo> m_NodeInfos;
-    QHash<int, EdgeInfo> m_EdgeInfos;
+    typedef QHash<int, QVariant> info;
+    QHash<qint64, info> m_NodeInfos;
+    QHash<qint64, info> m_EdgeInfos;
 
     friend class DirectedGraphNode;
     friend class DirectedGraphEdge;

@@ -25,18 +25,18 @@
 
  */
 
-#include "DirectedGraphNodeDialog.h"
-#include "ui_DirectedGraphNodeDialog.h"
+#include "STATNodeDialog.h"
+#include "ui_STATNodeDialog.h"
 
-#include "DirectedGraphView.h"
-#include "DirectedGraphNode.h"
+#include "STATView.h"
+#include "STATNode.h"
 
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphNodeDialog::DirectedGraphNodeDialog(QWidget *parent) :
+STATNodeDialog::STATNodeDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::DirectedGraphNodeDialog)
+    ui(new Ui::STATNodeDialog)
 {
     ui->setupUi(this);
 
@@ -44,12 +44,12 @@ DirectedGraphNodeDialog::DirectedGraphNodeDialog(QWidget *parent) :
     ui->grpTotalTasks->setVisible(false);
 }
 
-DirectedGraphNodeDialog::~DirectedGraphNodeDialog()
+STATNodeDialog::~STATNodeDialog()
 {
     delete ui;
 }
 
-void DirectedGraphNodeDialog::setNode(DirectedGraphNode *node)
+void STATNodeDialog::setNode(STATNode *node)
 {
     if(node == m_Node) {
         return;
@@ -73,17 +73,15 @@ void DirectedGraphNodeDialog::setNode(DirectedGraphNode *node)
     if(!m_Node->processCount().isEmpty() || !m_Node->processList().count()) {
         ui->grpTotalTasks->setVisible(true);
 
-        bool okay;
-        QString taskTitle;
-        quint64 taskCount = m_Node->processCount().toULongLong(&okay);
+        bool okay = false;
+        QString taskTitle = tr("Unknown Total Tasks");
+        qulonglong taskCount = m_Node->processCount().toULongLong(&okay);
         if(okay) {
             if(taskCount == 1) {
                 taskTitle = tr("%L1 Total Task").arg(taskCount);
             } else {
                 taskTitle = tr("%L1 Total Tasks").arg(taskCount);
             }
-        } else {
-            taskTitle = "Unknown Total Tasks";
         }
         ui->grpTotalTasks->setTitle(taskTitle);
 
@@ -91,12 +89,12 @@ void DirectedGraphNodeDialog::setNode(DirectedGraphNode *node)
     }
 }
 
-DirectedGraphNode *DirectedGraphNodeDialog::node()
+STATNode *STATNodeDialog::node()
 {
     return m_Node;
 }
 
-void DirectedGraphNodeDialog::on_btnCollapse_toggled(bool checked)
+void STATNodeDialog::on_btnCollapse_toggled(bool checked)
 {
     if(!m_Node) { return; }
 
@@ -109,7 +107,7 @@ void DirectedGraphNodeDialog::on_btnCollapse_toggled(bool checked)
     checked ? view->doCollapse(m_Node) : view->doExpand(m_Node);
 }
 
-void DirectedGraphNodeDialog::on_btnCollapseDepth_clicked()
+void STATNodeDialog::on_btnCollapseDepth_clicked()
 {
     if(!m_Node) { return; }
 
@@ -122,11 +120,11 @@ void DirectedGraphNodeDialog::on_btnCollapseDepth_clicked()
     view->doCollapseDepth(m_Node->nodeDepth());
 }
 
-void DirectedGraphNodeDialog::on_btnFocus_clicked()
+void STATNodeDialog::on_btnFocus_clicked()
 {
     if(!m_Node) { return; }
 
-    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    STATView *view = qobject_cast<STATView *>(parent());
     if(!view) {
         //TODO: Error
         return;
@@ -135,20 +133,19 @@ void DirectedGraphNodeDialog::on_btnFocus_clicked()
     view->doFocus(m_Node);
 }
 
-void DirectedGraphNodeDialog::on_btnViewSource_clicked()
+void STATNodeDialog::on_btnViewSource_clicked()
 {
     if(!m_Node) {
         return;
     }
 
-    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
+    STATView *view = qobject_cast<STATView *>(parent());
     if(!view) {
         return;
     }
 
     view->openSourceFile(m_Node->sourceFile(), m_Node->sourceLine());
 }
-
 
 } // namespace SWAT
 } // namespace Plugins

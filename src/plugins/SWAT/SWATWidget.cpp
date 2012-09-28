@@ -34,7 +34,7 @@
 #include <PluginManager/PluginManager.h>
 #include <ConnectionManager/ConnectionManager.h>
 
-#include <DirectedGraph/DirectedGraphView.h>
+#include <DirectedGraph/STATView.h>
 #include <SourceView/ISourceViewFactory.h>
 
 #include "JobControlDialog.h"
@@ -471,7 +471,7 @@ void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
     MainWindow &mainWindow = MainWindow::instance();
     mainWindow.setCurrentCentralWidget(this);
 
-    if(DirectedGraphView *view = getTraceView(content)) {
+    if(STATView *view = getTraceView(content)) {
         if(!title.isEmpty()) {
             view->setWindowTitle(title);
         }
@@ -481,11 +481,11 @@ void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
     }
 }
 
-DirectedGraphView *SWATWidget::getTraceView(QByteArray content)
+STATView *SWATWidget::getTraceView(QByteArray content)
 {
     try {
 
-        return new DirectedGraphView(content, this);
+        return new STATView(content, this);
 
     } catch(QString err) {
         using namespace Core::MainWindow;

@@ -25,19 +25,26 @@
 
  */
 
-#include "DirectedGraphEdge.h"
+#ifndef PLUGINS_SWAT_SWATVIEW_H
+#define PLUGINS_SWAT_SWATVIEW_H
 
-#include <QGraphVizNode.h>
-#include "DirectedGraphScene.h"
+#include <QWidget>
+#include <DirectedGraph/STATView.h>
 
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
-    QGraphVizEdge(edge, scene, parent),
-    m_Scene(scene)
+class SWATView : public STATView
 {
-}
+    Q_OBJECT
+
+public:
+    explicit SWATView(const QByteArray &content, QWidget * parent = 0);
+    ~SWATView();
+
+};
+
 
 } // namespace SWAT
 } // namespace Plugins
+#endif // PLUGINS_SWAT_SWATVIEW_H

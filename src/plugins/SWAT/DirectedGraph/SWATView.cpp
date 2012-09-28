@@ -25,17 +25,17 @@
 
  */
 
-#include "DirectedGraphEdge.h"
-
-#include <QGraphVizNode.h>
-#include "DirectedGraphScene.h"
+#include "SWATView.h"
 
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
-    QGraphVizEdge(edge, scene, parent),
-    m_Scene(scene)
+SWATView::SWATView(const QByteArray &content, QWidget *parent) :
+    STATView(content, parent)
+{
+}
+
+SWATView::~SWATView()
 {
 }
 

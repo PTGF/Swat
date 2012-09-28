@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Plugins::SWAT::DirectedGraphNodeDialog</class>
- <widget class="QDialog" name="Plugins::SWAT::DirectedGraphNodeDialog">
+ <class>Plugins::SWAT::STATNodeDialog</class>
+ <widget class="QDialog" name="Plugins::SWAT::STATNodeDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -157,7 +157,7 @@
   <connection>
    <sender>btnOkay</sender>
    <signal>clicked()</signal>
-   <receiver>Plugins::SWAT::DirectedGraphNodeDialog</receiver>
+   <receiver>Plugins::SWAT::STATNodeDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

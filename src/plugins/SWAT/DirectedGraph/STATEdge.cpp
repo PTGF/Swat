@@ -25,18 +25,30 @@
 
  */
 
-#include "DirectedGraphEdge.h"
+#include "STATEdge.h"
 
-#include <QGraphVizNode.h>
-#include "DirectedGraphScene.h"
+#include "STATScene.h"
+#include "STATNode.h"
 
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
-    QGraphVizEdge(edge, scene, parent),
+STATEdge::STATEdge(edge_t *edge, STATScene *scene, QGraphicsItem *parent) :
+    DirectedGraphEdge(edge, scene, parent),
     m_Scene(scene)
 {
+}
+
+QString STATEdge::processList()
+{
+    QString longLabel =
+            m_Scene->edgeInfo(head()->getGVName().toLongLong(), DirectedGraphScene::NodeInfoType_LongLabel).toString();
+
+    if(longLabel.isEmpty()) {
+        longLabel = labelText();
+    }
+
+    return longLabel;
 }
 
 } // namespace SWAT
