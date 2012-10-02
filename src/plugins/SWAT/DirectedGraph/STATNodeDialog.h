@@ -51,15 +51,18 @@ public:
     STATNode *node();
 
 protected:
-    void updateStackFrame();
-    void updateLeafTasks();
-    void setTotalTasks(QString totalTaskCount, QString totalTasks);
+//    void updateStackFrame();
+//    void updateLeafTasks();
+//    void setTotalTasks(QString totalTaskCount, QString totalTasks);
 
 protected slots:
     void on_btnCollapse_toggled(bool checked);
     void on_btnCollapseDepth_clicked();
     void on_btnFocus_clicked();
     void on_btnViewSource_clicked();
+
+    void onFinished();
+
 
 private:
     Ui::STATNodeDialog *ui;

@@ -39,7 +39,7 @@ class SWATView : public STATView
     Q_OBJECT
 
 public:
-    explicit SWATView(const QByteArray &content, QWidget * parent = 0);
+    explicit SWATView(QWidget * parent = 0);
     ~SWATView();
 
 };

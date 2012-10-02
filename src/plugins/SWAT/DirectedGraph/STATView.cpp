@@ -30,21 +30,21 @@
 #include <MainWindow/MainWindow.h>
 #include <PluginManager/PluginManager.h>
 #include <SourceView/ISourceViewFactory.h>
+#include <SourceView/SourceView.h>
 
 #include "STATScene.h"
 #include "STATNode.h"
 #include "STATNodeDialog.h"
 
+
 namespace Plugins {
 namespace SWAT {
 
-STATView::STATView(const QByteArray &content, QWidget *parent) :
-    DirectedGraphView(content, parent),
-    m_Scene(NULL),
+STATView::STATView(QWidget *parent) :
+    DirectedGraphView(parent),
+    m_STATScene(NULL),
     m_HideMPI(NULL)
 {
-    connect(scene(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.menuBar()->actions()) {
@@ -79,6 +79,14 @@ STATView::~STATView()
 {
 }
 
+void STATView::setContent(const QByteArray &content)
+{
+    DirectedGraphView::setContent(content);
+
+    connect(scene(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+}
+
+
 void STATView::doHideMPI()
 {
     undoStack()->push(new HideMPICommand(this));
@@ -102,28 +110,42 @@ void STATView::selectionChanged()
 
 DirectedGraphScene *STATView::createScene(const QByteArray &content)
 {
-    if(!m_Scene) {
-        m_Scene = new STATScene(QString(content));
+    if(!m_STATScene) {
+        m_STATScene = new STATScene();
+        m_STATScene->setContent(QString(content));
     }
-    return m_Scene;
+    return m_STATScene;
 }
 
 DirectedGraphScene *STATView::scene()
 {
-    return m_Scene;
+    return m_STATScene;
 }
 
-void STATView::openSourceFile(QString filename, int lineNumber)
+void STATView::openSourceFile(const QString &filename, const int &lineNumber)
 {
-    loadSourceFromFile(filename);
+    loadSourceFromFile(filename, lineNumber);
     //TODO: Set view line number
 }
 
-void STATView::loadSourceFromFile(QString filename)
+void STATView::loadSourceFromFile(const QString &filename, const int &lineNumber)
 {
     QFileInfo fileInfo(filename);
 
+    //Ensure that the file isn't already open
+    for(int i=0; i < count(); ++i) {
+        if(widget(i)->windowFilePath() == fileInfo.absoluteFilePath() || widget(i)->windowFilePath() == fileInfo.fileName()) {
+            if(Plugins::SourceView::SourceView *view = qobject_cast<Plugins::SourceView::SourceView *>(widget(i))) {
+                view->setCurrentLineNumber(lineNumber);
+            }
+
+            setCurrentIndex(i);
+            return;
+        }
+    }
+
     if(!fileInfo.exists()) {
+        //TODO: Allow user to try to find it
         throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
     }
 
@@ -136,12 +158,19 @@ void STATView::loadSourceFromFile(QString filename)
 
     file.close();
 
-    loadSourceFromContent(fileContent, fileInfo.fileName());
+    if(SourceView::SourceView *view = getSourceView(fileContent)) {
+        view->setWindowFilePath(fileInfo.absoluteFilePath());
+        view->setWindowTitle(fileInfo.fileName());
+        view->setCurrentLineNumber(lineNumber);
+        setCurrentIndex(addTab(view, view->windowTitle()));
+    }
 }
 
-void STATView::loadSourceFromContent(QByteArray content, QString title)
+void STATView::loadSourceFromContent(const QByteArray &content, const QString &title)
 {
-    if(QPlainTextEdit *view = getSourceView(content)) {
+    if(Plugins::SourceView::SourceView *view = getSourceView(content)) {
+        view->setWindowFilePath(title);
+
         if(!title.isEmpty()) {
             view->setWindowTitle(title);
         }
@@ -150,7 +179,7 @@ void STATView::loadSourceFromContent(QByteArray content, QString title)
     }
 }
 
-QPlainTextEdit *STATView::getSourceView(const QString &content)
+SourceView::SourceView *STATView::getSourceView(const QString &content)
 {
     try {
 
@@ -162,7 +191,7 @@ QPlainTextEdit *STATView::getSourceView(const QString &content)
         foreach(QObject *object, pluginManager.allObjects()) {
             ISourceViewFactory *viewFactory = qobject_cast<ISourceViewFactory *>(object);
             if(viewFactory) {
-                QPlainTextEdit *view = viewFactory->sourceViewWidget(content);
+                Plugins::SourceView::SourceView *view = viewFactory->sourceViewWidget(content);
                 view->setParent(this);
                 return view;
             }

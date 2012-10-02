@@ -18,6 +18,7 @@
 
 include(../plugins.pri)
 
+include(SourceView.pri)
 include(QGraphViz.pri)
 
 #TODO: Break this out into its own file
@@ -42,11 +43,11 @@ SOURCES      += SWATPlugin.cpp \
                 DirectedGraph/DirectedGraphNode.cpp \
                 DirectedGraph/DirectedGraphEdge.cpp \
                 DirectedGraph/STATView.cpp \
-                DirectedGraph/SWATView.cpp \
-                DirectedGraph/STATEdge.cpp \
                 DirectedGraph/STATScene.cpp \
+                DirectedGraph/STATNodeDialog.cpp \
+                DirectedGraph/STATEdge.cpp \
                 DirectedGraph/STATNode.cpp \
-                DirectedGraph/STATNodeDialog.cpp
+                DirectedGraph/SWATView.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -63,11 +64,11 @@ HEADERS      += SWATPlugin.h \
                 DirectedGraph/DirectedGraphNode.h \
                 DirectedGraph/DirectedGraphEdge.h \
                 DirectedGraph/STATView.h \
-                DirectedGraph/SWATView.h \
-                DirectedGraph/STATEdge.h \
                 DirectedGraph/STATScene.h \
+                DirectedGraph/STATNodeDialog.h \
+                DirectedGraph/STATEdge.h \
                 DirectedGraph/STATNode.h \
-                DirectedGraph/STATNodeDialog.h
+                DirectedGraph/SWATView.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \

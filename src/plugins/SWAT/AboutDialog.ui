@@ -11,10 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>About Open|SpeedShop</string>
+   <string>About SWAT</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Resources/SWAT.qrc">
+   <iconset>
     <normaloff>:/SWAT/app.png</normaloff>:/SWAT/app.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -45,7 +45,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="Resources/SWAT.qrc">:/SWAT/logo_320.png</pixmap>
+         <pixmap>:/SWAT/logo_320.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>false</bool>
@@ -106,9 +106,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="Resources/SWAT.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

@@ -30,8 +30,8 @@
 namespace Plugins {
 namespace SWAT {
 
-SWATView::SWATView(const QByteArray &content, QWidget *parent) :
-    STATView(content, parent)
+SWATView::SWATView(QWidget *parent) :
+    STATView(parent)
 {
 }
 

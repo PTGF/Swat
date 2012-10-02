@@ -30,6 +30,8 @@
 
 #include <DirectedGraph/DirectedGraphView.h>
 
+namespace Plugins { namespace SourceView { class SourceView; } }
+
 namespace Plugins {
 namespace SWAT {
 
@@ -88,9 +90,10 @@ class STATView : public DirectedGraphView
     Q_OBJECT
 
 public:
-    explicit STATView(const QByteArray &content, QWidget * parent = 0);
+    explicit STATView(QWidget * parent = 0);
     ~STATView();
 
+    virtual void setContent(const QByteArray &content);
     virtual DirectedGraphScene *scene();
 
 public slots:
@@ -100,16 +103,16 @@ public slots:
 protected:
     virtual DirectedGraphScene *createScene(const QByteArray &content);
 
-    void openSourceFile(QString filename, int lineNumber = 0);
-    void loadSourceFromFile(QString filename);
-    void loadSourceFromContent(QByteArray content, QString title);
-    QPlainTextEdit *getSourceView(const QString &content);
+    void openSourceFile(const QString &filename, const int &lineNumber = 0);
+    void loadSourceFromFile(const QString &filename, const int &lineNumber = 0);
+    void loadSourceFromContent(const QByteArray &content, const QString &title);
+    SourceView::SourceView *getSourceView(const QString &content);
 
 protected slots:
     void selectionChanged();
 
 private:
-    STATScene *m_Scene;
+    STATScene *m_STATScene;
     QAction *m_HideMPI;
 
     friend class HideMPICommand;

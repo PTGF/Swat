@@ -54,6 +54,8 @@ SWATWidget::SWATWidget(QWidget *parent) :
     setWindowTitle(QString("SWAT%1").arg(QChar(0x2122))); //Trademark
     setWindowIcon(QIcon(":/SWAT/app.gif"));
 
+    connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeJob(int)));
+
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.menuBar()->actions()) {
@@ -64,6 +66,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_AttachJob->setIcon(QIcon(":/SWAT/app.gif"));
             m_AttachJob->setIconVisibleInMenu(true);
             m_AttachJob->setVisible(false);
+            m_AttachJob->setShortcut(QKeySequence::Refresh);
             m_AttachJob->setProperty("swat_menuitem", QVariant(1));
             connect(m_AttachJob, SIGNAL(triggered()), this, SLOT(attachJob()));
 
@@ -72,6 +75,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_LaunchJob->setIcon(QIcon(":/SWAT/app.gif"));
             m_LaunchJob->setIconVisibleInMenu(true);
             m_LaunchJob->setVisible(false);
+            m_LaunchJob->setShortcut(QKeySequence::New);
             m_LaunchJob->setProperty("swat_menuitem", QVariant(1));
             connect(m_LaunchJob, SIGNAL(triggered()), this, SLOT(launchJob()));
 
@@ -80,6 +84,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_LoadFile->setIcon(QIcon(":/SWAT/app.gif"));
             m_LoadFile->setIconVisibleInMenu(true);
             m_LoadFile->setVisible(false);
+            m_LoadFile->setShortcut(QKeySequence::Open);
             m_LoadFile->setProperty("swat_menuitem", QVariant(1));
             connect(m_LoadFile, SIGNAL(triggered()), this, SLOT(loadTraceFile()));
 
@@ -89,6 +94,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
             m_CloseJob->setIconVisibleInMenu(true);
             m_CloseJob->setVisible(false);
             m_CloseJob->setEnabled(false);
+            m_CloseJob->setShortcut(QKeySequence::Close);
             m_CloseJob->setProperty("swat_menuitem", QVariant(1));
             connect(m_CloseJob, SIGNAL(triggered()), this, SLOT(closeJob()));
 
@@ -412,9 +418,9 @@ void SWATWidget::closeJob(int index)
         }
 
 
-        QWidget *widget = this->widget(currentIndex());
+        QWidget *widget = this->widget(index);
         widget->close();
-        removeTab(currentIndex());
+        removeTab(index);
         widget->deleteLater();
 
     } catch(QString err) {
@@ -485,7 +491,9 @@ STATView *SWATWidget::getTraceView(QByteArray content)
 {
     try {
 
-        return new STATView(content, this);
+        STATView *view = new STATView(this);
+        view->setContent(content);
+        return view;
 
     } catch(QString err) {
         using namespace Core::MainWindow;

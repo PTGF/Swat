@@ -47,10 +47,6 @@ class DirectedGraphScene;
 class DirectedGraphNode;
 class DirectedGraphEdge;
 
-namespace Ui {
-class DirectedGraphView;
-}
-
 class UndoCommand : public QUndoCommand
 {
 public:
@@ -121,8 +117,10 @@ class DirectedGraphView : public TabWidget
     Q_OBJECT
 
 public:
-    explicit DirectedGraphView(const QByteArray &content, QWidget * parent = 0);
+    explicit DirectedGraphView(QWidget * parent = 0);
     ~DirectedGraphView();
+
+    virtual void setContent(const QByteArray &content);
 
     virtual QGraphVizView *view();
     virtual DirectedGraphScene *scene();

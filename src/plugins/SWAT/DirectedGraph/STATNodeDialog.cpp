@@ -42,7 +42,16 @@ STATNodeDialog::STATNodeDialog(QWidget *parent) :
 
     ui->grpLeafTasks->setVisible(false);
     ui->grpTotalTasks->setVisible(false);
+
+    connect(this, SIGNAL(finished(int)), this, SLOT(onFinished()));
 }
+
+void STATNodeDialog::onFinished()
+{
+    // Deselect the node so the user can reselect the same node again without effort
+    m_Node->setSelected(false);
+}
+
 
 STATNodeDialog::~STATNodeDialog()
 {
@@ -67,6 +76,8 @@ void STATNodeDialog::setNode(STATNode *node)
     ui->btnCollapse->setChecked(m_Node->collapsed());
 
     ui->txtStackFrame->setText(m_Node->label());
+
+    ui->btnViewSource->setEnabled(!m_Node->sourceFile().isEmpty());
 
     //TODO: Leaf Tasks
 
@@ -94,43 +105,35 @@ STATNode *STATNodeDialog::node()
     return m_Node;
 }
 
+
 void STATNodeDialog::on_btnCollapse_toggled(bool checked)
 {
     if(!m_Node) { return; }
 
-    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
-    if(!view) {
-        //TODO: Error
-        return;
+    if(DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent())) {
+        checked ? view->doCollapse(m_Node) : view->doExpand(m_Node);
     }
 
-    checked ? view->doCollapse(m_Node) : view->doExpand(m_Node);
 }
 
 void STATNodeDialog::on_btnCollapseDepth_clicked()
 {
     if(!m_Node) { return; }
 
-    DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent());
-    if(!view) {
-        //TODO: Error
-        return;
+    if(DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent())) {
+        view->doCollapseDepth(m_Node->nodeDepth());
     }
 
-    view->doCollapseDepth(m_Node->nodeDepth());
 }
 
 void STATNodeDialog::on_btnFocus_clicked()
 {
     if(!m_Node) { return; }
 
-    STATView *view = qobject_cast<STATView *>(parent());
-    if(!view) {
-        //TODO: Error
-        return;
+    if(STATView *view = qobject_cast<STATView *>(parent())) {
+        view->doFocus(m_Node);
     }
 
-    view->doFocus(m_Node);
 }
 
 void STATNodeDialog::on_btnViewSource_clicked()
@@ -139,12 +142,9 @@ void STATNodeDialog::on_btnViewSource_clicked()
         return;
     }
 
-    STATView *view = qobject_cast<STATView *>(parent());
-    if(!view) {
-        return;
+    if(STATView *view = qobject_cast<STATView *>(parent())) {
+        view->openSourceFile(m_Node->sourceFile(), m_Node->sourceLine());
     }
-
-    view->openSourceFile(m_Node->sourceFile(), m_Node->sourceLine());
 }
 
 } // namespace SWAT

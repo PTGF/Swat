@@ -37,19 +37,15 @@
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent) :
+DirectedGraphView::DirectedGraphView(QWidget *parent) :
     TabWidget(parent),
     m_Scene(NULL),
     m_View(NULL),
+    m_UndoStack(new QUndoStack(this)),
     m_Id(QUuid::createUuid()),
     m_ExpandAll(NULL)
 {
-    createScene(content);
-
-    setWindowTitle(tr("Directed Graph View"));
-    insertTab(0, view(), tr("Stack"));
-
-    m_UndoStack = new QUndoStack(this);
+    m_UndoStack->setActive(false);
 
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
@@ -58,10 +54,12 @@ DirectedGraphView::DirectedGraphView(const QByteArray &content, QWidget *parent)
             QAction *undo = m_UndoStack->createUndoAction(this);
             undo->setIcon(QIcon(":/SWAT/app.gif"));
             undo->setProperty("swatView_menuitem", m_Id.toString());
+            undo->setShortcut(QKeySequence::Undo);
 
             QAction *redo = m_UndoStack->createRedoAction(this);
             redo->setIcon(QIcon(":/SWAT/app.gif"));
             redo->setProperty("swatView_menuitem", m_Id.toString());
+            redo->setShortcut(QKeySequence::Redo);
 
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
@@ -115,6 +113,20 @@ DirectedGraphView::~DirectedGraphView()
 {
 }
 
+void DirectedGraphView::setContent(const QByteArray &content)
+{
+    if(!scene()) {
+        createScene(content);
+
+        setWindowTitle(tr("Directed Graph View"));
+
+        insertTab(0, view(), tr("Stack"));
+    }
+
+    undoStack()->setActive();
+}
+
+
 QGraphVizView *DirectedGraphView::view()
 {
     if(!m_View) {
@@ -128,7 +140,8 @@ QGraphVizView *DirectedGraphView::view()
 DirectedGraphScene *DirectedGraphView::createScene(const QByteArray &content)
 {
     if(!m_Scene) {
-        m_Scene = new DirectedGraphScene(QString(content));
+        m_Scene = new DirectedGraphScene();
+        m_Scene->setContent(QString(content));
     }
     return m_Scene;
 }
@@ -160,34 +173,34 @@ QUndoStack *DirectedGraphView::undoStack()
 
 void DirectedGraphView::undo()
 {
-    m_UndoStack->undo();
+    undoStack()->undo();
 }
 
 void DirectedGraphView::redo()
 {
-    m_UndoStack->redo();
+    undoStack()->redo();
 }
 
 
 void DirectedGraphView::doExpandAll()
 {
-    m_UndoStack->push(new ExpandAllCommand(this));
+    undoStack()->push(new ExpandAllCommand(this));
 }
 
 
 void DirectedGraphView::doCollapse(DirectedGraphNode *node)
 {
-    m_UndoStack->push(new CollapseNodeCommand(this, node, true));
+    undoStack()->push(new CollapseNodeCommand(this, node, true));
 }
 
 void DirectedGraphView::doExpand(DirectedGraphNode *node)
 {
-    m_UndoStack->push(new CollapseNodeCommand(this, node, false));
+    undoStack()->push(new CollapseNodeCommand(this, node, false));
 }
 
 void DirectedGraphView::doCollapseDepth(int depth)
 {
-    m_UndoStack->push(new CollapseNodeDepthCommand(this, depth));
+    undoStack()->push(new CollapseNodeDepthCommand(this, depth));
 }
 
 void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
@@ -221,6 +234,8 @@ void DirectedGraphView::showEvent(QShowEvent *event)
         }
     }
 
+    undoStack()->setActive(true);
+
     QWidget::showEvent(event);
 }
 
@@ -235,6 +250,8 @@ void DirectedGraphView::hideEvent(QHideEvent *event)
             action->setVisible(false);
         }
     }
+
+    undoStack()->setActive(false);
 
     QWidget::hideEvent(event);
 }

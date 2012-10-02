@@ -36,21 +36,21 @@ namespace SWAT {
 DirectedGraphNode::DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent) :
     QGraphVizNode(node, scene, parent),
     m_Scene(scene),
+    m_NodeId(-1),
     m_Depth(-1),
-    m_NodeId(-1)
+    m_ParentNode(NULL)
 {
 }
 
-qint64 DirectedGraphNode::nodeId()
+const qint64 &DirectedGraphNode::nodeId()
 {
     if(m_NodeId < 0) {
         m_NodeId = getGVName().toLongLong();
     }
-
     return m_NodeId;
 }
 
-int DirectedGraphNode::nodeDepth()
+const int &DirectedGraphNode::nodeDepth()
 {
     if(m_Depth < 0) {
         m_Depth = 0;
@@ -60,46 +60,63 @@ int DirectedGraphNode::nodeDepth()
             }
         }
     }
-
     return m_Depth;
 }
 
-QString DirectedGraphNode::label()
+const QString &DirectedGraphNode::label()
 {
-    return m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_LongLabel).toString();
+    if(m_Label.isEmpty()) {
+        m_Label = m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_LongLabel).toString();
+    }
+    return m_Label;
 }
 
-QString DirectedGraphNode::shortLabel()
+const QString &DirectedGraphNode::shortLabel()
 {
-    return m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_ShortLabel).toString();
+    if(m_ShortLabel.isEmpty()) {
+        m_ShortLabel = m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_ShortLabel).toString();
+    }
+    return m_ShortLabel;
 }
 
-QString DirectedGraphNode::edgeLabel()
+const QString &DirectedGraphNode::edgeLabel()
 {
-    return m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_LongLabel).toString();
+    if(m_EdgeLabel.isEmpty()) {
+        m_EdgeLabel = m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_LongLabel).toString();
+    }
+
+    return m_EdgeLabel;
 }
 
-QString DirectedGraphNode::shortEdgeLabel()
+const QString &DirectedGraphNode::shortEdgeLabel()
 {
-    return m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_ShortLabel).toString();
+    if(m_ShortEdgeLabel.isEmpty()) {
+        m_ShortEdgeLabel = m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_ShortLabel).toString();
+    }
+    return m_ShortEdgeLabel;
 }
 
 DirectedGraphNode *DirectedGraphNode::parentNode()
 {
-    QList<QGraphVizEdge *> edges = headEdges();
-    if(edges.count() == 1) {
-        return qgraphicsitem_cast<DirectedGraphNode *>(edges.at(0)->tail());
+    if(!m_ParentNode) {
+        QList<QGraphVizEdge *> edges = headEdges();
+        if(edges.count() == 1) {
+            m_ParentNode = qgraphicsitem_cast<DirectedGraphNode *>(edges.at(0)->tail());
+        }
     }
-    return NULL;
+
+    return m_ParentNode;
 }
 
 QList<DirectedGraphNode *> DirectedGraphNode::childNodes()
 {
-    QList<DirectedGraphNode *> tailNodes;
-    foreach(QGraphVizEdge *edge, tailEdges()) {
-        tailNodes.append(qgraphicsitem_cast<DirectedGraphNode *>(edge->head()));
+    if(m_ChildNodes.isEmpty()) {
+        foreach(QGraphVizEdge *edge, tailEdges()) {
+            m_ChildNodes.append(qgraphicsitem_cast<DirectedGraphNode *>(edge->head()));
+        }
     }
-    return tailNodes;
+
+    return m_ChildNodes;
 }
 
 

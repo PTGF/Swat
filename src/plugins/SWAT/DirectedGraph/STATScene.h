@@ -40,7 +40,7 @@ class STATScene : public DirectedGraphScene
 {
     Q_OBJECT
 public:
-    explicit STATScene(QString content, QObject *parent = 0);
+    explicit STATScene(QObject *parent = 0);
 
 protected:
     enum StatNodeInfoTypes {
@@ -61,9 +61,6 @@ protected:
 
     virtual QGraphVizNode *createNode(node_t *node);
     virtual QGraphVizEdge *createEdge(edge_t *edge);
-
-    virtual DirectedGraphScene *createScene(const QByteArray &content);
-
 
 private:
 

@@ -40,7 +40,9 @@ class DirectedGraphScene : public QGraphVizScene
 {
     Q_OBJECT
 public:
-    explicit DirectedGraphScene(QString content, QObject *parent = 0);
+    explicit DirectedGraphScene(QObject *parent = 0);
+
+    void setContent(QString content);
 
     QVariant nodeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;
     QVariant edgeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;

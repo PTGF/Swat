@@ -33,11 +33,14 @@
 namespace Plugins {
 namespace SWAT {
 
-DirectedGraphScene::DirectedGraphScene(QString content, QObject *parent) :
+DirectedGraphScene::DirectedGraphScene(QObject *parent) :
     QGraphVizScene(parent)
 {
-    qDebug() << "DirectedGraphScene()";
-    setContent(preprocessContent(content));
+}
+
+void DirectedGraphScene::setContent(QString content)
+{
+    QGraphVizScene::setContent(preprocessContent(content));
 }
 
 QGraphVizNode *DirectedGraphScene::createNode(node_t *node)
@@ -52,6 +55,10 @@ QGraphVizEdge *DirectedGraphScene::createEdge(edge_t *edge)
 
 QString DirectedGraphScene::preprocessContent(const QString &content)
 {
+    if(content.isEmpty()) {
+        return QString();
+    }
+
     QString retval;
 
     QRegExp rxLabel = QRegExp("label=\"(.*)\"", Qt::CaseInsensitive);

@@ -33,10 +33,9 @@
 namespace Plugins {
 namespace SWAT {
 
-STATScene::STATScene(QString content, QObject *parent) :
-    DirectedGraphScene(content, parent)
+STATScene::STATScene(QObject *parent) :
+    DirectedGraphScene(parent)
 {
-    qDebug() << "STATScene()";
 }
 
 QGraphVizNode *STATScene::createNode(node_t *node)
