@@ -29,12 +29,15 @@
 
 #include <graphlib.h>
 
+#include "SWATScene.h"
+
 namespace Plugins {
 namespace SWAT {
 
 SWATView::SWATView(QWidget *parent) :
     STATView(parent),
-    m_Graph(NULL)
+    m_Graph(NULL),
+    m_SWATScene(NULL)
 {
 }
 
@@ -45,11 +48,35 @@ SWATView::~SWATView()
     }
 }
 
+
+
+DirectedGraphScene *SWATView::scene()
+{
+    return m_SWATScene;
+}
+
+DirectedGraphScene *SWATView::createScene(const QByteArray &content)
+{
+    if(!m_SWATScene) {
+        m_SWATScene = new SWATScene();
+        m_SWATScene->setContent(QString(content));
+    }
+    return m_SWATScene;
+}
+
+
+
 void SWATView::setContent(const QByteArray &content)
 {
-
     STATView::setContent(content);
+
+    // Connect any SWAT QActions
+
+    // Do default SWAT actions on the view/scene
+
 }
+
+
 
 void SWATView::loadGraphLib(const QString filename)
 {

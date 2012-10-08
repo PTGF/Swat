@@ -25,44 +25,38 @@
 
  */
 
-#ifndef PLUGINS_SWAT_SWATVIEW_H
-#define PLUGINS_SWAT_SWATVIEW_H
+#ifndef PLUGINS_SWAT_SWATSCENE_H
+#define PLUGINS_SWAT_SWATSCENE_H
 
-#include <QWidget>
-#include <DirectedGraph/STATView.h>
-
-struct graphlib_graph_d;
-typedef graphlib_graph_d *graphlib_graph_p;
+#include "STATScene.h"
 
 namespace Plugins {
 namespace SWAT {
 
-class SWATScene;
-
-class SWATView : public STATView
+class SWATScene : public STATScene
 {
     Q_OBJECT
-
 public:
-    explicit SWATView(QWidget * parent = 0);
-    ~SWATView();
-
-    virtual void setContent(const QByteArray &content);
-    virtual DirectedGraphScene *scene();
-
-    void loadGraphLib(const QString filename);
+    explicit SWATScene(QObject *parent = 0);
 
 protected:
-    virtual DirectedGraphScene *createScene(const QByteArray &content);
+    enum SwatNodeInfoTypes {
+        NodeInfoType_SwatInfo = 7
+    };
 
+    enum SwatEdgeInfoTypes {
+        EdgeInfoType_SwatInfo = 4
+    };
 
-private:
-    graphlib_graph_p m_Graph;
-    SWATScene *m_SWATScene;
+    virtual QGraphVizNode *createNode(node_t *node);
+    virtual QGraphVizEdge *createEdge(edge_t *edge);
+
+    virtual void processNodeLabel(quint64 id, QString label);
+    virtual void processEdgeLabel(quint64 id, QString label);
 
 };
 
-
 } // namespace SWAT
 } // namespace Plugins
-#endif // PLUGINS_SWAT_SWATVIEW_H
+
+#endif // PLUGINS_SWAT_SWATSCENE_H

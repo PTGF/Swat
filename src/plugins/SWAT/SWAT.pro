@@ -49,7 +49,10 @@ SOURCES      += SWATPlugin.cpp \
                 DirectedGraph/STATNodeDialog.cpp \
                 DirectedGraph/STATEdge.cpp \
                 DirectedGraph/STATNode.cpp \
-                DirectedGraph/SWATView.cpp
+                DirectedGraph/SWATView.cpp \
+    DirectedGraph/SWATNode.cpp \
+    DirectedGraph/SWATScene.cpp \
+    DirectedGraph/SWATEdge.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -70,7 +73,10 @@ HEADERS      += SWATPlugin.h \
                 DirectedGraph/STATNodeDialog.h \
                 DirectedGraph/STATEdge.h \
                 DirectedGraph/STATNode.h \
-                DirectedGraph/SWATView.h
+                DirectedGraph/SWATView.h \
+    DirectedGraph/SWATNode.h \
+    DirectedGraph/SWATScene.h \
+    DirectedGraph/SWATEdge.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \
