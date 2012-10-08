@@ -136,6 +136,11 @@ public slots:
     void doCollapse(DirectedGraphNode *node);
     void doCollapseDepth(int depth);
 
+    void doZoomIn();
+    void doZoomOut();
+    void doZoomFit();
+    void doRefresh();
+
 protected:
     QUuid id();
     QUndoStack *undoStack();

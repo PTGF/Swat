@@ -57,6 +57,8 @@ public:
     DirectedGraphNode *parentNode();
     QList<DirectedGraphNode *> childNodes();
 
+    virtual void showToolTip(const QPoint &pos, QWidget *w, const QRect &rect);
+
 private:
     DirectedGraphScene *m_Scene;
 

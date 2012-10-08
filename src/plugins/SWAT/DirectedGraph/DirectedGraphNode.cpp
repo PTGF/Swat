@@ -120,5 +120,16 @@ QList<DirectedGraphNode *> DirectedGraphNode::childNodes()
 }
 
 
+void DirectedGraphNode::showToolTip(const QPoint &pos, QWidget *w, const QRect &rect)
+{
+    QStringList toolTips;
+    toolTips << this->label();
+    toolTips << this->edgeLabel();
+
+    QToolTip::showText(pos, toolTips.join("<br />"), w, rect);
+}
+
+
+
 } // namespace SWAT
 } // namespace Plugins

@@ -77,6 +77,7 @@ void SWATView::loadGraphLib(const QString filename)
             setContent(content);
         }
     }
+
 }
 
 

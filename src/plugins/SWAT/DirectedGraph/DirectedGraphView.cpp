@@ -100,6 +100,27 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
         }
 
         if(action->text() == tr("Tools")) {
+            QAction *zoomIn = new QAction(QIcon(":/SWAT/zoom-in.svg"), tr("Zoom In"), this);
+            zoomIn->setProperty("swatView_menuitem", m_Id.toString());
+            zoomIn->setShortcut(QKeySequence::ZoomIn);
+            connect(zoomIn, SIGNAL(triggered()), this, SLOT(doZoomIn()));
+
+            QAction *zoomOut = new QAction(QIcon(":/SWAT/zoom-out.svg"), tr("Zoom Out"), this);
+            zoomOut->setProperty("swatView_menuitem", m_Id.toString());
+            zoomOut->setShortcut(QKeySequence::ZoomOut);
+            connect(zoomOut, SIGNAL(triggered()), this, SLOT(doZoomOut()));
+
+            QAction *zoomFit = new QAction(QIcon(":/SWAT/zoom-fit.svg"), tr("Zoom Fit"), this);
+            zoomFit->setProperty("swatView_menuitem", m_Id.toString());
+            zoomFit->setShortcut(QKeySequence("ctrl+0"));
+            connect(zoomFit, SIGNAL(triggered()), this, SLOT(doZoomFit()));
+
+            QAction *refresh = new QAction(QIcon(":/SWAT/refresh.svg"), tr("Refresh"), this);
+            refresh->setProperty("swatView_menuitem", m_Id.toString());
+            refresh->setShortcut(QKeySequence::Refresh);
+            connect(refresh, SIGNAL(triggered()), this, SLOT(doRefresh()));
+
+
             m_ExpandAll = new QAction(tr("Expand All"), this);
             m_ExpandAll->setToolTip(tr("Expand all functions in the current stack trace"));
             m_ExpandAll->setIcon(QIcon(":/SWAT/app.gif"));
@@ -111,6 +132,11 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             m_ViewToolBar = new QToolBar("View", this);
             m_ViewToolBar->setObjectName("ViewToolBar");
             m_ViewToolBar->setIconSize(QSize(16,16));
+            m_ViewToolBar->addAction(zoomIn);
+            m_ViewToolBar->addAction(zoomOut);
+            m_ViewToolBar->addAction(zoomFit);
+            m_ViewToolBar->addAction(refresh);
+            m_ViewToolBar->addSeparator();
             m_ViewToolBar->addAction(m_ExpandAll);
             mainWindow.addToolBar(Qt::TopToolBarArea, m_ViewToolBar);
             m_ViewToolBar->hide();
@@ -124,11 +150,21 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             }
 
             if(before) {
+                action->menu()->insertAction(before, zoomIn);
+                action->menu()->insertAction(before, zoomOut);
+                action->menu()->insertAction(before, zoomFit);
+                action->menu()->insertAction(before, refresh);
+                action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
                 action->menu()->insertAction(before, m_ExpandAll);
                 action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
             } else {
-                action->menu()->addAction(m_ExpandAll);
                 action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->addAction(zoomIn);
+                action->menu()->addAction(zoomOut);
+                action->menu()->addAction(zoomFit);
+                action->menu()->addAction(refresh);
+                action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->addAction(m_ExpandAll);
             }
         }
     }
@@ -162,6 +198,7 @@ QGraphVizView *DirectedGraphView::view()
 {
     if(!m_View) {
         m_View = new QGraphVizView(scene(), this);
+        m_View->setHandlesKeyboardEvents(false);
         scene()->setParent(this);
     }
     return m_View;
@@ -246,6 +283,38 @@ void DirectedGraphView::doCollapseDepth(int depth)
 {
     undoStack()->push(new CollapseNodeDepthCommand(this, depth));
 }
+
+
+
+void DirectedGraphView::doZoomIn()
+{
+    if(m_View) {
+        m_View->zoomIn();
+    }
+}
+
+void DirectedGraphView::doZoomOut()
+{
+    if(m_View) {
+        m_View->zoomOut();
+    }
+}
+
+void DirectedGraphView::doZoomFit()
+{
+    if(m_View) {
+        m_View->zoomFit();
+    }
+}
+
+void DirectedGraphView::doRefresh()
+{
+    if(m_View) {
+        m_View->update();
+    }
+}
+
+
 
 void DirectedGraphView::txtFilter_textChanged(const QString &text)
 {

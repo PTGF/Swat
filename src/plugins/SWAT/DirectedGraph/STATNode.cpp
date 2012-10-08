@@ -74,5 +74,26 @@ QStringList STATNode::processList()
     return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessList).toStringList();
 }
 
+void STATNode::showToolTip(const QPoint &pos, QWidget *w, const QRect &rect)
+{
+    QStringList toolTips;
+    toolTips << QApplication::tr("Function:      %1").arg(this->functionName());
+
+    if(this->processList().count() > 8) {
+        toolTips << QApplication::tr("<br />Process Count: %1").arg(this->processCount());
+    } else {
+        toolTips << QApplication::tr("<br />Process Count: %1").arg(this->processCount());
+        toolTips << QApplication::tr("Process List:  %1").arg(this->processList().join(", "));
+    }
+
+    if(!sourceFile().isEmpty()) {
+        toolTips << QApplication::tr("<br />Source File:   %1").arg(this->sourceFile());
+        toolTips << QApplication::tr("Source Line:   %1").arg(this->sourceLine());
+    }
+
+    QToolTip::showText(pos, QString("<pre>%1</pre>").arg(toolTips.join("<br />")), w, rect);
+}
+
+
 } // namespace SWAT
 } // namespace Plugins

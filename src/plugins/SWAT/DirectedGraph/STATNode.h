@@ -48,6 +48,8 @@ public:
     QString processCount();
     QStringList processList();
 
+    virtual void showToolTip(const QPoint &pos, QWidget *w, const QRect &rect);
+
 private:
     STATScene *m_Scene;
 
