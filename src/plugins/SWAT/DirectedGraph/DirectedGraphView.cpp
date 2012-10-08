@@ -43,7 +43,10 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
     m_View(NULL),
     m_UndoStack(new QUndoStack(this)),
     m_Id(QUuid::createUuid()),
-    m_ExpandAll(NULL)
+    m_EditToolBar(NULL),
+    m_ViewToolBar(NULL),
+    m_ExpandAll(NULL),
+    m_txtFilter(NULL)
 {
     m_UndoStack->setActive(false);
 
@@ -52,14 +55,28 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
     foreach(QAction *action, mainWindow.menuBar()->actions()) {
         if(action->text() == tr("Edit")) {
             QAction *undo = m_UndoStack->createUndoAction(this);
-            undo->setIcon(QIcon(":/SWAT/app.gif"));
+            undo->setIcon(QIcon(":/SWAT/undo.svg"));
             undo->setProperty("swatView_menuitem", m_Id.toString());
             undo->setShortcut(QKeySequence::Undo);
 
             QAction *redo = m_UndoStack->createRedoAction(this);
-            redo->setIcon(QIcon(":/SWAT/app.gif"));
+            redo->setIcon(QIcon(":/SWAT/redo.svg"));
             redo->setProperty("swatView_menuitem", m_Id.toString());
             redo->setShortcut(QKeySequence::Redo);
+
+            QAction *filter = new QAction(QIcon(":/SWAT/filter.svg"), tr("Filter"), this);
+            filter->setProperty("swatView_menuitem", m_Id.toString());
+            filter->setShortcut(QKeySequence::Find);
+            connect(filter, SIGNAL(triggered()), this, SLOT(filter()));
+
+            m_EditToolBar = new QToolBar("Edit", this);
+            m_EditToolBar->setObjectName("EditToolBar");
+            m_EditToolBar->setIconSize(QSize(16,16));
+            m_EditToolBar->addAction(undo);
+            m_EditToolBar->addAction(redo);
+            m_EditToolBar->addAction(filter);
+            mainWindow.addToolBar(Qt::TopToolBarArea, m_EditToolBar);
+            m_EditToolBar->hide();
 
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
@@ -72,10 +89,12 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             if(before) {
                 action->menu()->insertAction(before, undo);
                 action->menu()->insertAction(before, redo);
+                action->menu()->insertAction(before, filter);
                 action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
             } else {
                 action->menu()->addAction(undo);
                 action->menu()->addAction(redo);
+                action->menu()->addAction(filter);
                 action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
             }
         }
@@ -88,6 +107,13 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             m_ExpandAll->setVisible(false);
             m_ExpandAll->setProperty("swatView_menuitem", m_Id.toString());
             connect(m_ExpandAll, SIGNAL(triggered()), this, SLOT(doExpandAll()));
+
+            m_ViewToolBar = new QToolBar("View", this);
+            m_ViewToolBar->setObjectName("ViewToolBar");
+            m_ViewToolBar->setIconSize(QSize(16,16));
+            m_ViewToolBar->addAction(m_ExpandAll);
+            mainWindow.addToolBar(Qt::TopToolBarArea, m_ViewToolBar);
+            m_ViewToolBar->hide();
 
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
@@ -106,6 +132,11 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             }
         }
     }
+
+
+    m_txtFilter = new QLineEdit(this);
+    connect(m_txtFilter, SIGNAL(textChanged(QString)), this, SLOT(txtFilter_textChanged(QString)));
+    m_txtFilter->hide();
 
  }
 
@@ -170,6 +201,19 @@ QUndoStack *DirectedGraphView::undoStack()
     return m_UndoStack;
 }
 
+void DirectedGraphView::filter()
+{
+    if(m_txtFilter->isVisible()) {
+        m_txtFilter->hide();
+        txtFilter_textChanged(QString());
+    } else {
+        m_txtFilter->show();
+        m_txtFilter->move(width() - 16 - m_txtFilter->width(), 0);
+        m_txtFilter->setFocus();
+        txtFilter_textChanged(m_txtFilter->text());
+    }
+}
+
 
 void DirectedGraphView::undo()
 {
@@ -203,15 +247,15 @@ void DirectedGraphView::doCollapseDepth(int depth)
     undoStack()->push(new CollapseNodeDepthCommand(this, depth));
 }
 
-void DirectedGraphView::on_txtFilter_textChanged(const QString &filter)
+void DirectedGraphView::txtFilter_textChanged(const QString &text)
 {
-    QRegExp rx = QRegExp(filter, Qt::CaseInsensitive, QRegExp::RegExp2);
+    QRegExp rx = QRegExp(text, Qt::CaseInsensitive, QRegExp::RegExp2);
     foreach(QGraphVizNode *gvNode, scene()->getNodes()) {
         if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(gvNode)) {
-            if(rx.indexIn(node->label()) >= 0) {
-                node->setSelected(true);
+            if(!text.isEmpty() && rx.indexIn(node->label()) >= 0) {
+                node->setHighlighted(true);
             } else {
-                node->setSelected(false);
+                node->setHighlighted(false);
             }
         }
     }
@@ -236,6 +280,9 @@ void DirectedGraphView::showEvent(QShowEvent *event)
 
     undoStack()->setActive(true);
 
+    m_ViewToolBar->show();
+    m_EditToolBar->show();
+
     QWidget::showEvent(event);
 }
 
@@ -253,8 +300,18 @@ void DirectedGraphView::hideEvent(QHideEvent *event)
 
     undoStack()->setActive(false);
 
+    m_ViewToolBar->hide();
+    m_EditToolBar->hide();
+
     QWidget::hideEvent(event);
 }
+
+void DirectedGraphView::resizeEvent(QResizeEvent *event)
+{
+    TabWidget::resizeEvent(event);
+    m_txtFilter->move(width() - 16 - m_txtFilter->width(), 0);
+}
+
 
 
 
@@ -304,7 +361,7 @@ void ExpandAllCommand::findNodes()
     while(!queue.isEmpty()) {
         DirectedGraphNode *node = queue.dequeue();
 
-        if(node->collapsed()) {
+        if(node->isCollapsed()) {
             m_Nodes.append(node);
         }
 
@@ -361,7 +418,7 @@ void CollapseNodeCommand::redo()
 
     if(failed()) { return; }
 
-    if(m_Node->collapsed() == m_Collapse) {
+    if(m_Node->isCollapsed() == m_Collapse) {
         setFailed(true);
         return;
     }
@@ -432,7 +489,7 @@ void CollapseNodeDepthCommand::findNodes()
         DirectedGraphNode *node = queue.dequeue();
 
         if(node->nodeDepth() == m_Depth) {
-            if(!node->collapsed()) {
+            if(!node->isCollapsed()) {
                 m_Nodes.append(node);
             }
         } else {

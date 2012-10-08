@@ -302,9 +302,10 @@ signals:
 
     /*! \fn CompiledAdapter::sampled()
         \brief Emitted when a sample operation has finished
+        \param filename Absolute path to file with stored content
         \param id Unique ID of the associated FrontEnd
      */
-    void sampled(QString dotCode, QUuid id);
+    void sampled(QString filename, QUuid id);
 
     /*! \fn CompiledAdapter::canceling()
         \brief Emitted when a cancel operation is initiated

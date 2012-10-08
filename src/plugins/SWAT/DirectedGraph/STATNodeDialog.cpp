@@ -73,7 +73,7 @@ void STATNodeDialog::setNode(STATNode *node)
         return;
     }
 
-    ui->btnCollapse->setChecked(m_Node->collapsed());
+    ui->btnCollapse->setChecked(m_Node->isCollapsed());
 
     ui->txtStackFrame->setText(m_Node->label());
 

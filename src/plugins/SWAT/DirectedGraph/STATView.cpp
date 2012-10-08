@@ -28,6 +28,7 @@
 #include "STATView.h"
 
 #include <MainWindow/MainWindow.h>
+#include <SettingManager/SettingManager.h>
 #include <PluginManager/PluginManager.h>
 #include <SourceView/ISourceViewFactory.h>
 #include <SourceView/SourceView.h>
@@ -43,7 +44,9 @@ namespace SWAT {
 STATView::STATView(QWidget *parent) :
     DirectedGraphView(parent),
     m_STATScene(NULL),
-    m_HideMPI(NULL)
+    m_HideMPI(NULL),
+    m_HideNonBranching(NULL),
+    m_EditToolBar(NULL)
 {
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
@@ -57,6 +60,17 @@ STATView::STATView(QWidget *parent) :
             m_HideMPI->setProperty("swatView_menuitem", id().toString());
             connect(m_HideMPI, SIGNAL(triggered()), this, SLOT(doHideMPI()));
 
+            m_HideNonBranching = new QAction(tr("Hide Non-Branching Functions"), this);
+            m_HideNonBranching->setToolTip(tr("Collapse all Non-Branching functions in the current stack trace"));
+            m_HideNonBranching->setIcon(QIcon(":/SWAT/app.gif"));
+            m_HideNonBranching->setIconVisibleInMenu(true);
+            m_HideNonBranching->setVisible(false);
+            m_HideNonBranching->setProperty("swatView_menuitem", id().toString());
+            connect(m_HideNonBranching, SIGNAL(triggered()), this, SLOT(doHideNonBranching()));
+
+            viewToolBar()->addAction(m_HideMPI);
+            viewToolBar()->addAction(m_HideNonBranching);
+
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
             foreach(QAction *item, action->menu()->actions()) {
@@ -66,8 +80,10 @@ STATView::STATView(QWidget *parent) :
             }
 
             if(before) {
+                action->menu()->insertAction(before, m_HideNonBranching);
                 action->menu()->insertAction(before, m_HideMPI);
             } else {
+                action->menu()->addAction(m_HideNonBranching);
                 action->menu()->addAction(m_HideMPI);
             }
         }
@@ -84,12 +100,30 @@ void STATView::setContent(const QByteArray &content)
     DirectedGraphView::setContent(content);
 
     connect(scene(), SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+
+    // Get settings from SettingManager and perform default functions on loaded scene
+    Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
+    settingManager.beginGroup("Plugins/SWAT");
+    if(settingManager.value("viewDefaults/hideMPI", true).toBool()) {
+        doHideMPI();
+    }
+    if(settingManager.value("viewDefaults/hideNonBranching", true).toBool()) {
+        doHideNonBranching();
+    }
+    settingManager.endGroup();
+
+    undoStack()->clear();  // Clear the undo stack so that the user is forced to use "expand all" to get to default
 }
 
 
 void STATView::doHideMPI()
 {
     undoStack()->push(new HideMPICommand(this));
+}
+
+void STATView::doHideNonBranching()
+{
+    undoStack()->push(new HideNonBranchingCommand(this));
 }
 
 void STATView::doFocus(STATNode *node)
@@ -125,7 +159,6 @@ DirectedGraphScene *STATView::scene()
 void STATView::openSourceFile(const QString &filename, const int &lineNumber)
 {
     loadSourceFromFile(filename, lineNumber);
-    //TODO: Set view line number
 }
 
 void STATView::loadSourceFromFile(const QString &filename, const int &lineNumber)
@@ -272,7 +305,7 @@ void FocusNodeCommand::findNodes()
         STATNode *node = queue.dequeue();
 
         if(!related.contains(node)) {
-            if(!node->collapsed()) {
+            if(!node->isCollapsed()) {
                 m_Nodes.append(node);
             }
         } else {
@@ -423,7 +456,7 @@ void HideMPICommand::findNodes()
         }
 
         if(functions.contains(label)) {
-            if(!node->collapsed()) {
+            if(!node->isCollapsed()) {
                 m_Nodes.append(node);
             }
         } else {
@@ -453,6 +486,76 @@ bool HideMPICommand::mergeWith(const QUndoCommand *other)
 }
 
 
+HideNonBranchingCommand::HideNonBranchingCommand(STATView *view) :
+    STATUndoCommand(view)
+{
+    setText(QObject::tr("Hide Non-Branching Functions"));
+}
+
+void HideNonBranchingCommand::undo()
+{
+    UndoCommand::undo();
+
+    if(failed()) { return; }
+
+    foreach(STATNode *node, m_Nodes) {
+        node->setCollapsed(false);
+    }
+}
+
+void HideNonBranchingCommand::redo()
+{
+    UndoCommand::redo();
+
+    if(m_Nodes.isEmpty()) {
+        findNodes();
+    }
+
+    foreach(STATNode *node, m_Nodes) {
+        node->setCollapsed(true);
+    }
+
+    setFailed(m_Nodes.isEmpty());
+}
+
+bool HideNonBranchingCommand::findNodes(STATNode *parent)
+{
+    if(!parent) {
+        parent = qgraphicsitem_cast<STATNode *>(view()->rootNode());
+    }
+
+    bool parentBranches = (parent->childNodes().count() > 1);
+
+    foreach(DirectedGraphNode *child, parent->childNodes()) {
+        STATNode *statChild = qgraphicsitem_cast<STATNode *>(child);
+
+        bool childBranches = findNodes(statChild);
+
+        if(!childBranches && parentBranches) {
+            if(!statChild->isCollapsed()) {
+                m_Nodes.append(statChild);
+            }
+        }
+
+        parentBranches = (childBranches || parentBranches);
+    }
+
+    return parentBranches;
+}
+
+bool HideNonBranchingCommand::mergeWith(const QUndoCommand *other)
+{
+    if(other->id() != id()) {
+        return false;
+    }
+
+    const HideNonBranchingCommand *command = static_cast<const HideNonBranchingCommand *>(other);
+    if(view() != command->view()) {
+        return false;
+    }
+
+    return true;
+}
 
 
 } // namespace SWAT

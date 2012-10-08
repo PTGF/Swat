@@ -56,9 +56,12 @@ SettingPage::SettingPage(QWidget *parent) :
     //Placeholder text wasn't added until Qt4.7
     ui->txtTopology->setPlaceholderText(tr("Topology Specification"));
     ui->txtNodes->setPlaceholderText(tr("Node List"));
+    ui->txtProcessFilter->setPlaceholderText(tr("Regular Expression Filter"));
 #endif
 
     ui->tabWidget->setCurrentIndex(0);
+
+    ui->txtProcessFilter->setText("mpirun|srun|orterun");
 
     ui->cmbSampleType->clear();
     ui->cmbSampleType->insertItem(0, tr("Function and Line"), IAdapter::Sample_FunctionAndLine);
@@ -97,6 +100,12 @@ void SettingPage::initialize()
     // Get settings from SettingManager and populate form
     Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
     settingManager.beginGroup("Plugins/SWAT");
+
+
+    ui->txtProcessFilter->setText(settingManager.value("attach/processFilter", ui->txtProcessFilter->text()).toString());
+    ui->chkSearchProcesses->setChecked(settingManager.value("startup/searchProcesses", true).toBool());
+    ui->chkHideMPI->setChecked(settingManager.value("viewDefaults/hideMPI", true).toBool());
+    ui->chkHideNonBranching->setChecked(settingManager.value("viewDefaults/hideNonBranching", true).toBool());
 
 
     ui->lstSourcePaths->clear();
@@ -178,6 +187,11 @@ void SettingPage::apply()
     // Persist changed settings to SettingManager
     Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
     settingManager.beginGroup("Plugins/SWAT");
+
+    settingManager.setValue("attach/processFilter", ui->txtProcessFilter->text());
+    settingManager.setValue("startup/searchProcesses", ui->chkSearchProcesses->isChecked());
+    settingManager.setValue("viewDefaults/hideMPI", ui->chkHideMPI->isChecked());
+    settingManager.setValue("viewDefaults/hideNonBranching", ui->chkHideNonBranching->isChecked());
 
     QStringList sourcePaths;
     for(int i=0; i < ui->lstSourcePaths->count(); ++i) {

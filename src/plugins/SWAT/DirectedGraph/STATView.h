@@ -84,6 +84,22 @@ private:
     QList<STATNode *> m_Nodes;
 };
 
+class HideNonBranchingCommand : public STATUndoCommand
+{
+public:
+    HideNonBranchingCommand(STATView *view);
+    bool mergeWith(const QUndoCommand *other);
+    void undo();
+    void redo();
+
+    int id() const { return 5; }
+
+protected:
+    bool findNodes(STATNode *parent = 0);
+
+private:
+    QList<STATNode *> m_Nodes;
+};
 
 class STATView : public DirectedGraphView
 {
@@ -98,6 +114,7 @@ public:
 
 public slots:
     void doHideMPI();
+    void doHideNonBranching();
     void doFocus(STATNode *node);
 
 protected:
@@ -114,8 +131,11 @@ protected slots:
 private:
     STATScene *m_STATScene;
     QAction *m_HideMPI;
+    QAction *m_HideNonBranching;
+    QToolBar *m_EditToolBar;
 
     friend class HideMPICommand;
+    friend class HideNonBranchingCommand;
     friend class FocusNodeCommand;
     friend class STATNodeDialog;
 

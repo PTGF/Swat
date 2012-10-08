@@ -16,6 +16,100 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="tabStartup">
+      <attribute name="title">
+       <string>Startup</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="grpStartup">
+         <property name="title">
+          <string>Startup</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblProcessFilter">
+            <property name="toolTip">
+             <string>Default process filter</string>
+            </property>
+            <property name="text">
+             <string>Process Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="txtProcessFilter">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="chkSearchProcesses">
+            <property name="toolTip">
+             <string>Automatically search localhost processes for running MPI job</string>
+            </property>
+            <property name="text">
+             <string>Search Local Processes</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grpViewDefaults">
+         <property name="title">
+          <string>Stack Trace View Defaults</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="chkHideMPI">
+            <property name="toolTip">
+             <string>Automatically hide all MPI functions by default</string>
+            </property>
+            <property name="text">
+             <string>Hide MPI Functions</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkHideNonBranching">
+            <property name="toolTip">
+             <string>Automatically hide all non-branching functions by default</string>
+            </property>
+            <property name="text">
+             <string>Hide Non-Branching Functions</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>233</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabPaths">
       <attribute name="title">
        <string>File Paths</string>

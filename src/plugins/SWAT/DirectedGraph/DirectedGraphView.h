@@ -129,6 +129,7 @@ public:
 public slots:
     void undo();
     void redo();
+    void filter();
 
     void doExpandAll();
     void doExpand(DirectedGraphNode *node);
@@ -141,9 +142,13 @@ protected:
     virtual DirectedGraphScene *createScene(const QByteArray &content);
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
+
+    QToolBar *editToolBar() { return m_EditToolBar; }
+    QToolBar *viewToolBar() { return m_ViewToolBar; }
 
 protected slots:
-    void on_txtFilter_textChanged(const QString &);
+    void txtFilter_textChanged(const QString &text);
 
 private:
     DirectedGraphScene *m_Scene;
@@ -154,7 +159,11 @@ private:
     QList<DirectedGraphNode *> m_Nodes;
     QList<DirectedGraphEdge *> m_Edges;
 
+
+    QToolBar *m_EditToolBar;
+    QToolBar *m_ViewToolBar;
     QAction *m_ExpandAll;
+    QLineEdit *m_txtFilter;
 
     friend class ExpandAllCommand;
     friend class CollapseNodeCommand;

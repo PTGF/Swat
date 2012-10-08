@@ -125,8 +125,13 @@ void JobControlDialog::readSettings()
     settingManager.beginGroup("Plugins/SWAT");
 
     //TODO: Set the window sizes appropriately
-//    resize( settingManager.value("JobControlDialog/WindowSize", size()).toSize() );
-//    move( settingManager.value("JobControlDialog/WindowPosition", pos()).toPoint() );
+    resize( settingManager.value("JobControlDialog/WindowSize", size()).toSize() );
+    move( settingManager.value("JobControlDialog/WindowPosition", pos()).toPoint() );
+
+
+    QString processFilter = settingManager.value("attach/processFilter", ui->txtProcessesFitler->text()).toString();
+    ui->txtProcessesFitler->setText(processFilter);
+
 
     QString remoteShellText = settingManager.value("remote/shell", ui->cmbRemoteShell->itemText(0)).toString();
     int remoteShellIndex = ui->cmbRemoteShell->findText(remoteShellText, Qt::MatchExactly);
@@ -457,7 +462,7 @@ void JobControlDialog::on_btnSearchProcesses_clicked()
 
     QString program = "/bin/ps";
     QStringList arguments;
-    arguments << "w" << "x";
+    arguments << "w" << "w" << "x" << "o" << "pid,command";
 
     QByteArray output;
     if(remoteHost == "localhost") {
@@ -484,13 +489,13 @@ void JobControlDialog::on_btnSearchProcesses_clicked()
 
     QMap<quint64, QString> processes;
 
-    QRegExp rxPid("\\s*PID");
-    QRegExp rxCommand("COMMAND\\s*$");
+    static const QRegExp rxPid("\\s*PID");
+    static const QRegExp rxCommand("COMMAND\\s*$");
 
-    int index = 0;
+    int commandIndex = 0;
     foreach(QString line, lines) {
         if(line.contains(rxPid)) {
-            index = line.indexOf(rxCommand);
+            commandIndex = line.indexOf(rxCommand);
             continue;
         }
 
@@ -499,14 +504,15 @@ void JobControlDialog::on_btnSearchProcesses_clicked()
         quint64 pid = trimmed.left(trimmed.indexOf(' ')).toULongLong(&okay);
 
         if(okay) {
-            processes.insert(pid, line.right(line.count() - index));
+            processes.insert(pid, line.right(line.count() - commandIndex));
         }
     }
 
     ui->lstProcesses->clear();
 
+    const QRegExp rxFilter = QRegExp(filter, Qt::CaseInsensitive);
     foreach(quint64 pid, processes.keys()) {
-        if(!processes.value(pid).contains(QRegExp(filter, Qt::CaseInsensitive))) {
+        if(!processes.value(pid).contains(rxFilter)) {
             continue;
         }
 

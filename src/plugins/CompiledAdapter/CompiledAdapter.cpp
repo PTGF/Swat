@@ -458,13 +458,8 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
         throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
     }
 
-    QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
-    }
+    emit sampled(fileInfo.absoluteFilePath(), id);
 
-    emit sampled(QString(file.readAll()), id);
-    file.close();
 
     operationProgress.value += operationProgressScale * 43;
     emit progress(operationProgress.value, id);
@@ -597,13 +592,8 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
         throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
     }
 
-    QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
-    }
 
-    emit sampled(QString(file.readAll()), id);
-    file.close();
+    emit sampled(fileInfo.absoluteFilePath(), id);
 
     operationProgress.value += operationProgressScale * 43;
     emit progress(operationProgress.value, id);

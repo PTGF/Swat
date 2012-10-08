@@ -27,17 +27,58 @@
 
 #include "SWATView.h"
 
+#include <graphlib.h>
+
 namespace Plugins {
 namespace SWAT {
 
 SWATView::SWATView(QWidget *parent) :
-    STATView(parent)
+    STATView(parent),
+    m_Graph(NULL)
 {
 }
 
 SWATView::~SWATView()
 {
+    if(m_Graph) {
+        graphlib_delGraph(m_Graph);
+    }
 }
+
+void SWATView::setContent(const QByteArray &content)
+{
+
+    STATView::setContent(content);
+}
+
+void SWATView::loadGraphLib(const QString filename)
+{
+    if(m_Graph) {
+        throw tr("A GraphLib graph has already been loaded");
+    }
+
+    if(GRL_IS_FATALERROR(graphlib_loadGraph(filename.toLocal8Bit().data(), &m_Graph))) {
+        throw tr("Failed to open GraphLib native format from file: %1").arg(filename);
+    }
+
+    QTemporaryFile temp;
+    if(temp.open()) {
+        temp.close();
+
+        if(GRL_IS_FATALERROR(graphlib_exportGraph(temp.fileName().toLocal8Bit().data(), GRF_DOT, m_Graph))) {
+            throw tr("Could not export GraphLib as GraphViz DOT file: %1 => %2").arg(filename, temp.fileName());
+        }
+
+        if(temp.open()) {
+            qDebug() << temp.fileName() << temp.readAll();
+
+            QByteArray content = temp.readAll();
+            temp.close();
+            setContent(content);
+        }
+    }
+}
+
 
 } // namespace SWAT
 } // namespace Plugins

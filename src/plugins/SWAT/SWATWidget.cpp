@@ -31,10 +31,12 @@
 
 #include <MainWindow/MainWindow.h>
 #include <MainWindow/NotificationWidget.h>
+#include <SettingManager/SettingManager.h>
 #include <PluginManager/PluginManager.h>
 #include <ConnectionManager/ConnectionManager.h>
 
 #include <DirectedGraph/STATView.h>
+#include <DirectedGraph/SWATView.h>
 #include <SourceView/ISourceViewFactory.h>
 
 #include "JobControlDialog.h"
@@ -44,7 +46,12 @@ namespace SWAT {
 
 SWATWidget::SWATWidget(QWidget *parent) :
     TabWidget(parent),
-    ui(new Ui::SWATWidget)
+    ui(new Ui::SWATWidget),
+    m_AttachJob(NULL),
+    m_LaunchJob(NULL),
+    m_LoadFile(NULL),
+    m_CloseJob(NULL),
+    m_ToolBar(NULL)
 {
     ui->setupUi(this);
 
@@ -63,7 +70,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
 
             m_AttachJob = new QAction(tr("Attach to Job"), this);
             m_AttachJob->setToolTip(tr("Attach SWAT to a running job"));
-            m_AttachJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_AttachJob->setIcon(QIcon(":/SWAT/attach.svg"));
             m_AttachJob->setIconVisibleInMenu(true);
             m_AttachJob->setVisible(false);
             m_AttachJob->setShortcut(QKeySequence::Refresh);
@@ -72,7 +79,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
 
             m_LaunchJob = new QAction(tr("Launch a Job"), this);
             m_LaunchJob->setToolTip(tr("Launch job and attach SWAT"));
-            m_LaunchJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_LaunchJob->setIcon(QIcon(":/SWAT/launch.svg"));
             m_LaunchJob->setIconVisibleInMenu(true);
             m_LaunchJob->setVisible(false);
             m_LaunchJob->setShortcut(QKeySequence::New);
@@ -81,7 +88,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
 
             m_LoadFile = new QAction(tr("Load from File"), this);
             m_LoadFile->setToolTip(tr("Load SWAT output from saved file"));
-            m_LoadFile->setIcon(QIcon(":/SWAT/app.gif"));
+            m_LoadFile->setIcon(QIcon(":/SWAT/open.svg"));
             m_LoadFile->setIconVisibleInMenu(true);
             m_LoadFile->setVisible(false);
             m_LoadFile->setShortcut(QKeySequence::Open);
@@ -90,13 +97,26 @@ SWATWidget::SWATWidget(QWidget *parent) :
 
             m_CloseJob = new QAction(tr("Close Job"), this);
             m_CloseJob->setToolTip(tr("Close current SWAT job"));
-            m_CloseJob->setIcon(QIcon(":/SWAT/app.gif"));
+            m_CloseJob->setIcon(QIcon(":/SWAT/close.svg"));
             m_CloseJob->setIconVisibleInMenu(true);
             m_CloseJob->setVisible(false);
             m_CloseJob->setEnabled(false);
             m_CloseJob->setShortcut(QKeySequence::Close);
             m_CloseJob->setProperty("swat_menuitem", QVariant(1));
             connect(m_CloseJob, SIGNAL(triggered()), this, SLOT(closeJob()));
+
+
+            m_ToolBar = new QToolBar(tr("SWAT"), this);
+            m_ToolBar->setObjectName("SwatToolBar");
+            m_ToolBar->setIconSize(QSize(16,16));
+            m_ToolBar->setFloatable(false);
+            m_ToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+            m_ToolBar->addAction(m_AttachJob);
+            m_ToolBar->addAction(m_LaunchJob);
+            m_ToolBar->addAction(m_LoadFile);
+            m_ToolBar->addAction(m_CloseJob);
+            mainWindow.addToolBar(Qt::TopToolBarArea, m_ToolBar);
+            m_ToolBar->hide();
 
 
             //! \todo We really need to rely on the ActionManager to do this.
@@ -120,6 +140,7 @@ SWATWidget::SWATWidget(QWidget *parent) :
                 action->menu()->addAction(m_CloseJob);
                 action->menu()->addSeparator()->setProperty("swat_menuitem", QVariant(1));
             }
+
 
         }
     }
@@ -168,6 +189,57 @@ void SWATWidget::tabTitleChanged()
         using namespace Core::MainWindow;
         MainWindow::instance().notify(tr("Failed to change tab name."), NotificationWidget::Critical);
     }
+}
+
+bool SWATWidget::searchProcesses()
+{
+    Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
+    settingManager.beginGroup("Plugins/SWAT");
+    QString filter = settingManager.value("attach/processFilter", "mpirun|srun|orterun").toString();
+    settingManager.endGroup();
+
+    QString program = "/bin/ps";
+    QStringList arguments;
+    arguments << "w" << "x";
+
+    QByteArray output;
+
+    {
+        QProcess process;
+        process.start(program, arguments);
+
+        if(!process.waitForStarted()) {
+            return false;
+        }
+
+        if(!process.waitForFinished()) {
+            return false;
+        }
+
+        output = process.readAll();
+    }
+
+    QStringList lines = QString(output).split('\n');
+
+    static const QRegExp rxPid("\\s*PID");
+    static const QRegExp rxCommand("COMMAND\\s*$");
+    QRegExp rxFilter = QRegExp(filter, Qt::CaseInsensitive);
+
+    bool foundOne = false;
+    int commandIndex = 0;
+    foreach(QString line, lines) {
+        if(line.contains(rxPid)) {
+            commandIndex = line.indexOf(rxCommand);
+            continue;
+        }
+
+        if(line.right(line.count() - commandIndex).contains(rxFilter)) {
+            foundOne = true;
+            break;
+        }
+    }
+
+    return foundOne;
 }
 
 void SWATWidget::attachJob()
@@ -260,6 +332,22 @@ void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
         connect(to, SIGNAL(progress(int,QUuid)),                this, SLOT(progress(int,QUuid)));
         connect(to, SIGNAL(progressMessage(QString,QUuid)),     this, SLOT(progressMessage(QString,QUuid)));
         connect(to, SIGNAL(sampled(QString,QUuid)),             this, SLOT(sampled(QString,QUuid)));
+
+
+        // Check for any running jobs that we can attach to
+        static bool searchedProcesses = false;
+        if(!searchedProcesses) {
+            Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
+            settingManager.beginGroup("Plugins/SWAT");
+            bool searchProcs = settingManager.value("startup/searchProcesses", true).toBool();
+            settingManager.endGroup();
+
+            searchedProcesses = true;
+
+            if(searchProcs && searchProcesses()) {
+                attachJob();
+            }
+        }
     }
 }
 
@@ -384,6 +472,8 @@ void SWATWidget::showEvent(QShowEvent *event)
         }
     }
 
+    m_ToolBar->show();
+
     TabWidget::showEvent(event);
 }
 
@@ -399,14 +489,16 @@ void SWATWidget::hideEvent(QHideEvent *event)
         }
     }
 
+    m_ToolBar->hide();
+
     TabWidget::hideEvent(event);
 }
 
 
-void SWATWidget::sampled(QString content, QUuid id)
+void SWATWidget::sampled(QString filename, QUuid id)
 {
     Q_UNUSED(id)
-    loadTraceFromContent(content.toLocal8Bit());
+    loadTraceFromFile(filename);
 }
 
 void SWATWidget::closeJob(int index)
@@ -439,7 +531,7 @@ void SWATWidget::loadTraceFile()
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Open SWAT file"),
                                                     path.absolutePath(),
-                                                    tr("SWAT files (*.dot *.swat);;STAT files (*.dot)")
+                                                    tr("SWAT files (*.grl *.dot);;STAT files (*.dot)")
                                                     );
 
     if(!filename.isEmpty()) {
@@ -453,58 +545,60 @@ void SWATWidget::loadTraceFile()
 
 void SWATWidget::loadTraceFromFile(QString filename)
 {
-    QFileInfo fileInfo(filename);
-
-    if(!fileInfo.exists()) {
-        throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
-    }
-
-    QFile file(fileInfo.absoluteFilePath());
-    if(!file.open(QIODevice::ReadOnly)) {
-        throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
-    }
-
-    QByteArray fileContent = file.readAll();
-
-    file.close();
-
-    loadTraceFromContent(fileContent, fileInfo.completeBaseName());
-}
-
-void SWATWidget::loadTraceFromContent(QByteArray content, QString title)
-{
-    using namespace Core::MainWindow;
-    MainWindow &mainWindow = MainWindow::instance();
-    mainWindow.setCurrentCentralWidget(this);
-
-    if(STATView *view = getTraceView(content)) {
-        if(!title.isEmpty()) {
-            view->setWindowTitle(title);
-        }
-
-        int index = addTab(view, view->windowTitle());
-        setCurrentIndex(index);
-    }
-}
-
-STATView *SWATWidget::getTraceView(QByteArray content)
-{
     try {
 
-        STATView *view = new STATView(this);
-        view->setContent(content);
-        return view;
+        QFileInfo fileInfo(filename);
+
+        if(!fileInfo.exists()) {
+            throw tr("File does not exist: '%1'").arg(fileInfo.absoluteFilePath());
+        }
+
+        using namespace Core::MainWindow;
+        MainWindow &mainWindow = MainWindow::instance();
+        mainWindow.setCurrentCentralWidget(this);
+
+        if(fileInfo.suffix().compare("dot") == 0) {
+                QFile file(fileInfo.absoluteFilePath());
+                if(!file.open(QIODevice::ReadOnly)) {
+                    throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
+                }
+                QByteArray fileContent = file.readAll();
+                file.close();
+
+                STATView *view = new STATView(this);
+                view->setContent(fileContent);
+
+                view->setWindowFilePath(fileInfo.absoluteFilePath());
+                view->setWindowTitle(fileInfo.completeBaseName());
+
+                int index = addTab(view, view->windowTitle());
+                setCurrentIndex(index);
+
+        } else if(fileInfo.suffix().compare("grl") == 0) {
+                SWATView *view = new SWATView(this);
+                view->loadGraphLib(fileInfo.absoluteFilePath());
+
+                view->setWindowFilePath(fileInfo.absoluteFilePath());
+                view->setWindowTitle(fileInfo.completeBaseName());
+
+                int index = addTab(view, view->windowTitle());
+                setCurrentIndex(index);
+
+        } else {
+            throw tr("Unknown file type: %1").arg(fileInfo.absoluteFilePath());
+
+        }
 
     } catch(QString err) {
         using namespace Core::MainWindow;
-        MainWindow::instance().notify(tr("Failed to create view from content: %1").arg(err), NotificationWidget::Critical);
+        MainWindow::instance().notify(tr("Failed to create view from file: %1").arg(err), NotificationWidget::Critical);
     } catch(...) {
         using namespace Core::MainWindow;
-        MainWindow::instance().notify(tr("Failed to create view from content."), NotificationWidget::Critical);
+        MainWindow::instance().notify(tr("Failed to create view from file."), NotificationWidget::Critical);
     }
 
-    return NULL;
 }
+
 
 
 } // namespace SWAT

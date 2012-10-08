@@ -20,6 +20,8 @@ include(../plugins.pri)
 
 include(SourceView.pri)
 include(QGraphViz.pri)
+include(GraphLib.pri)
+
 
 #TODO: Break this out into its own file
 LIBS         += -L$$quote($${BUILD_PATH}/plugins/Welcome/$${DIR_POSTFIX}) -lWelcome$${LIB_POSTFIX}

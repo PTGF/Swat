@@ -2,5 +2,30 @@
     <qresource prefix="/SWAT">
         <file alias="app.gif">Logo_70.gif</file>
         <file alias="logo_150.gif">Logo_150.gif</file>
+        <file alias="cancel.svg">dialog-cancel-5.svg</file>
+        <file alias="okay.svg">dialog-ok-apply-5.svg</file>
+        <file alias="find.svg">edit-find-7.svg</file>
+        <file alias="pause.svg">media-playback-pause-6.svg</file>
+        <file alias="start.svg">media-playback-start-6.svg</file>
+        <file alias="stop.svg">media-playback-stop-6.svg</file>
+        <file alias="zoom.svg">page-zoom.svg</file>
+        <file alias="filter.svg">view-filter.svg</file>
+        <file alias="refresh.svg">view-refresh-7.svg</file>
+        <file alias="zoom-fit.svg">zoom-fit-best-4.svg</file>
+        <file alias="zoom-in.svg">zoom-in-5.svg</file>
+        <file alias="zoom-out.svg">zoom-out-5.svg</file>
+        <file alias="close.svg">document-close-4.svg</file>
+        <file alias="export.svg">document-export-4.svg</file>
+        <file alias="new.svg">document-new-4.svg</file>
+        <file alias="properties.svg">document-properties-4.svg</file>
+        <file alias="save.svg">document-save-4.svg</file>
+        <file alias="save-as.svg">document-save-as-4.svg</file>
+        <file alias="open.svg">document-open-4.svg</file>
+        <file alias="redo.svg">edit-redo-7.svg</file>
+        <file alias="undo.svg">edit-undo-7.svg</file>
+        <file alias="add.svg">list-add-5.svg</file>
+        <file alias="remove.svg">list-remove-5.svg</file>
+        <file alias="launch.svg">arrow-right-double-3.svg</file>
+        <file alias="attach.svg">arrow-right-3.svg</file>
     </qresource>
 </RCC>

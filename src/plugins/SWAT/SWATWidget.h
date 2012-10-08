@@ -62,16 +62,10 @@ protected:
     void tabInserted(int index);
     void tabRemoved(int index);
     void checkAdapterProgress(IAdapter *adapter);
-
-    QAction *m_AttachJob;
-    QAction *m_LaunchJob;
-    QAction *m_LoadFile;
-    QAction *m_CloseJob;
+    bool searchProcesses();
 
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
-
-    STATView *getTraceView(QByteArray content);
 
 protected slots:
     void tabTitleChanged();
@@ -86,16 +80,23 @@ protected slots:
     void progressMessage(QString, QUuid);
     void cancelAttach();
 
-    void sampled(QString content, QUuid id);
+    void sampled(QString filename, QUuid id);
 
     void loadTraceFile();
     void loadTraceFromFile(QString filename);
-    void loadTraceFromContent(QByteArray content, QString title = QString());
 
     void closeJob(int index = -1);
 
 private:
     Ui::SWATWidget *ui;
+
+    QAction *m_AttachJob;
+    QAction *m_LaunchJob;
+    QAction *m_LoadFile;
+    QAction *m_CloseJob;
+
+    QToolBar *m_ToolBar;
+
     QString m_StyleSheet;
     QList<QProgressDialog*> m_ProgressDialogs;
 

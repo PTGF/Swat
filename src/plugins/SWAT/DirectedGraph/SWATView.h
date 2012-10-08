@@ -31,6 +31,9 @@
 #include <QWidget>
 #include <DirectedGraph/STATView.h>
 
+struct graphlib_graph_d;
+typedef graphlib_graph_d *graphlib_graph_p;
+
 namespace Plugins {
 namespace SWAT {
 
@@ -41,6 +44,12 @@ class SWATView : public STATView
 public:
     explicit SWATView(QWidget * parent = 0);
     ~SWATView();
+
+    virtual void setContent(const QByteArray &content);
+    void loadGraphLib(const QString filename);
+
+private:
+    graphlib_graph_p m_Graph;
 
 };
 
