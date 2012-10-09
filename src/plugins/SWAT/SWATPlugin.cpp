@@ -40,7 +40,7 @@
 #include <Settings/SettingPage.h>
 
 #include "AboutDialog.h"
-#include "SWATWidget.h"
+#include "SWATMainWidget.h"
 
 
 namespace Plugins {
@@ -91,7 +91,7 @@ bool SWATPlugin::initialize(QStringList &args, QString *err)
         MainWindow::MainWindow &mainWindow = MainWindow::MainWindow::instance();
 
         if(!m_MainWidget) {
-            m_MainWidget = new SWATWidget(&mainWindow);
+            m_MainWidget = new SWATMainWidget(&mainWindow);
         }
 
         mainWindow.setWindowTitle(m_MainWidget->windowTitle());

@@ -26,8 +26,8 @@
 
  */
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef PLUGINS_SWAT_ABOUTDIALOG_H
+#define PLUGINS_SWAT_ABOUTDIALOG_H
 
 #include <QtCore>
 #include <QtGui>
@@ -58,4 +58,4 @@ private:
 
 } // namespace SWAT
 } // namespace Plugins
-#endif // ABOUTDIALOG_H
+#endif // PLUGINS_SWAT_ABOUTDIALOG_H

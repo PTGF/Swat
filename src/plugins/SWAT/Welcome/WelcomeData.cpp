@@ -30,7 +30,7 @@
 
 #include <PluginManager/PluginManager.h>
 
-#include "SWATWidget.h"
+#include "SWATMainWidget.h"
 
 using namespace Plugins::Welcome;
 
@@ -78,9 +78,9 @@ QList<Link> WelcomeData::actions()
     QList<Link> list;
 
     Core::PluginManager::PluginManager &pluginManager = Core::PluginManager::PluginManager::instance();
-    QList<SWATWidget *> swatWidgets = pluginManager.getObjects<SWATWidget>();
+    QList<SWATMainWidget *> swatWidgets = pluginManager.getObjects<SWATMainWidget>();
     if(swatWidgets.count() == 1) {
-        SWATWidget *swatWidget = swatWidgets.at(0);
+        SWATMainWidget *swatWidget = swatWidgets.at(0);
 
         list.append(Link(tr("SWAT Attach"),
                          tr("attach to already running job"),

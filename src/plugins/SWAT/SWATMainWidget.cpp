@@ -26,8 +26,8 @@
 
  */
 
-#include "SWATWidget.h"
-#include "ui_SWATWidget.h"
+#include "SWATMainWidget.h"
+#include "ui_SWATMainWidget.h"
 
 #include <MainWindow/MainWindow.h>
 #include <MainWindow/NotificationWidget.h>
@@ -44,9 +44,9 @@
 namespace Plugins {
 namespace SWAT {
 
-SWATWidget::SWATWidget(QWidget *parent) :
+SWATMainWidget::SWATMainWidget(QWidget *parent) :
     TabWidget(parent),
-    ui(new Ui::SWATWidget),
+    ui(new Ui::SWATMainWidget),
     m_AttachJob(NULL),
     m_LaunchJob(NULL),
     m_LoadFile(NULL),
@@ -150,12 +150,12 @@ SWATWidget::SWATWidget(QWidget *parent) :
             this, SLOT(CurrentAdapterChanged(IAdapter*,IAdapter*)));
 }
 
-SWATWidget::~SWATWidget()
+SWATMainWidget::~SWATMainWidget()
 {
     delete ui;
 }
 
-void SWATWidget::tabInserted(int index)
+void SWATMainWidget::tabInserted(int index)
 {
     Q_UNUSED(index)
 
@@ -164,7 +164,7 @@ void SWATWidget::tabInserted(int index)
     m_CloseJob->setEnabled(count());
 }
 
-void SWATWidget::tabRemoved(int index)
+void SWATMainWidget::tabRemoved(int index)
 {
     Q_UNUSED(index)
 
@@ -173,7 +173,7 @@ void SWATWidget::tabRemoved(int index)
     m_CloseJob->setEnabled(count());
 }
 
-void SWATWidget::tabTitleChanged()
+void SWATMainWidget::tabTitleChanged()
 {
     try {
 
@@ -191,7 +191,7 @@ void SWATWidget::tabTitleChanged()
     }
 }
 
-bool SWATWidget::searchProcesses()
+bool SWATMainWidget::searchProcesses()
 {
     Core::SettingManager::SettingManager &settingManager = Core::SettingManager::SettingManager::instance();
     settingManager.beginGroup("Plugins/SWAT");
@@ -242,7 +242,7 @@ bool SWATWidget::searchProcesses()
     return foundOne;
 }
 
-void SWATWidget::attachJob()
+void SWATMainWidget::attachJob()
 {
     // Stylesheet screws with the dialog
     QString currentStyleSheet = this->styleSheet();
@@ -282,7 +282,7 @@ void SWATWidget::attachJob()
     setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
 
-void SWATWidget::launchJob()
+void SWATMainWidget::launchJob()
 {
     // Stylesheet screws with the dialog
     QString currentStyleSheet = this->styleSheet();
@@ -320,7 +320,7 @@ void SWATWidget::launchJob()
     setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
 
-void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
+void SWATMainWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
 {
     checkAdapterProgress(from);
 
@@ -351,7 +351,7 @@ void SWATWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
     }
 }
 
-void SWATWidget::checkAdapterProgress(IAdapter *adapter)
+void SWATMainWidget::checkAdapterProgress(IAdapter *adapter)
 {
     if(!adapter) {
         return;
@@ -382,7 +382,7 @@ void SWATWidget::checkAdapterProgress(IAdapter *adapter)
     disconnect(adapter, SIGNAL(progressMessage(QString,QUuid)), this, SLOT(progressMessage(QString,QUuid)));
 }
 
-void SWATWidget::attaching(QUuid id)
+void SWATMainWidget::attaching(QUuid id)
 {
     QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
     dlg->setProperty("id", QVariant(id.toString()));
@@ -396,7 +396,7 @@ void SWATWidget::attaching(QUuid id)
     connect(dlg, SIGNAL(canceled()), this, SLOT(cancelAttach()));
 }
 
-void SWATWidget::attached(QUuid id)
+void SWATMainWidget::attached(QUuid id)
 {
     for(quint16 i = 0; i < m_ProgressDialogs.count(); ++i) {
         QProgressDialog *dlg = m_ProgressDialogs.at(i);
@@ -414,7 +414,7 @@ void SWATWidget::attached(QUuid id)
     }
 }
 
-void SWATWidget::progress(int progress, QUuid id)
+void SWATMainWidget::progress(int progress, QUuid id)
 {
     foreach(QProgressDialog *dlg, m_ProgressDialogs) {
         if(dlg->property("id").toString() == id) {
@@ -423,7 +423,7 @@ void SWATWidget::progress(int progress, QUuid id)
     }
 }
 
-void SWATWidget::progressMessage(QString progressMessage, QUuid id)
+void SWATMainWidget::progressMessage(QString progressMessage, QUuid id)
 {
     foreach(QProgressDialog *dlg, m_ProgressDialogs) {
         if(dlg->property("id").toString() == id) {
@@ -432,7 +432,7 @@ void SWATWidget::progressMessage(QString progressMessage, QUuid id)
     }
 }
 
-void SWATWidget::cancelAttach()
+void SWATMainWidget::cancelAttach()
 {
     QProgressDialog *dlg = qobject_cast<QProgressDialog *>(QObject::sender());
     if(!dlg) {
@@ -460,7 +460,7 @@ void SWATWidget::cancelAttach()
 }
 
 
-void SWATWidget::showEvent(QShowEvent *event)
+void SWATMainWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
@@ -477,7 +477,7 @@ void SWATWidget::showEvent(QShowEvent *event)
     TabWidget::showEvent(event);
 }
 
-void SWATWidget::hideEvent(QHideEvent *event)
+void SWATMainWidget::hideEvent(QHideEvent *event)
 {
     Q_UNUSED(event)
 
@@ -495,13 +495,13 @@ void SWATWidget::hideEvent(QHideEvent *event)
 }
 
 
-void SWATWidget::sampled(QString filename, QUuid id)
+void SWATMainWidget::sampled(QString filename, QUuid id)
 {
     Q_UNUSED(id)
     loadTraceFromFile(filename);
 }
 
-void SWATWidget::closeJob(int index)
+void SWATMainWidget::closeJob(int index)
 {
     try {
 
@@ -524,7 +524,7 @@ void SWATWidget::closeJob(int index)
     }
 }
 
-void SWATWidget::loadTraceFile()
+void SWATMainWidget::loadTraceFile()
 {
     static QDir path = QDir::currentPath();
 
@@ -543,7 +543,7 @@ void SWATWidget::loadTraceFile()
 }
 
 
-void SWATWidget::loadTraceFromFile(QString filename)
+void SWATMainWidget::loadTraceFromFile(QString filename)
 {
     try {
 
@@ -558,31 +558,31 @@ void SWATWidget::loadTraceFromFile(QString filename)
         mainWindow.setCurrentCentralWidget(this);
 
         if(fileInfo.suffix().compare("dot") == 0) {
-                QFile file(fileInfo.absoluteFilePath());
-                if(!file.open(QIODevice::ReadOnly)) {
-                    throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
-                }
-                QByteArray fileContent = file.readAll();
-                file.close();
+            QFile file(fileInfo.absoluteFilePath());
+            if(!file.open(QIODevice::ReadOnly)) {
+                throw tr("Failed to open file: '%1'").arg(fileInfo.absoluteFilePath());
+            }
+            QByteArray fileContent = file.readAll();
+            file.close();
 
-                STATWidget *view = new STATWidget(this);
-                view->setContent(fileContent);
+            Plugins::DirectedGraph::STATWidget *view = new Plugins::DirectedGraph::STATWidget(this);
+            view->setContent(fileContent);
 
-                view->setWindowFilePath(fileInfo.absoluteFilePath());
-                view->setWindowTitle(fileInfo.completeBaseName());
+            view->setWindowFilePath(fileInfo.absoluteFilePath());
+            view->setWindowTitle(fileInfo.completeBaseName());
 
-                int index = addTab(view, view->windowTitle());
-                setCurrentIndex(index);
+            int index = addTab(view, view->windowTitle());
+            setCurrentIndex(index);
 
         } else if(fileInfo.suffix().compare("grl") == 0) {
-                SWATWidget *view = new SWATWidget(this);
-                view->loadGraphLib(fileInfo.absoluteFilePath());
+            Plugins::DirectedGraph::SWATWidget *view = new Plugins::DirectedGraph::SWATWidget(this);
+            view->loadGraphLib(fileInfo.absoluteFilePath());
 
-                view->setWindowFilePath(fileInfo.absoluteFilePath());
-                view->setWindowTitle(fileInfo.completeBaseName());
+            view->setWindowFilePath(fileInfo.absoluteFilePath());
+            view->setWindowTitle(fileInfo.completeBaseName());
 
-                int index = addTab(view, view->windowTitle());
-                setCurrentIndex(index);
+            int index = addTab(view, view->windowTitle());
+            setCurrentIndex(index);
 
         } else {
             throw tr("Unknown file type: %1").arg(fileInfo.absoluteFilePath());

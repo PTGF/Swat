@@ -26,8 +26,8 @@
 
  */
 
-#ifndef SWATLIBRARY_H
-#define SWATLIBRARY_H
+#ifndef PLUGINS_SWAT_SWATLIBRARY_H
+#define PLUGINS_SWAT_SWATLIBRARY_H
 
 #include <QtCore/QtGlobal>
 
@@ -37,4 +37,4 @@
 #  define SWAT_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // SWATLIBRARY_H
+#endif // PLUGINS_SWAT_SWATLIBRARY_H

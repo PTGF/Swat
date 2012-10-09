@@ -33,7 +33,6 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES      += SWATPlugin.cpp \
-                SWATWidget.cpp \
                 AboutDialog.cpp \
                 Settings/SettingPage.cpp \
                 Welcome/WelcomeData.cpp \
@@ -52,10 +51,10 @@ SOURCES      += SWATPlugin.cpp \
                 DirectedGraph/SWATWidget.cpp \
                 DirectedGraph/SWATScene.cpp \
                 DirectedGraph/SWATNode.cpp \
-                DirectedGraph/SWATEdge.cpp
+                DirectedGraph/SWATEdge.cpp \
+    SWATMainWidget.cpp
 
 HEADERS      += SWATPlugin.h \
-                SWATWidget.h \
                 AboutDialog.h \
                 SWATLibrary.h \
                 Settings/SettingPage.h \
@@ -76,13 +75,15 @@ HEADERS      += SWATPlugin.h \
                 DirectedGraph/SWATWidget.h \
                 DirectedGraph/SWATScene.h \
                 DirectedGraph/SWATNode.h \
-                DirectedGraph/SWATEdge.h
+                DirectedGraph/SWATEdge.h \
+    SWATMainWidget.h
 
-FORMS        += SWATWidget.ui \
+FORMS        += \
                 AboutDialog.ui \
                 Settings/SettingPage.ui \
                 JobControlDialog.ui \
-                DirectedGraph/STATNodeDialog.ui
+                DirectedGraph/STATNodeDialog.ui \
+    SWATMainWidget.ui
 
 RESOURCES    += Resources/SWAT.qrc
 

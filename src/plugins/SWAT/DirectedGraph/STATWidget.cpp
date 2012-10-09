@@ -433,39 +433,31 @@ void HideMPICommand::redo()
     setFailed(m_Nodes.isEmpty());
 }
 
-void HideMPICommand::findNodes()
+void HideMPICommand::findNodes(STATNode *parent)
 {
-    QList<STATNode *> checked;
-    QQueue<STATNode *> queue;
+    if(!parent) {
+        if(!(parent = qgraphicsitem_cast<STATNode *>(view()->rootNode()))) {
+            return;
+        }
+    }
 
-    QStringList functions = this->mpiFunctions();
-
-    STATNode *root = qgraphicsitem_cast<STATNode *>(view()->rootNode());
-    checked.append(root);
-    queue.enqueue(root);
+    if(parent->isCollapsed()) {
+        return;
+    }
 
     static const QRegExp pmpi = QRegExp("^pmpi", Qt::CaseInsensitive);
+    QString label = parent->label().toLower().trimmed();
+    if(label.startsWith("pmpi")) {
+        label.replace(pmpi, "mpi");
+    }
 
-    while(!queue.isEmpty()) {
-        STATNode *node = queue.dequeue();
-
-        // Remove the beginning p for pmpi_ calls
-        QString label = node->label().toLower().trimmed();
-        if(label.startsWith("pmpi")) {
-            label.replace(pmpi, "mpi");
-        }
-
-        if(functions.contains(label)) {
-            if(!node->isCollapsed()) {
-                m_Nodes.append(node);
-            }
-        } else {
-            foreach(DirectedGraphNode *child, node->childNodes()) {
-                STATNode *statChild = qgraphicsitem_cast<STATNode *>(child);
-                if(!checked.contains(statChild)) {
-                    checked.append(statChild);
-                    queue.enqueue(statChild);
-                }
+    if(mpiFunctions().contains(label)) {
+        m_Nodes.append(parent);
+        return;
+    } else {
+        foreach(DirectedGraphNode *child, parent->childNodes()) {
+            if(STATNode *statChild = qgraphicsitem_cast<STATNode *>(child)) {
+                findNodes(statChild);
             }
         }
     }
@@ -484,6 +476,9 @@ bool HideMPICommand::mergeWith(const QUndoCommand *other)
 
     return true;
 }
+
+
+
 
 
 HideNonBranchingCommand::HideNonBranchingCommand(STATWidget *view) :
@@ -527,17 +522,18 @@ bool HideNonBranchingCommand::findNodes(STATNode *parent)
     bool parentBranches = (parent->childNodes().count() > 1);
 
     foreach(DirectedGraphNode *child, parent->childNodes()) {
-        STATNode *statChild = qgraphicsitem_cast<STATNode *>(child);
+        if(STATNode *statChild = qgraphicsitem_cast<STATNode *>(child)) {
 
-        bool childBranches = findNodes(statChild);
+            bool childBranches = findNodes(statChild);
 
-        if(!childBranches && parentBranches) {
-            if(!statChild->isCollapsed()) {
-                m_Nodes.append(statChild);
+            if(!childBranches && parentBranches) {
+                if(!statChild->isCollapsed()) {
+                    m_Nodes.append(statChild);
+                }
             }
-        }
 
-        parentBranches = (childBranches || parentBranches);
+            parentBranches = (childBranches || parentBranches);
+        }
     }
 
     return parentBranches;

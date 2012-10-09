@@ -25,8 +25,8 @@
 
  */
 
-#ifndef CONNECTIONMANAGER_H
-#define CONNECTIONMANAGER_H
+#ifndef PLUGINS_SWAT_CONNECTIONMANAGER_H
+#define PLUGINS_SWAT_CONNECTIONMANAGER_H
 
 #include <QtCore>
 
@@ -70,4 +70,4 @@ private:
 } // namespace SWAT
 } // namespace Plugins
 
-#endif // CONNECTIONMANAGER_H
+#endif // PLUGINS_SWAT_CONNECTIONMANAGER_H

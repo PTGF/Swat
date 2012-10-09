@@ -26,8 +26,8 @@
 
  */
 
-#ifndef SWATPLUGIN_H
-#define SWATPLUGIN_H
+#ifndef PLUGINS_SWAT_SWATPLUGIN_H
+#define PLUGINS_SWAT_SWATPLUGIN_H
 
 #include <QtCore>
 #include <QtGui>
@@ -41,7 +41,7 @@
 namespace Plugins {
 namespace SWAT {
 
-class SWATWidget;
+class SWATMainWidget;
 
 class SWATPlugin :
         public QObject,
@@ -78,7 +78,7 @@ protected:
     QString m_Version;
     QList<Core::PluginManager::Dependency> m_Dependencies;
 
-    SWATWidget *m_MainWidget;
+    SWATMainWidget *m_MainWidget;
     WelcomeData m_WelcomeData;
 
     QAction m_AboutPage;
@@ -92,4 +92,4 @@ protected:
 
 } // namespace SWAT
 } // namespace Plugins
-#endif // SWATPLUGIN_H
+#endif // PLUGINS_SWAT_SWATPLUGIN_H

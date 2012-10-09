@@ -43,16 +43,16 @@ class IAdapter;
 class STATWidget;
 
 namespace Ui {
-    class SWATWidget;
+    class SWATMainWidget;
 }
 
-class SWAT_EXPORT SWATWidget : public TabWidget
+class SWAT_EXPORT SWATMainWidget : public TabWidget
 {
     Q_OBJECT
 
 public:
-    explicit SWATWidget(QWidget *parent = 0);
-    ~SWATWidget();
+    explicit SWATMainWidget(QWidget *parent = 0);
+    ~SWATMainWidget();
 
 public slots:
     void attachJob();
@@ -88,7 +88,7 @@ protected slots:
     void closeJob(int index = -1);
 
 private:
-    Ui::SWATWidget *ui;
+    Ui::SWATMainWidget *ui;
 
     QAction *m_AttachJob;
     QAction *m_LaunchJob;

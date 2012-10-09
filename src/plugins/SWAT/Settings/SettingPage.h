@@ -26,8 +26,8 @@
 
  */
 
-#ifndef SWATSETTINGPAGE_H
-#define SWATSETTINGPAGE_H
+#ifndef PLUGINS_SWAT_SETTINGPAGE_H
+#define PLUGINS_SWAT_SETTINGPAGE_H
 
 #include <QtCore>
 #include <QtGui>
@@ -71,4 +71,4 @@ private:
 
 
 }}
-#endif // SWATSETTINGPAGE_H
+#endif // PLUGINS_SWAT_SETTINGPAGE_H

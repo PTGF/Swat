@@ -26,8 +26,8 @@
 
  */
 
-#ifndef WELCOMEDATA_H
-#define WELCOMEDATA_H
+#ifndef PLUGINS_SWAT_WELCOMEDATA_H
+#define PLUGINS_SWAT_WELCOMEDATA_H
 
 #include <QtCore>
 #include <QtXml>
@@ -71,4 +71,4 @@ private:
 } // namespace SWAT
 } // namespace Plugins
 
-#endif // WELCOMEDATA_H
+#endif // PLUGINS_SWAT_WELCOMEDATA_H

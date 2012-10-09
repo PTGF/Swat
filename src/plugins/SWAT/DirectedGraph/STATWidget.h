@@ -59,7 +59,7 @@ public:
     int id() const { return 4; }
 
 protected:
-    void findNodes();
+    void findNodes(STATNode *parent = 0);
     QStringList mpiFunctions();
 
 private:

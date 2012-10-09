@@ -26,8 +26,8 @@
 
  */
 
-#ifndef IADAPTER_H
-#define IADAPTER_H
+#ifndef PLUGINS_SWAT_IADAPTER_H
+#define PLUGINS_SWAT_IADAPTER_H
 
 #include <QtCore>
 #include "ConnectionManagerLibrary.h"
@@ -328,4 +328,4 @@ Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *)
 
 Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1")
 
-#endif // IADAPTER_H
+#endif // PLUGINS_SWAT_IADAPTER_H

@@ -26,8 +26,8 @@
 
  */
 
-#ifndef JOBCONTROLDIALOG_H
-#define JOBCONTROLDIALOG_H
+#ifndef PLUGINS_SWAT_JOBCONTROLDIALOG_H
+#define PLUGINS_SWAT_JOBCONTROLDIALOG_H
 
 #include <QtCore>
 #include <QtGui>
@@ -78,4 +78,4 @@ private:
 } // namespace SWAT
 } // namespace Plugins
 
-#endif // JOBCONTROLDIALOG_H
+#endif // PLUGINS_SWAT_JOBCONTROLDIALOG_H
