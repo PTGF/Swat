@@ -31,7 +31,7 @@
 #include "DirectedGraphScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QGraphicsItem *parent) :
     QGraphVizEdge(edge, scene, parent),
@@ -39,5 +39,5 @@ DirectedGraphEdge::DirectedGraphEdge(edge_t *edge, DirectedGraphScene *scene, QG
 {
 }
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

@@ -25,13 +25,13 @@
 
  */
 
-#ifndef PLUGINS_SWAT_SWATNODE_H
-#define PLUGINS_SWAT_SWATNODE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_SWATNODE_H
+#define PLUGINS_DIRECTEDGRAPH_SWATNODE_H
 
 #include "STATNode.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class SWATScene;
 
@@ -40,12 +40,16 @@ class SWATNode : public STATNode
 public:
     explicit SWATNode(node_t *node, SWATScene *scene, QGraphicsItem *parentNode = 0);
 
+    int frame();
+    void setFrame(int frame);
+
 private:
     SWATScene *m_Scene;
+    int m_Frame;
 
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // PLUGINS_SWAT_SWATNODE_H
+#endif // PLUGINS_DIRECTEDGRAPH_SWATNODE_H

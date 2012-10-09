@@ -30,7 +30,7 @@
 #include "SWATScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 SWATNode::SWATNode(node_t *node, SWATScene *scene, QGraphicsItem *parent) :
     STATNode(node, scene, parent),
@@ -38,6 +38,17 @@ SWATNode::SWATNode(node_t *node, SWATScene *scene, QGraphicsItem *parent) :
 {
 }
 
+int SWATNode::frame()
+{
+    return m_Frame;
+}
 
-} // namespace SWAT
+void SWATNode::setFrame(int frame)
+{
+    m_Frame = frame;
+}
+
+
+
+} // namespace DirectedGraph
 } // namespace Plugins

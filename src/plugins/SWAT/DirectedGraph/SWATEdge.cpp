@@ -30,7 +30,7 @@
 #include "SWATScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 SWATEdge::SWATEdge(edge_t *edge, SWATScene *scene, QGraphicsItem *parent) :
     STATEdge(edge, scene, parent),
@@ -38,5 +38,5 @@ SWATEdge::SWATEdge(edge_t *edge, SWATScene *scene, QGraphicsItem *parent) :
 {
 }
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

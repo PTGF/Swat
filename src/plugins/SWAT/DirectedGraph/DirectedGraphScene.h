@@ -25,8 +25,8 @@
 
  */
 
-#ifndef DIRECTEDGRAPHSCENE_H
-#define DIRECTEDGRAPHSCENE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHSCENE_H
+#define PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHSCENE_H
 
 #include <QtCore>
 #include <QtGui>
@@ -34,7 +34,7 @@
 #include <QGraphVizScene.h>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class DirectedGraphScene : public QGraphVizScene
 {
@@ -75,10 +75,10 @@ private:
 
     friend class DirectedGraphNode;
     friend class DirectedGraphEdge;
-    friend class DirectedGraphView;
+    friend class DirectedGraphWidget;
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHSCENE_H
+#endif // PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHSCENE_H

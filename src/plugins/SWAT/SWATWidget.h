@@ -26,8 +26,8 @@
 
  */
 
-#ifndef SWATWIDGET_H
-#define SWATWIDGET_H
+#ifndef PLUGINS_SWAT_SWATWIDGET_H
+#define PLUGINS_SWAT_SWATWIDGET_H
 
 #include <QtCore>
 #include <QtGui>
@@ -40,7 +40,7 @@ namespace Plugins {
 namespace SWAT {
 
 class IAdapter;
-class STATView;
+class STATWidget;
 
 namespace Ui {
     class SWATWidget;
@@ -105,4 +105,4 @@ private:
 } // namespace SWAT
 } // namespace Plugins
 
-#endif // SWATWIDGET_H
+#endif // PLUGINS_SWAT_SWATWIDGET_H

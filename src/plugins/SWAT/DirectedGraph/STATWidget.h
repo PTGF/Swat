@@ -25,33 +25,33 @@
 
  */
 
-#ifndef PLUGINS_SWAT_STATVIEW_H
-#define PLUGINS_SWAT_STATVIEW_H
+#ifndef PLUGINS_DIRECTEDGRAPH_STATWIDGET_H
+#define PLUGINS_DIRECTEDGRAPH_STATWIDGET_H
 
-#include <DirectedGraph/DirectedGraphView.h>
+#include <DirectedGraph/DirectedGraphWidget.h>
 
 namespace Plugins { namespace SourceView { class SourceView; } }
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class STATNode;
-class STATView;
+class STATWidget;
 class STATScene;
 
 
 class STATUndoCommand : public UndoCommand
 {
 public:
-    STATUndoCommand(STATView *view);
+    STATUndoCommand(STATWidget *view);
 protected:
-    STATView *statView() const;
+    STATWidget *statWidget() const;
 };
 
 class HideMPICommand : public STATUndoCommand
 {
 public:
-    HideMPICommand(STATView *view);
+    HideMPICommand(STATWidget *view);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -69,7 +69,7 @@ private:
 class FocusNodeCommand : public STATUndoCommand
 {
 public:
-    FocusNodeCommand(STATView *view, STATNode *node);
+    FocusNodeCommand(STATWidget *view, STATNode *node);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -87,7 +87,7 @@ private:
 class HideNonBranchingCommand : public STATUndoCommand
 {
 public:
-    HideNonBranchingCommand(STATView *view);
+    HideNonBranchingCommand(STATWidget *view);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -101,13 +101,13 @@ private:
     QList<STATNode *> m_Nodes;
 };
 
-class STATView : public DirectedGraphView
+class STATWidget : public DirectedGraphWidget
 {
     Q_OBJECT
 
 public:
-    explicit STATView(QWidget * parent = 0);
-    ~STATView();
+    explicit STATWidget(QWidget * parent = 0);
+    ~STATWidget();
 
     virtual void setContent(const QByteArray &content);
     virtual DirectedGraphScene *scene();
@@ -142,6 +142,6 @@ private:
 };
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
-#endif // PLUGINS_SWAT_STATVIEW_H
+#endif // PLUGINS_DIRECTEDGRAPH_STATWidget_H

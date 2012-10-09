@@ -31,7 +31,7 @@
 
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 DirectedGraphNode::DirectedGraphNode(node_t *node, DirectedGraphScene *scene, QGraphicsItem *parent) :
     QGraphVizNode(node, scene, parent),
@@ -131,5 +131,5 @@ void DirectedGraphNode::showToolTip(const QPoint &pos, QWidget *w, const QRect &
 
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

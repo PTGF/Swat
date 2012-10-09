@@ -25,23 +25,26 @@
 
  */
 
-#include "SWATView.h"
+#include "DirectedGraph/SWATWidget.h"
 
 #include <graphlib.h>
+
+//#include <graphlib_graph_traits.h>
+//#include <GraphRenderOrder.h>
 
 #include "SWATScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
-SWATView::SWATView(QWidget *parent) :
-    STATView(parent),
+SWATWidget::SWATWidget(QWidget *parent) :
+    STATWidget(parent),
     m_Graph(NULL),
     m_SWATScene(NULL)
 {
 }
 
-SWATView::~SWATView()
+SWATWidget::~SWATWidget()
 {
     if(m_Graph) {
         graphlib_delGraph(m_Graph);
@@ -50,12 +53,12 @@ SWATView::~SWATView()
 
 
 
-DirectedGraphScene *SWATView::scene()
+DirectedGraphScene *SWATWidget::scene()
 {
     return m_SWATScene;
 }
 
-DirectedGraphScene *SWATView::createScene(const QByteArray &content)
+DirectedGraphScene *SWATWidget::createScene(const QByteArray &content)
 {
     if(!m_SWATScene) {
         m_SWATScene = new SWATScene();
@@ -66,9 +69,9 @@ DirectedGraphScene *SWATView::createScene(const QByteArray &content)
 
 
 
-void SWATView::setContent(const QByteArray &content)
+void SWATWidget::setContent(const QByteArray &content)
 {
-    STATView::setContent(content);
+    STATWidget::setContent(content);
 
     // Connect any SWAT QActions
 
@@ -78,7 +81,7 @@ void SWATView::setContent(const QByteArray &content)
 
 
 
-void SWATView::loadGraphLib(const QString filename)
+void SWATWidget::loadGraphLib(const QString filename)
 {
     if(m_Graph) {
         throw tr("A GraphLib graph has already been loaded");
@@ -108,5 +111,5 @@ void SWATView::loadGraphLib(const QString filename)
 }
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

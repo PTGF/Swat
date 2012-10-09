@@ -40,19 +40,19 @@ SOURCES      += SWATPlugin.cpp \
                 ConnectionManager/IAdapter.cpp \
                 JobControlDialog.cpp \
                 ConnectionManager/ConnectionManager.cpp \
-                DirectedGraph/DirectedGraphView.cpp \
+                DirectedGraph/DirectedGraphWidget.cpp \
                 DirectedGraph/DirectedGraphScene.cpp \
                 DirectedGraph/DirectedGraphNode.cpp \
                 DirectedGraph/DirectedGraphEdge.cpp \
-                DirectedGraph/STATView.cpp \
+                DirectedGraph/STATWidget.cpp \
                 DirectedGraph/STATScene.cpp \
-                DirectedGraph/STATNodeDialog.cpp \
-                DirectedGraph/STATEdge.cpp \
                 DirectedGraph/STATNode.cpp \
-                DirectedGraph/SWATView.cpp \
-    DirectedGraph/SWATNode.cpp \
-    DirectedGraph/SWATScene.cpp \
-    DirectedGraph/SWATEdge.cpp
+                DirectedGraph/STATEdge.cpp \
+                DirectedGraph/STATNodeDialog.cpp \
+                DirectedGraph/SWATWidget.cpp \
+                DirectedGraph/SWATScene.cpp \
+                DirectedGraph/SWATNode.cpp \
+                DirectedGraph/SWATEdge.cpp
 
 HEADERS      += SWATPlugin.h \
                 SWATWidget.h \
@@ -64,19 +64,19 @@ HEADERS      += SWATPlugin.h \
                 ConnectionManager/IAdapter.h \
                 JobControlDialog.h \
                 ConnectionManager/ConnectionManager.h \
-                DirectedGraph/DirectedGraphView.h \
+                DirectedGraph/DirectedGraphWidget.h \
                 DirectedGraph/DirectedGraphScene.h \
                 DirectedGraph/DirectedGraphNode.h \
                 DirectedGraph/DirectedGraphEdge.h \
-                DirectedGraph/STATView.h \
+                DirectedGraph/STATWidget.h \
                 DirectedGraph/STATScene.h \
-                DirectedGraph/STATNodeDialog.h \
-                DirectedGraph/STATEdge.h \
                 DirectedGraph/STATNode.h \
-                DirectedGraph/SWATView.h \
-    DirectedGraph/SWATNode.h \
-    DirectedGraph/SWATScene.h \
-    DirectedGraph/SWATEdge.h
+                DirectedGraph/STATEdge.h \
+                DirectedGraph/STATNodeDialog.h \
+                DirectedGraph/SWATWidget.h \
+                DirectedGraph/SWATScene.h \
+                DirectedGraph/SWATNode.h \
+                DirectedGraph/SWATEdge.h
 
 FORMS        += SWATWidget.ui \
                 AboutDialog.ui \
@@ -90,7 +90,7 @@ QT           += gui xml
 
 DEFINES      += SWAT_LIBRARY CONNECTIONMANAGER_LIBRARY VIEWMANAGER_LIBRARY
 
-#debug: DEFINES     += DIRECTEDGRAPHVIEW_DEBUG
+#debug: DEFINES     += DIRECTEDGRAPHWIDGET_DEBUG
 
 
 OTHER_FILES += Welcome/WelcomeData.xml

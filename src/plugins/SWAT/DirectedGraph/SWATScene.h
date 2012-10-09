@@ -25,13 +25,13 @@
 
  */
 
-#ifndef PLUGINS_SWAT_SWATSCENE_H
-#define PLUGINS_SWAT_SWATSCENE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_SWATSCENE_H
+#define PLUGINS_DIRECTEDGRAPH_SWATSCENE_H
 
 #include "STATScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class SWATScene : public STATScene
 {
@@ -56,7 +56,7 @@ protected:
 
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // PLUGINS_SWAT_SWATSCENE_H
+#endif // PLUGINS_DIRECTEDGRAPH_SWATSCENE_H

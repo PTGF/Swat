@@ -25,27 +25,27 @@
 
  */
 
-#ifndef PLUGINS_SWAT_SWATVIEW_H
-#define PLUGINS_SWAT_SWATVIEW_H
+#ifndef PLUGINS_DIRECTEDGRAPH_SWATWIDGET_H
+#define PLUGINS_DIRECTEDGRAPH_SWATWIDGET_H
 
 #include <QWidget>
-#include <DirectedGraph/STATView.h>
+#include <DirectedGraph/STATWidget.h>
 
 struct graphlib_graph_d;
 typedef graphlib_graph_d *graphlib_graph_p;
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class SWATScene;
 
-class SWATView : public STATView
+class SWATWidget : public STATWidget
 {
     Q_OBJECT
 
 public:
-    explicit SWATView(QWidget * parent = 0);
-    ~SWATView();
+    explicit SWATWidget(QWidget * parent = 0);
+    ~SWATWidget();
 
     virtual void setContent(const QByteArray &content);
     virtual DirectedGraphScene *scene();
@@ -63,6 +63,6 @@ private:
 };
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
-#endif // PLUGINS_SWAT_SWATVIEW_H
+#endif // PLUGINS_DIRECTEDGRAPH_SWATWIDGET_H

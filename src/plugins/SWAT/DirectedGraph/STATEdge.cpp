@@ -31,7 +31,7 @@
 #include "STATNode.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 STATEdge::STATEdge(edge_t *edge, STATScene *scene, QGraphicsItem *parent) :
     DirectedGraphEdge(edge, scene, parent),
@@ -51,5 +51,5 @@ QString STATEdge::processList()
     return longLabel;
 }
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

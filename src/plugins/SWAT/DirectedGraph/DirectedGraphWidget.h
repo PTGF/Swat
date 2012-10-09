@@ -25,8 +25,8 @@
 
  */
 
-#ifndef DIRECTEDGRAPHVIEW_H
-#define DIRECTEDGRAPHVIEW_H
+#ifndef PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHWIDGET_H
+#define PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHWIDGET_H
 
 #include <QtCore>
 #include <QtGui>
@@ -40,9 +40,9 @@
 class QGraphVizView;
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
-class DirectedGraphView;
+class DirectedGraphWidget;
 class DirectedGraphScene;
 class DirectedGraphNode;
 class DirectedGraphEdge;
@@ -50,22 +50,22 @@ class DirectedGraphEdge;
 class UndoCommand : public QUndoCommand
 {
 public:
-    UndoCommand(DirectedGraphView *view) : m_View(view), m_Failed(false) { }
+    UndoCommand(DirectedGraphWidget *view) : m_View(view), m_Failed(false) { }
     bool failed() { return m_Failed; }
 
 protected:
-    DirectedGraphView *view() const { return m_View; }
+    DirectedGraphWidget *view() const { return m_View; }
     void setFailed(bool failed) { m_Failed = failed; }
 
 private:
-    DirectedGraphView *m_View;
+    DirectedGraphWidget *m_View;
     bool m_Failed;
 };
 
 class ExpandAllCommand : public UndoCommand
 {
 public:
-    ExpandAllCommand(DirectedGraphView *view);
+    ExpandAllCommand(DirectedGraphWidget *view);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -82,7 +82,7 @@ private:
 class CollapseNodeCommand : public UndoCommand
 {
 public:
-    CollapseNodeCommand(DirectedGraphView *view, DirectedGraphNode *node, bool collapse = true);
+    CollapseNodeCommand(DirectedGraphWidget *view, DirectedGraphNode *node, bool collapse = true);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -97,7 +97,7 @@ private:
 class CollapseNodeDepthCommand : public UndoCommand
 {
 public:
-    CollapseNodeDepthCommand(DirectedGraphView *view, int depth);
+    CollapseNodeDepthCommand(DirectedGraphWidget *view, int depth);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -112,13 +112,13 @@ private:
     QList<DirectedGraphNode *> m_Nodes;
 };
 
-class DirectedGraphView : public TabWidget
+class DirectedGraphWidget : public TabWidget
 {
     Q_OBJECT
 
 public:
-    explicit DirectedGraphView(QWidget * parent = 0);
-    ~DirectedGraphView();
+    explicit DirectedGraphWidget(QWidget * parent = 0);
+    ~DirectedGraphWidget();
 
     virtual void setContent(const QByteArray &content);
 
@@ -175,7 +175,7 @@ private:
     friend class CollapseNodeDepthCommand;
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHVIEW_H
+#endif // PLUGINS_DIRECTEDGRAPH_DIRECTEDGRAPHWIDGET_H

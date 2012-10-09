@@ -31,7 +31,7 @@
 #include <QDebug>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 STATNode::STATNode(node_t *node, STATScene *scene, QGraphicsItem *parent) :
     DirectedGraphNode(node, scene, parent),
@@ -95,5 +95,5 @@ void STATNode::showToolTip(const QPoint &pos, QWidget *w, const QRect &rect)
 }
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

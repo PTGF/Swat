@@ -35,8 +35,8 @@
 #include <PluginManager/PluginManager.h>
 #include <ConnectionManager/ConnectionManager.h>
 
-#include <DirectedGraph/STATView.h>
-#include <DirectedGraph/SWATView.h>
+#include <DirectedGraph/STATWidget.h>
+#include <DirectedGraph/SWATWidget.h>
 #include <SourceView/ISourceViewFactory.h>
 
 #include "JobControlDialog.h"
@@ -565,7 +565,7 @@ void SWATWidget::loadTraceFromFile(QString filename)
                 QByteArray fileContent = file.readAll();
                 file.close();
 
-                STATView *view = new STATView(this);
+                STATWidget *view = new STATWidget(this);
                 view->setContent(fileContent);
 
                 view->setWindowFilePath(fileInfo.absoluteFilePath());
@@ -575,7 +575,7 @@ void SWATWidget::loadTraceFromFile(QString filename)
                 setCurrentIndex(index);
 
         } else if(fileInfo.suffix().compare("grl") == 0) {
-                SWATView *view = new SWATView(this);
+                SWATWidget *view = new SWATWidget(this);
                 view->loadGraphLib(fileInfo.absoluteFilePath());
 
                 view->setWindowFilePath(fileInfo.absoluteFilePath());

@@ -28,11 +28,11 @@
 #include "STATNodeDialog.h"
 #include "ui_STATNodeDialog.h"
 
-#include "STATView.h"
+#include "STATWidget.h"
 #include "STATNode.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 STATNodeDialog::STATNodeDialog(QWidget *parent) :
     QDialog(parent),
@@ -110,7 +110,7 @@ void STATNodeDialog::on_btnCollapse_toggled(bool checked)
 {
     if(!m_Node) { return; }
 
-    if(DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent())) {
+    if(DirectedGraphWidget *view = qobject_cast<DirectedGraphWidget *>(parent())) {
         checked ? view->doCollapse(m_Node) : view->doExpand(m_Node);
     }
 
@@ -120,7 +120,7 @@ void STATNodeDialog::on_btnCollapseDepth_clicked()
 {
     if(!m_Node) { return; }
 
-    if(DirectedGraphView *view = qobject_cast<DirectedGraphView *>(parent())) {
+    if(DirectedGraphWidget *view = qobject_cast<DirectedGraphWidget *>(parent())) {
         view->doCollapseDepth(m_Node->nodeDepth());
     }
 
@@ -130,7 +130,7 @@ void STATNodeDialog::on_btnFocus_clicked()
 {
     if(!m_Node) { return; }
 
-    if(STATView *view = qobject_cast<STATView *>(parent())) {
+    if(STATWidget *view = qobject_cast<STATWidget *>(parent())) {
         view->doFocus(m_Node);
     }
 
@@ -142,10 +142,10 @@ void STATNodeDialog::on_btnViewSource_clicked()
         return;
     }
 
-    if(STATView *view = qobject_cast<STATView *>(parent())) {
+    if(STATWidget *view = qobject_cast<STATWidget *>(parent())) {
         view->openSourceFile(m_Node->sourceFile(), m_Node->sourceLine());
     }
 }
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

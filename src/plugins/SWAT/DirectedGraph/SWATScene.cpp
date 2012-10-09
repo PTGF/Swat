@@ -31,7 +31,7 @@
 #include "SWATEdge.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 SWATScene::SWATScene(QObject *parent) :
     STATScene(parent)
@@ -59,5 +59,5 @@ void SWATScene::processEdgeLabel(quint64 id, QString label)
 }
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

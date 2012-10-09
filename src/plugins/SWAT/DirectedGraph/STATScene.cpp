@@ -31,7 +31,7 @@
 #include "STATNode.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 STATScene::STATScene(QObject *parent) :
     DirectedGraphScene(parent)
@@ -157,5 +157,5 @@ void STATScene::processEdgeLabel(quint64 id, QString label)
 
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

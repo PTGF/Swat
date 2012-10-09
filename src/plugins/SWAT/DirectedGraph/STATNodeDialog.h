@@ -25,13 +25,13 @@
 
  */
 
-#ifndef DIRECTEDGRAPHNODEDIALOG_H
-#define DIRECTEDGRAPHNODEDIALOG_H
+#ifndef PLUGINS_DIRECTEDGRAPH_STATNODEDIALOG_H
+#define PLUGINS_DIRECTEDGRAPH_STATNODEDIALOG_H
 
 #include <QDialog>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class STATNode;
 
@@ -70,7 +70,7 @@ private:
 
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // DIRECTEDGRAPHNODEDIALOG_H
+#endif // PLUGINS_DIRECTEDGRAPH_STATNODEDIALOG_H

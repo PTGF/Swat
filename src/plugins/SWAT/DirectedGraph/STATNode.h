@@ -25,14 +25,14 @@
 
  */
 
-#ifndef PLUGINS_SWAT_STATNODE_H
-#define PLUGINS_SWAT_STATNODE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_STATNODE_H
+#define PLUGINS_DIRECTEDGRAPH_STATNODE_H
 
 #include <DirectedGraph/DirectedGraphNode.h>
 #include "STATScene.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class STATNode : public DirectedGraphNode
 {
@@ -54,10 +54,10 @@ private:
     STATScene *m_Scene;
 
     friend class STATScene;
-    friend class STATView;
+    friend class STATWidget;
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // PLUGINS_SWAT_STATNODE_H
+#endif // PLUGINS_DIRECTEDGRAPH_STATNODE_H

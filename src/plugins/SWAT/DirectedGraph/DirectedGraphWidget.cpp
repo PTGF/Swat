@@ -25,7 +25,7 @@
 
  */
 
-#include "DirectedGraphView.h"
+#include "DirectedGraphWidget.h"
 
 #include <MainWindow/MainWindow.h>
 
@@ -35,9 +35,9 @@
 #include "DirectedGraphNode.h"
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
-DirectedGraphView::DirectedGraphView(QWidget *parent) :
+DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
     TabWidget(parent),
     m_Scene(NULL),
     m_View(NULL),
@@ -56,16 +56,16 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
         if(action->text() == tr("Edit")) {
             QAction *undo = m_UndoStack->createUndoAction(this);
             undo->setIcon(QIcon(":/SWAT/undo.svg"));
-            undo->setProperty("swatView_menuitem", m_Id.toString());
+            undo->setProperty("swatWidget_menuitem", m_Id.toString());
             undo->setShortcut(QKeySequence::Undo);
 
             QAction *redo = m_UndoStack->createRedoAction(this);
             redo->setIcon(QIcon(":/SWAT/redo.svg"));
-            redo->setProperty("swatView_menuitem", m_Id.toString());
+            redo->setProperty("swatWidget_menuitem", m_Id.toString());
             redo->setShortcut(QKeySequence::Redo);
 
             QAction *filter = new QAction(QIcon(":/SWAT/filter.svg"), tr("Filter"), this);
-            filter->setProperty("swatView_menuitem", m_Id.toString());
+            filter->setProperty("swatWidget_menuitem", m_Id.toString());
             filter->setShortcut(QKeySequence::Find);
             connect(filter, SIGNAL(triggered()), this, SLOT(filter()));
 
@@ -90,33 +90,33 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
                 action->menu()->insertAction(before, undo);
                 action->menu()->insertAction(before, redo);
                 action->menu()->insertAction(before, filter);
-                action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", m_Id.toString());
             } else {
                 action->menu()->addAction(undo);
                 action->menu()->addAction(redo);
                 action->menu()->addAction(filter);
-                action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->addSeparator()->setProperty("swatWidget_menuitem", m_Id.toString());
             }
         }
 
         if(action->text() == tr("Tools")) {
             QAction *zoomIn = new QAction(QIcon(":/SWAT/zoom-in.svg"), tr("Zoom In"), this);
-            zoomIn->setProperty("swatView_menuitem", m_Id.toString());
+            zoomIn->setProperty("swatWidget_menuitem", m_Id.toString());
             zoomIn->setShortcut(QKeySequence::ZoomIn);
             connect(zoomIn, SIGNAL(triggered()), this, SLOT(doZoomIn()));
 
             QAction *zoomOut = new QAction(QIcon(":/SWAT/zoom-out.svg"), tr("Zoom Out"), this);
-            zoomOut->setProperty("swatView_menuitem", m_Id.toString());
+            zoomOut->setProperty("swatWidget_menuitem", m_Id.toString());
             zoomOut->setShortcut(QKeySequence::ZoomOut);
             connect(zoomOut, SIGNAL(triggered()), this, SLOT(doZoomOut()));
 
             QAction *zoomFit = new QAction(QIcon(":/SWAT/zoom-fit.svg"), tr("Zoom Fit"), this);
-            zoomFit->setProperty("swatView_menuitem", m_Id.toString());
+            zoomFit->setProperty("swatWidget_menuitem", m_Id.toString());
             zoomFit->setShortcut(QKeySequence("ctrl+0"));
             connect(zoomFit, SIGNAL(triggered()), this, SLOT(doZoomFit()));
 
             QAction *refresh = new QAction(QIcon(":/SWAT/refresh.svg"), tr("Refresh"), this);
-            refresh->setProperty("swatView_menuitem", m_Id.toString());
+            refresh->setProperty("swatWidget_menuitem", m_Id.toString());
             refresh->setShortcut(QKeySequence::Refresh);
             connect(refresh, SIGNAL(triggered()), this, SLOT(doRefresh()));
 
@@ -126,7 +126,7 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
             m_ExpandAll->setIcon(QIcon(":/SWAT/app.gif"));
             m_ExpandAll->setIconVisibleInMenu(true);
             m_ExpandAll->setVisible(false);
-            m_ExpandAll->setProperty("swatView_menuitem", m_Id.toString());
+            m_ExpandAll->setProperty("swatWidget_menuitem", m_Id.toString());
             connect(m_ExpandAll, SIGNAL(triggered()), this, SLOT(doExpandAll()));
 
             m_ViewToolBar = new QToolBar("View", this);
@@ -154,16 +154,16 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
                 action->menu()->insertAction(before, zoomOut);
                 action->menu()->insertAction(before, zoomFit);
                 action->menu()->insertAction(before, refresh);
-                action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", m_Id.toString());
                 action->menu()->insertAction(before, m_ExpandAll);
-                action->menu()->insertSeparator(before)->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", m_Id.toString());
             } else {
-                action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->addSeparator()->setProperty("swatWidget_menuitem", m_Id.toString());
                 action->menu()->addAction(zoomIn);
                 action->menu()->addAction(zoomOut);
                 action->menu()->addAction(zoomFit);
                 action->menu()->addAction(refresh);
-                action->menu()->addSeparator()->setProperty("swatView_menuitem", m_Id.toString());
+                action->menu()->addSeparator()->setProperty("swatWidget_menuitem", m_Id.toString());
                 action->menu()->addAction(m_ExpandAll);
             }
         }
@@ -176,11 +176,11 @@ DirectedGraphView::DirectedGraphView(QWidget *parent) :
 
  }
 
-DirectedGraphView::~DirectedGraphView()
+DirectedGraphWidget::~DirectedGraphWidget()
 {
 }
 
-void DirectedGraphView::setContent(const QByteArray &content)
+void DirectedGraphWidget::setContent(const QByteArray &content)
 {
     if(!scene()) {
         createScene(content);
@@ -194,7 +194,7 @@ void DirectedGraphView::setContent(const QByteArray &content)
 }
 
 
-QGraphVizView *DirectedGraphView::view()
+QGraphVizView *DirectedGraphWidget::view()
 {
     if(!m_View) {
         m_View = new QGraphVizView(scene(), this);
@@ -205,7 +205,7 @@ QGraphVizView *DirectedGraphView::view()
 }
 
 
-DirectedGraphScene *DirectedGraphView::createScene(const QByteArray &content)
+DirectedGraphScene *DirectedGraphWidget::createScene(const QByteArray &content)
 {
     if(!m_Scene) {
         m_Scene = new DirectedGraphScene();
@@ -214,13 +214,13 @@ DirectedGraphScene *DirectedGraphView::createScene(const QByteArray &content)
     return m_Scene;
 }
 
-DirectedGraphScene *DirectedGraphView::scene()
+DirectedGraphScene *DirectedGraphWidget::scene()
 {
     return m_Scene;
 }
 
 
-DirectedGraphNode *DirectedGraphView::rootNode()
+DirectedGraphNode *DirectedGraphWidget::rootNode()
 {
     QList<QGraphVizNode *> nodes = scene()->getNodes();
 
@@ -233,12 +233,12 @@ DirectedGraphNode *DirectedGraphView::rootNode()
 }
 
 
-QUndoStack *DirectedGraphView::undoStack()
+QUndoStack *DirectedGraphWidget::undoStack()
 {
     return m_UndoStack;
 }
 
-void DirectedGraphView::filter()
+void DirectedGraphWidget::filter()
 {
     if(m_txtFilter->isVisible()) {
         m_txtFilter->hide();
@@ -252,62 +252,62 @@ void DirectedGraphView::filter()
 }
 
 
-void DirectedGraphView::undo()
+void DirectedGraphWidget::undo()
 {
     undoStack()->undo();
 }
 
-void DirectedGraphView::redo()
+void DirectedGraphWidget::redo()
 {
     undoStack()->redo();
 }
 
 
-void DirectedGraphView::doExpandAll()
+void DirectedGraphWidget::doExpandAll()
 {
     undoStack()->push(new ExpandAllCommand(this));
 }
 
 
-void DirectedGraphView::doCollapse(DirectedGraphNode *node)
+void DirectedGraphWidget::doCollapse(DirectedGraphNode *node)
 {
     undoStack()->push(new CollapseNodeCommand(this, node, true));
 }
 
-void DirectedGraphView::doExpand(DirectedGraphNode *node)
+void DirectedGraphWidget::doExpand(DirectedGraphNode *node)
 {
     undoStack()->push(new CollapseNodeCommand(this, node, false));
 }
 
-void DirectedGraphView::doCollapseDepth(int depth)
+void DirectedGraphWidget::doCollapseDepth(int depth)
 {
     undoStack()->push(new CollapseNodeDepthCommand(this, depth));
 }
 
 
 
-void DirectedGraphView::doZoomIn()
+void DirectedGraphWidget::doZoomIn()
 {
     if(m_View) {
         m_View->zoomIn();
     }
 }
 
-void DirectedGraphView::doZoomOut()
+void DirectedGraphWidget::doZoomOut()
 {
     if(m_View) {
         m_View->zoomOut();
     }
 }
 
-void DirectedGraphView::doZoomFit()
+void DirectedGraphWidget::doZoomFit()
 {
     if(m_View) {
         m_View->zoomFit();
     }
 }
 
-void DirectedGraphView::doRefresh()
+void DirectedGraphWidget::doRefresh()
 {
     if(m_View) {
         m_View->update();
@@ -316,7 +316,7 @@ void DirectedGraphView::doRefresh()
 
 
 
-void DirectedGraphView::txtFilter_textChanged(const QString &text)
+void DirectedGraphWidget::txtFilter_textChanged(const QString &text)
 {
     QRegExp rx = QRegExp(text, Qt::CaseInsensitive, QRegExp::RegExp2);
     foreach(QGraphVizNode *gvNode, scene()->getNodes()) {
@@ -330,19 +330,19 @@ void DirectedGraphView::txtFilter_textChanged(const QString &text)
     }
 }
 
-QUuid DirectedGraphView::id()
+QUuid DirectedGraphWidget::id()
 {
     return m_Id;
 }
 
-void DirectedGraphView::showEvent(QShowEvent *event)
+void DirectedGraphWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
 
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.allActions()) {
-        if(m_Id.toString() == action->property("swatView_menuitem").toString()) {
+        if(m_Id.toString() == action->property("swatWidget_menuitem").toString()) {
             action->setVisible(true);
         }
     }
@@ -355,14 +355,14 @@ void DirectedGraphView::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
-void DirectedGraphView::hideEvent(QHideEvent *event)
+void DirectedGraphWidget::hideEvent(QHideEvent *event)
 {
     Q_UNUSED(event)
 
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
     foreach(QAction *action, mainWindow.allActions()) {
-        if(action->property("swatView_menuitem").isValid() && (m_Id == action->property("swatView_menuitem").toString())) {
+        if(action->property("swatWidget_menuitem").isValid() && (m_Id == action->property("swatWidget_menuitem").toString())) {
             action->setVisible(false);
         }
     }
@@ -375,7 +375,7 @@ void DirectedGraphView::hideEvent(QHideEvent *event)
     QWidget::hideEvent(event);
 }
 
-void DirectedGraphView::resizeEvent(QResizeEvent *event)
+void DirectedGraphWidget::resizeEvent(QResizeEvent *event)
 {
     TabWidget::resizeEvent(event);
     m_txtFilter->move(width() - 16 - m_txtFilter->width(), 0);
@@ -385,7 +385,7 @@ void DirectedGraphView::resizeEvent(QResizeEvent *event)
 
 
 
-ExpandAllCommand::ExpandAllCommand(DirectedGraphView *view) :
+ExpandAllCommand::ExpandAllCommand(DirectedGraphWidget *view) :
     UndoCommand(view)
 {
     setText(QObject::tr("Expand all nodes"));
@@ -460,7 +460,7 @@ bool ExpandAllCommand::mergeWith(const QUndoCommand *other)
 
 
 
-CollapseNodeCommand::CollapseNodeCommand(DirectedGraphView *view, DirectedGraphNode *node, bool collapse) :
+CollapseNodeCommand::CollapseNodeCommand(DirectedGraphWidget *view, DirectedGraphNode *node, bool collapse) :
     UndoCommand(view),
     m_Node(node),
     m_Collapse(collapse)
@@ -512,7 +512,7 @@ bool CollapseNodeCommand::mergeWith(const QUndoCommand *other)
 
 
 
-CollapseNodeDepthCommand::CollapseNodeDepthCommand(DirectedGraphView *view, int depth) :
+CollapseNodeDepthCommand::CollapseNodeDepthCommand(DirectedGraphWidget *view, int depth) :
     UndoCommand(view),
     m_Depth(depth)
 {
@@ -591,5 +591,5 @@ bool CollapseNodeDepthCommand::mergeWith(const QUndoCommand *other)
 
 
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins

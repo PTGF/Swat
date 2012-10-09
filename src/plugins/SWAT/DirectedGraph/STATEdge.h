@@ -25,13 +25,13 @@
 
  */
 
-#ifndef PLUGINS_SWAT_STATEDGE_H
-#define PLUGINS_SWAT_STATEDGE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_STATEDGE_H
+#define PLUGINS_DIRECTEDGRAPH_STATEDGE_H
 
 #include <DirectedGraph/DirectedGraphEdge.h>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class STATScene;
 
@@ -48,7 +48,7 @@ private:
 
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // PLUGINS_SWAT_STATEDGE_H
+#endif // PLUGINS_DIRECTEDGRAPH_STATEDGE_H

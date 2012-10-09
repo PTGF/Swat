@@ -25,8 +25,8 @@
 
  */
 
-#ifndef PLUGINS_SWAT_STATSCENE_H
-#define PLUGINS_SWAT_STATSCENE_H
+#ifndef PLUGINS_DIRECTEDGRAPH_STATSCENE_H
+#define PLUGINS_DIRECTEDGRAPH_STATSCENE_H
 
 #include <QtCore>
 #include <QtGui>
@@ -34,7 +34,7 @@
 #include <DirectedGraph/DirectedGraphScene.h>
 
 namespace Plugins {
-namespace SWAT {
+namespace DirectedGraph {
 
 class STATScene : public DirectedGraphScene
 {
@@ -66,11 +66,11 @@ private:
 
     friend class STATNode;
     friend class STATEdge;
-    friend class STATView;
+    friend class STATWidget;
 
 };
 
-} // namespace SWAT
+} // namespace DirectedGraph
 } // namespace Plugins
 
-#endif // PLUGINS_SWAT_STATSCENE_H
+#endif // PLUGINS_DIRECTEDGRAPH_STATSCENE_H
