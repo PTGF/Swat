@@ -55,7 +55,6 @@ public:
 protected:
     virtual DirectedGraphScene *createScene(const QByteArray &content);
 
-
 private:
     graphlib_graph_p m_Graph;
     SWATScene *m_SWATScene;

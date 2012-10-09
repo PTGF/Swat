@@ -25,8 +25,10 @@
 
  */
 
-#include "STATScene.h"
 #include "STATNode.h"
+
+#include "STATScene.h"
+#include "STATEdge.h"
 
 #include <QDebug>
 
@@ -64,6 +66,8 @@ QString STATNode::iter()
     return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_IterString).toString();
 }
 
+
+
 QString STATNode::processCount()
 {
     return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessCount).toString();
@@ -73,6 +77,127 @@ QStringList STATNode::processList()
 {
     return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessList).toStringList();
 }
+
+
+
+QList<quint64> STATNode::splitProcessList(QStringList lists)
+{
+    QList<quint64> retval;
+
+    foreach(QString list, lists) {
+        retval << splitProcessList(list);
+    }
+
+    return retval;
+}
+
+QList<quint64> STATNode::splitProcessList(QString list)
+{
+    static const QRegExp rxRange("^([0-9]+)\\-([0-9]+)$");
+
+    bool okay;
+    QList<quint64> retval;
+
+    if(rxRange.indexIn(list) >= 0) {
+        quint64 start = rxRange.cap(1).toLongLong(&okay);
+        if(!okay) {
+            qWarning() << "Failed to parse process list properly (start)";
+            return retval;
+        }
+
+        quint64 finish = rxRange.cap(2).toLongLong(&okay);
+        if(!okay) {
+            qWarning() << "Failed to parse process list properly (finish)";
+            return retval;
+        }
+
+        for(quint64 i = start; i <= finish; ++i) {
+            retval << i;
+        }
+
+    } else {
+        quint64 value = list.toLongLong(&okay);
+        if(!okay) {
+            qWarning() << "Failed to parse process list properly (single)";
+            return retval;
+        }
+
+        retval << value;
+    }
+
+    return retval;
+
+}
+
+QStringList STATNode::mergeProcessList(QList<quint64> list)
+{
+    QStringList retval;
+
+    qSort(list.begin(), list.end());
+
+    static const quint64 max64 = -1;
+    quint64 start = max64;
+    quint64 end = max64;
+    quint64 last = max64;
+    for(int i = 0; i <= list.count(); ++i) {
+        quint64 value = max64;
+        if(i < list.count()) {
+            value = list.at(i);
+        }
+
+        if(last != max64 && value == (last + 1)) {
+            end = last = value;
+        } else {
+            if(start != max64) {
+                if(start == end) {
+                    retval << QString::number(start);
+                } else {
+                    retval << QString("%1-%2").arg(start).arg(end);
+                }
+            }
+            end = start = last = value;
+        }
+    }
+
+    return retval;
+}
+
+
+QStringList STATNode::leafTasks()
+{
+    if(!m_LeafTaskCount.isEmpty()) {
+        return m_LeafTasks;
+    }
+
+    QSet<quint64> processList = splitProcessList(this->processList()).toSet();
+
+    QList<quint64> childProcessLists;
+    foreach(QGraphVizNode *node, childNodes()) {
+        if(STATNode *statNode = qgraphicsitem_cast<STATNode *>(node)) {
+            childProcessLists << splitProcessList(statNode->processList());
+        }
+    }
+
+    processList.subtract(childProcessLists.toSet());
+
+    m_LeafTaskCount = QString::number(processList.count());
+
+    m_LeafTasks = mergeProcessList(processList.toList());
+
+    return m_LeafTasks;
+}
+
+
+QString STATNode::leafTaskCount()
+{
+    if(m_LeafTasks.isEmpty()) {
+        leafTasks();
+    }
+
+    return m_LeafTaskCount;
+}
+
+
 
 void STATNode::showToolTip(const QPoint &pos, QWidget *w, const QRect &rect)
 {

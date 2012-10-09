@@ -64,12 +64,10 @@ void STATNodeDialog::setNode(STATNode *node)
         return;
     }
 
-    m_Node = node;
-
     ui->grpLeafTasks->setVisible(false);
     ui->grpTotalTasks->setVisible(false);
 
-    if(!m_Node) {
+    if(!(m_Node = node)) {
         return;
     }
 
@@ -79,8 +77,27 @@ void STATNodeDialog::setNode(STATNode *node)
 
     ui->btnViewSource->setEnabled(!m_Node->sourceFile().isEmpty());
 
-    //TODO: Leaf Tasks
+    // Leaf Tasks
+    QStringList leafTasks = m_Node->leafTasks();
+    if(!leafTasks.isEmpty()) {
+        ui->grpLeafTasks->setVisible(true);
 
+        bool okay = false;
+        QString taskTitle = tr("Unknown Leaf Tasks");
+        qulonglong taskCount = m_Node->leafTaskCount().toULongLong(&okay);
+        if(okay) {
+            if(taskCount == 1) {
+                taskTitle = tr("%L1 Leaf Task").arg(taskCount);
+            } else {
+                taskTitle = tr("%L1 Leaf Tasks").arg(taskCount);
+            }
+        }
+        ui->grpLeafTasks->setTitle(taskTitle);
+
+        ui->txtLeafTasks->setText(leafTasks.join(", "));
+    }
+
+    // Total Tasks
     if(!m_Node->processCount().isEmpty() || !m_Node->processList().count()) {
         ui->grpTotalTasks->setVisible(true);
 

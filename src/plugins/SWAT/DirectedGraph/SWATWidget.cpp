@@ -100,8 +100,6 @@ void SWATWidget::loadGraphLib(const QString filename)
         }
 
         if(temp.open()) {
-            qDebug() << temp.fileName() << temp.readAll();
-
             QByteArray content = temp.readAll();
             temp.close();
             setContent(content);

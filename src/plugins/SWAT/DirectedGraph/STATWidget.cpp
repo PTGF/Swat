@@ -286,6 +286,7 @@ void FocusNodeCommand::redo()
 
 void FocusNodeCommand::findNodes()
 {
+    // Breadth-first search; probably not optimal
 
     STATNode *root = qgraphicsitem_cast<STATNode *>(statWidget()->rootNode());
 
@@ -318,7 +319,6 @@ void FocusNodeCommand::findNodes()
             }
         }
     }
-
 }
 
 bool FocusNodeCommand::mergeWith(const QUndoCommand *other)
