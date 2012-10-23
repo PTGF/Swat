@@ -31,8 +31,6 @@
 #include <QWidget>
 #include <DirectedGraph/STATWidget.h>
 
-struct graphlib_graph_d;
-typedef graphlib_graph_d *graphlib_graph_p;
 
 namespace Plugins {
 namespace DirectedGraph {
@@ -56,7 +54,7 @@ protected:
     virtual DirectedGraphScene *createScene(const QByteArray &content);
 
 private:
-    graphlib_graph_p m_Graph;
+    QUuid m_GraphId;
     SWATScene *m_SWATScene;
 
 };

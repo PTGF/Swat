@@ -38,7 +38,7 @@ DirectedGraphScene::DirectedGraphScene(QObject *parent) :
 {
 }
 
-void DirectedGraphScene::setContent(QString content)
+void DirectedGraphScene::setContent(const QString &content)
 {
     QGraphVizScene::setContent(preprocessContent(content));
 }
@@ -94,9 +94,8 @@ QString DirectedGraphScene::preprocessContent(const QString &content)
     return retval;
 }
 
-void DirectedGraphScene::processNodeLabel(quint64 id, QString label)
+void DirectedGraphScene::processNodeLabel(const qint64 &id, const QString &label)
 {
-
     static const quint8 maxNodeLabelSize = 64;
 
     QString shortLabel = label;
@@ -106,10 +105,9 @@ void DirectedGraphScene::processNodeLabel(quint64 id, QString label)
 
     setNodeInfo(id, NodeInfoType_LongLabel, label);
     setNodeInfo(id, NodeInfoType_ShortLabel, shortLabel);
-
 }
 
-void DirectedGraphScene::processEdgeLabel(quint64 id, QString label)
+void DirectedGraphScene::processEdgeLabel(const qint64 &id, const QString &label)
 {
     static const quint8 maxEdgeLabelSize = 24;
 
@@ -120,7 +118,6 @@ void DirectedGraphScene::processEdgeLabel(quint64 id, QString label)
 
     setEdgeInfo(id, EdgeInfoType_LongLabel, label);
     setEdgeInfo(id, EdgeInfoType_ShortLabel, shortLabel);
-
 }
 
 

@@ -151,7 +151,7 @@ DirectedGraphScene *STATWidget::createScene(const QByteArray &content)
     return m_STATScene;
 }
 
-DirectedGraphScene *STATWidget::scene()
+DirectedGraphScene *STATWidget::scene() const
 {
     return m_STATScene;
 }

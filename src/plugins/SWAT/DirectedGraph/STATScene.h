@@ -56,8 +56,8 @@ protected:
         EdgeInfoType_ProcessList = 3
     };
 
-    virtual void processNodeLabel(quint64 id, QString label);
-    virtual void processEdgeLabel(quint64 id, QString label);
+    virtual void processNodeLabel(const qint64 &id, const QString &label);
+    virtual void processEdgeLabel(const qint64 &id, const QString &label);
 
     virtual QGraphVizNode *createNode(node_t *node);
     virtual QGraphVizEdge *createEdge(edge_t *edge);

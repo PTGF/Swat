@@ -43,44 +43,51 @@ STATNode::STATNode(node_t *node, STATScene *scene, QGraphicsItem *parent) :
 
 QString STATNode::functionName()
 {
-    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_FunctionName).toString();
+    QString retval = m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_FunctionName).toString();
+    return retval;
 }
 
 quint64 STATNode::programCounter()
 {
-    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_ProgramCounter).toULongLong();
+    quint64 retval = m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_ProgramCounter).toULongLong();
+    return retval;
 }
 
 QString STATNode::sourceFile()
 {
-    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceFile).toString();
+    QString retval = m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceFile).toString();
+    return retval;
 }
 
 quint32 STATNode::sourceLine()
 {
-    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceLine).toUInt();
+    quint32 retval = m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_SourceLine).toUInt();
+    return retval;
 }
 
 QString STATNode::iter()
 {
-    return m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_IterString).toString();
+    QString retval = m_Scene->nodeInfo(nodeId(), STATScene::NodeInfoType_IterString).toString();
+    return retval;
 }
 
 
 
 QString STATNode::processCount()
 {
-    return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessCount).toString();
+    QString retval = m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessCount).toString();
+    return retval;
 }
 
 QStringList STATNode::processList()
 {
-    return m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessList).toStringList();
+    QStringList retval =  m_Scene->edgeInfo(nodeId(), STATScene::EdgeInfoType_ProcessList).toStringList();
+    return retval;
 }
 
 
 
-QList<quint64> STATNode::splitProcessList(QStringList lists)
+QList<quint64> STATNode::splitProcessList(const QStringList &lists)
 {
     QList<quint64> retval;
 
@@ -91,7 +98,7 @@ QList<quint64> STATNode::splitProcessList(QStringList lists)
     return retval;
 }
 
-QList<quint64> STATNode::splitProcessList(QString list)
+QList<quint64> STATNode::splitProcessList(const QString &list)
 {
     static const QRegExp rxRange("^([0-9]+)\\-([0-9]+)$");
 
@@ -129,20 +136,21 @@ QList<quint64> STATNode::splitProcessList(QString list)
 
 }
 
-QStringList STATNode::mergeProcessList(QList<quint64> list)
+QStringList STATNode::mergeProcessList(const QList<quint64> &list)
 {
     QStringList retval;
 
-    qSort(list.begin(), list.end());
+    QList<quint64>sortedList = list;
+    qSort(sortedList.begin(), sortedList.end());
 
     static const quint64 max64 = -1;
     quint64 start = max64;
     quint64 end = max64;
     quint64 last = max64;
-    for(int i = 0; i <= list.count(); ++i) {
+    for(int i = 0; i <= sortedList.count(); ++i) {
         quint64 value = max64;
-        if(i < list.count()) {
-            value = list.at(i);
+        if(i < sortedList.count()) {
+            value = sortedList.at(i);
         }
 
         if(last != max64 && value == (last + 1)) {
@@ -163,7 +171,7 @@ QStringList STATNode::mergeProcessList(QList<quint64> list)
 }
 
 
-QStringList STATNode::leafTasks()
+const QStringList &STATNode::leafTasks()
 {
     if(!m_LeafTaskCount.isEmpty()) {
         return m_LeafTasks;
@@ -188,7 +196,7 @@ QStringList STATNode::leafTasks()
 }
 
 
-QString STATNode::leafTaskCount()
+const QString &STATNode::leafTaskCount()
 {
     if(m_LeafTasks.isEmpty()) {
         leafTasks();

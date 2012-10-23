@@ -27,10 +27,8 @@
 
 #include "DirectedGraph/SWATWidget.h"
 
+#include "GraphLibAdapter.h"
 #include <graphlib.h>
-
-//#include <graphlib_graph_traits.h>
-//#include <GraphRenderOrder.h>
 
 #include "SWATScene.h"
 
@@ -39,15 +37,26 @@ namespace DirectedGraph {
 
 SWATWidget::SWATWidget(QWidget *parent) :
     STATWidget(parent),
-    m_Graph(NULL),
     m_SWATScene(NULL)
 {
 }
 
 SWATWidget::~SWATWidget()
 {
-    if(m_Graph) {
-        graphlib_delGraph(m_Graph);
+    try {
+
+        GraphLibAdapter adapter = GraphLibAdapter::instance();
+        adapter.deleteGraph(m_GraphId);
+
+#ifdef QT_DEBUG
+    } catch(QString err) {
+        qWarning() << tr("Error while destroying GraphLib graph") << err;
+    } catch(...) {
+        qWarning() << tr("Error while destroying GraphLib graph");
+#else
+    } catch(...) {
+        //TODO: Non-debug logging
+#endif
     }
 }
 
@@ -68,7 +77,6 @@ DirectedGraphScene *SWATWidget::createScene(const QByteArray &content)
 }
 
 
-
 void SWATWidget::setContent(const QByteArray &content)
 {
     STATWidget::setContent(content);
@@ -80,32 +88,30 @@ void SWATWidget::setContent(const QByteArray &content)
 }
 
 
-
 void SWATWidget::loadGraphLib(const QString filename)
 {
-    if(m_Graph) {
+    if(!m_GraphId.isNull()) {
         throw tr("A GraphLib graph has already been loaded");
     }
 
-    if(GRL_IS_FATALERROR(graphlib_loadGraph(filename.toLocal8Bit().data(), &m_Graph))) {
-        throw tr("Failed to open GraphLib native format from file: %1").arg(filename);
+    try {
+
+        GraphLibAdapter adapter = GraphLibAdapter::instance();
+        m_GraphId = adapter.createGraph(filename);
+        adapter.processAttributes(m_GraphId);
+
+        setContent(adapter.exportDotContent(m_GraphId));
+
+#ifdef QT_DEBUG
+    } catch(QString err) {
+        qWarning() << tr("Error while creating GraphLib graph") << err;
+    } catch(...) {
+        qWarning() << tr("Error while creating GraphLib graph");
+#else
+    } catch(...) {
+        //TODO: Non-debug logging
+#endif
     }
-
-    QTemporaryFile temp;
-    if(temp.open()) {
-        temp.close();
-
-        if(GRL_IS_FATALERROR(graphlib_exportGraph(temp.fileName().toLocal8Bit().data(), GRF_DOT, m_Graph))) {
-            throw tr("Could not export GraphLib as GraphViz DOT file: %1 => %2").arg(filename, temp.fileName());
-        }
-
-        if(temp.open()) {
-            QByteArray content = temp.readAll();
-            temp.close();
-            setContent(content);
-        }
-    }
-
 }
 
 

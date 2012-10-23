@@ -49,7 +49,7 @@ QGraphVizEdge *STATScene::createEdge(edge_t *edge)
 }
 
 
-void STATScene::processNodeLabel(quint64 id, QString label)
+void STATScene::processNodeLabel(const qint64 &id, const QString &label)
 {
     static const quint8 maxNodeLabelSize = 64;
     static QRegExp rxFullText = QRegExp("^([\\d\\w\\_\\-\\.]+)(?:@([\\d\\w\\_\\-\\.\\/\\\\]+)(?:\\:(\\d+))?)?(?:\\$(.+))?");
@@ -90,7 +90,7 @@ void STATScene::processNodeLabel(quint64 id, QString label)
     setNodeInfo(id, NodeInfoType_ShortLabel, shortLabel);
 }
 
-void STATScene::processEdgeLabel(quint64 id, QString label)
+void STATScene::processEdgeLabel(const qint64 &id, const QString &label)
 {
     static const quint8 maxEdgeLabelSize = 24;
     static QRegExp rxLabel = QRegExp("(?:(\\d+):)*\\[(.*)\\]");

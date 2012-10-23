@@ -30,6 +30,8 @@
 #include "SWATNode.h"
 #include "SWATEdge.h"
 
+#include "GraphLibAdapter.h"
+
 namespace Plugins {
 namespace DirectedGraph {
 

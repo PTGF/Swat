@@ -110,7 +110,7 @@ public:
     ~STATWidget();
 
     virtual void setContent(const QByteArray &content);
-    virtual DirectedGraphScene *scene();
+    virtual DirectedGraphScene *scene() const;
 
 public slots:
     void doHideMPI();

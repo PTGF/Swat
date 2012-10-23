@@ -46,9 +46,17 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
     m_EditToolBar(NULL),
     m_ViewToolBar(NULL),
     m_ExpandAll(NULL),
-    m_txtFilter(NULL)
+    m_txtFilter(NULL),
+    m_FilterTimer(new QTimer(this))
 {
     m_UndoStack->setActive(false);
+
+
+    // Set up the timer for filtering on a delay so that we're not searching too frequently
+    m_FilterTimer->setInterval(350);     // Value found by trial and error; might be a better way to do this
+    m_FilterTimer->setSingleShot(true);
+    connect(m_FilterTimer, SIGNAL(timeout()), this, SLOT(doFilter()));
+
 
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
@@ -214,13 +222,13 @@ DirectedGraphScene *DirectedGraphWidget::createScene(const QByteArray &content)
     return m_Scene;
 }
 
-DirectedGraphScene *DirectedGraphWidget::scene()
+DirectedGraphScene *DirectedGraphWidget::scene() const
 {
     return m_Scene;
 }
 
 
-DirectedGraphNode *DirectedGraphWidget::rootNode()
+DirectedGraphNode *DirectedGraphWidget::rootNode() const
 {
     QList<QGraphVizNode *> nodes = scene()->getNodes();
 
@@ -233,7 +241,7 @@ DirectedGraphNode *DirectedGraphWidget::rootNode()
 }
 
 
-QUndoStack *DirectedGraphWidget::undoStack()
+QUndoStack *DirectedGraphWidget::undoStack() const
 {
     return m_UndoStack;
 }
@@ -242,12 +250,18 @@ void DirectedGraphWidget::filter()
 {
     if(m_txtFilter->isVisible()) {
         m_txtFilter->hide();
-        txtFilter_textChanged(QString());
+
+        // Immediately clear the selection
+        m_FilterText = QString();
+        doFilter();
     } else {
         m_txtFilter->show();
         m_txtFilter->move(width() - 16 - m_txtFilter->width(), 0);
         m_txtFilter->setFocus();
-        txtFilter_textChanged(m_txtFilter->text());
+
+        // Immediately reselect whatever is already in the textbox
+        m_FilterText = m_txtFilter->text();
+        doFilter();
     }
 }
 
@@ -279,7 +293,7 @@ void DirectedGraphWidget::doExpand(DirectedGraphNode *node)
     undoStack()->push(new CollapseNodeCommand(this, node, false));
 }
 
-void DirectedGraphWidget::doCollapseDepth(int depth)
+void DirectedGraphWidget::doCollapseDepth(const int &depth)
 {
     undoStack()->push(new CollapseNodeDepthCommand(this, depth));
 }
@@ -318,19 +332,38 @@ void DirectedGraphWidget::doRefresh()
 
 void DirectedGraphWidget::txtFilter_textChanged(const QString &text)
 {
-    QRegExp rx = QRegExp(text, Qt::CaseInsensitive, QRegExp::RegExp2);
+    m_FilterText = text;
+
+    // Restart the timer for each change
+    m_FilterTimer->stop();
+    m_FilterTimer->start();
+}
+
+void DirectedGraphWidget::doFilter()
+{
+    m_FilterTimer->stop();
+
     foreach(QGraphVizNode *gvNode, scene()->getNodes()) {
         if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(gvNode)) {
-            if(!text.isEmpty() && rx.indexIn(node->label()) >= 0) {
+            node->setHighlighted(false);
+        }
+    }
+
+    if(m_FilterText.isEmpty()) {
+        return;
+    }
+
+    QRegExp rx = QRegExp(m_FilterText, Qt::CaseInsensitive, QRegExp::RegExp2);
+    foreach(QGraphVizNode *gvNode, scene()->getNodes()) {
+        if(DirectedGraphNode *node = dynamic_cast<DirectedGraphNode *>(gvNode)) {
+            if(rx.indexIn(node->label()) >= 0) {
                 node->setHighlighted(true);
-            } else {
-                node->setHighlighted(false);
             }
         }
     }
 }
 
-QUuid DirectedGraphWidget::id()
+const QUuid &DirectedGraphWidget::id() const
 {
     return m_Id;
 }
@@ -512,7 +545,7 @@ bool CollapseNodeCommand::mergeWith(const QUndoCommand *other)
 
 
 
-CollapseNodeDepthCommand::CollapseNodeDepthCommand(DirectedGraphWidget *view, int depth) :
+CollapseNodeDepthCommand::CollapseNodeDepthCommand(DirectedGraphWidget *view, const int &depth) :
     UndoCommand(view),
     m_Depth(depth)
 {

@@ -49,10 +49,10 @@ public:
     const qint64 &nodeId();
     const int &nodeDepth();
 
-    const QString &label();
-    const QString &shortLabel();
-    const QString &edgeLabel();
-    const QString &shortEdgeLabel();
+    QString label();
+    QString shortLabel();
+    QString edgeLabel();
+    QString shortEdgeLabel();
 
     DirectedGraphNode *parentNode();
     QList<DirectedGraphNode *> childNodes();
@@ -64,10 +64,6 @@ private:
 
     qint64 m_NodeId;
     int m_Depth;
-    QString m_Label;
-    QString m_ShortLabel;
-    QString m_EdgeLabel;
-    QString m_ShortEdgeLabel;
     DirectedGraphNode *m_ParentNode;
     QList<DirectedGraphNode *> m_ChildNodes;
 

@@ -97,7 +97,7 @@ private:
 class CollapseNodeDepthCommand : public UndoCommand
 {
 public:
-    CollapseNodeDepthCommand(DirectedGraphWidget *view, int depth);
+    CollapseNodeDepthCommand(DirectedGraphWidget *view, const int &depth);
     bool mergeWith(const QUndoCommand *other);
     void undo();
     void redo();
@@ -123,18 +123,20 @@ public:
     virtual void setContent(const QByteArray &content);
 
     virtual QGraphVizView *view();
-    virtual DirectedGraphScene *scene();
-    DirectedGraphNode *rootNode();
+    virtual DirectedGraphScene *scene() const;
+    DirectedGraphNode *rootNode() const;
 
 public slots:
     void undo();
     void redo();
+
     void filter();
+    void doFilter();
 
     void doExpandAll();
     void doExpand(DirectedGraphNode *node);
     void doCollapse(DirectedGraphNode *node);
-    void doCollapseDepth(int depth);
+    void doCollapseDepth(const int &depth);
 
     void doZoomIn();
     void doZoomOut();
@@ -142,15 +144,15 @@ public slots:
     void doRefresh();
 
 protected:
-    QUuid id();
-    QUndoStack *undoStack();
+    const QUuid &id() const;
+    QUndoStack *undoStack() const;
     virtual DirectedGraphScene *createScene(const QByteArray &content);
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
 
-    QToolBar *editToolBar() { return m_EditToolBar; }
-    QToolBar *viewToolBar() { return m_ViewToolBar; }
+    QToolBar *editToolBar() const { return m_EditToolBar; }
+    QToolBar *viewToolBar() const { return m_ViewToolBar; }
 
 protected slots:
     void txtFilter_textChanged(const QString &text);
@@ -164,11 +166,13 @@ private:
     QList<DirectedGraphNode *> m_Nodes;
     QList<DirectedGraphEdge *> m_Edges;
 
-
     QToolBar *m_EditToolBar;
     QToolBar *m_ViewToolBar;
     QAction *m_ExpandAll;
     QLineEdit *m_txtFilter;
+
+    QString m_FilterText;
+    QTimer *m_FilterTimer;
 
     friend class ExpandAllCommand;
     friend class CollapseNodeCommand;

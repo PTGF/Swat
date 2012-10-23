@@ -48,15 +48,15 @@ public:
     QString processCount();
     QStringList processList();
 
-    QStringList leafTasks();
-    QString leafTaskCount();
+    const QStringList &leafTasks();
+    const QString &leafTaskCount();
 
     virtual void showToolTip(const QPoint &pos, QWidget *w, const QRect &rect);
 
 protected:
-    QList<quint64> splitProcessList(QStringList lists);
-    QList<quint64> splitProcessList(QString list);
-    QStringList mergeProcessList(QList<quint64> list);
+    static QList<quint64> splitProcessList(const QStringList &lists);
+    static QList<quint64> splitProcessList(const QString &list);
+    static QStringList mergeProcessList(const QList<quint64> &list);
 
 private:
     STATScene *m_Scene;

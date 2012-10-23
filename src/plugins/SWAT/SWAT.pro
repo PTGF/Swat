@@ -52,7 +52,8 @@ SOURCES      += SWATPlugin.cpp \
                 DirectedGraph/SWATScene.cpp \
                 DirectedGraph/SWATNode.cpp \
                 DirectedGraph/SWATEdge.cpp \
-    SWATMainWidget.cpp
+    SWATMainWidget.cpp \
+    DirectedGraph/GraphLibAdapter.cpp
 
 HEADERS      += SWATPlugin.h \
                 AboutDialog.h \
@@ -76,7 +77,8 @@ HEADERS      += SWATPlugin.h \
                 DirectedGraph/SWATScene.h \
                 DirectedGraph/SWATNode.h \
                 DirectedGraph/SWATEdge.h \
-    SWATMainWidget.h
+    SWATMainWidget.h \
+    DirectedGraph/GraphLibAdapter.h
 
 FORMS        += \
                 AboutDialog.ui \

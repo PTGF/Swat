@@ -63,37 +63,24 @@ const int &DirectedGraphNode::nodeDepth()
     return m_Depth;
 }
 
-const QString &DirectedGraphNode::label()
+QString DirectedGraphNode::label()
 {
-    if(m_Label.isEmpty()) {
-        m_Label = m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_LongLabel).toString();
-    }
-    return m_Label;
+    return m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_LongLabel).toString();
 }
 
-const QString &DirectedGraphNode::shortLabel()
+QString DirectedGraphNode::shortLabel()
 {
-    if(m_ShortLabel.isEmpty()) {
-        m_ShortLabel = m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_ShortLabel).toString();
-    }
-    return m_ShortLabel;
+    return m_Scene->nodeInfo(nodeId(), DirectedGraphScene::NodeInfoType_ShortLabel).toString();
 }
 
-const QString &DirectedGraphNode::edgeLabel()
+QString DirectedGraphNode::edgeLabel()
 {
-    if(m_EdgeLabel.isEmpty()) {
-        m_EdgeLabel = m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_LongLabel).toString();
-    }
-
-    return m_EdgeLabel;
+    return m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_LongLabel).toString();
 }
 
-const QString &DirectedGraphNode::shortEdgeLabel()
+QString DirectedGraphNode::shortEdgeLabel()
 {
-    if(m_ShortEdgeLabel.isEmpty()) {
-        m_ShortEdgeLabel = m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_ShortLabel).toString();
-    }
-    return m_ShortEdgeLabel;
+    return m_Scene->edgeInfo(nodeId(), DirectedGraphScene::EdgeInfoType_ShortLabel).toString();
 }
 
 DirectedGraphNode *DirectedGraphNode::parentNode()

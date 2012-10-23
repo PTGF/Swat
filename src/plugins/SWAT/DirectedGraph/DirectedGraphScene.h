@@ -42,7 +42,7 @@ class DirectedGraphScene : public QGraphVizScene
 public:
     explicit DirectedGraphScene(QObject *parent = 0);
 
-    void setContent(QString content);
+    void setContent(const QString &content);
 
     QVariant nodeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;
     QVariant edgeInfo(const qint64 &id, const int &type, const QVariant &defaultValue = QVariant()) const;
@@ -59,8 +59,8 @@ protected:
     };
 
     virtual QString preprocessContent(const QString &content);
-    virtual void processNodeLabel(quint64 id, QString label);
-    virtual void processEdgeLabel(quint64 id, QString label);
+    virtual void processNodeLabel(const qint64 &id, const QString &label);
+    virtual void processEdgeLabel(const qint64 &id, const QString &label);
 
     QGraphVizNode *createNode(node_t *node);
     QGraphVizEdge *createEdge(edge_t *edge);
