@@ -5,9 +5,6 @@
         <file alias="cancel.svg">dialog-cancel-5.svg</file>
         <file alias="okay.svg">dialog-ok-apply-5.svg</file>
         <file alias="find.svg">edit-find-7.svg</file>
-        <file alias="pause.svg">media-playback-pause-6.svg</file>
-        <file alias="start.svg">media-playback-start-6.svg</file>
-        <file alias="stop.svg">media-playback-stop-6.svg</file>
         <file alias="zoom.svg">page-zoom.svg</file>
         <file alias="filter.svg">view-filter.svg</file>
         <file alias="refresh.svg">view-refresh-7.svg</file>
@@ -27,5 +24,12 @@
         <file alias="remove.svg">list-remove-5.svg</file>
         <file alias="launch.svg">arrow-right-double-3.svg</file>
         <file alias="attach.svg">arrow-right-3.svg</file>
+        <file alias="sample.svg">emblem-document.svg</file>
+        <file alias="sampleMultiple.svg">emblem-documents.svg</file>
+        <file alias="pause.svg">media-playback-pause-8.svg</file>
+        <file alias="reattach.svg">media-playback-repeat-8.svg</file>
+        <file alias="resume.svg">media-playback-start-8.svg</file>
+        <file alias="kill.svg">media-playback-stop-8.svg</file>
+        <file alias="detach.svg">media-playback-shuffle-8.svg</file>
     </qresource>
 </RCC>

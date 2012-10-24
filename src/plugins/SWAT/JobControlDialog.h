@@ -49,14 +49,14 @@ public:
     explicit JobControlDialog(QWidget *parent = 0);
     ~JobControlDialog();
 
-    enum Types { Type_Attach, Type_Launch };
-    void setType(Types type);
+    enum Types { Type_Attach, Type_Launch, Type_Sample, Type_SampleMultiple };
+    void setType(const Types &type);
 
-    IAdapter::Options *getOptions();
+    IAdapter::Options *options();
 
 public slots:
     void accept();
-    int exec(Types type);
+    int exec(const Types &type);
 
 protected:
     void readSettings();

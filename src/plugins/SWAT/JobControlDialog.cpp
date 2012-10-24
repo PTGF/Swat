@@ -59,8 +59,6 @@ JobControlDialog::JobControlDialog(QWidget *parent) :
 
     ui->txtProcessesFitler->setText("mpirun|srun|orterun");
 
-    setType(Type_Attach);
-
     ui->cmbTopologyType->clear();
     ui->cmbTopologyType->insertItem(0, tr("User"), IAdapter::Topology_User);
     ui->cmbTopologyType->insertItem(0, tr("Fan Out"), IAdapter::Topology_FanOut);
@@ -206,7 +204,7 @@ void JobControlDialog::readSettings()
 }
 
 
-void JobControlDialog::setType(Types type)
+void JobControlDialog::setType(const Types &type)
 {
     m_Type = type;
     int index = 0;
@@ -223,11 +221,6 @@ void JobControlDialog::setType(Types type)
             ui->tabWidget->removeTab(index);
         }
 
-        index = ui->tabWidget->indexOf(ui->tabAttach);
-        if(index < 0) {
-            ui->tabWidget->insertTab(0, ui->tabAttach, tr("Attach"));
-        }
-
         ui->tabWidget->setCurrentWidget(ui->tabAttach);
         break;
 
@@ -242,13 +235,50 @@ void JobControlDialog::setType(Types type)
             ui->tabWidget->removeTab(index);
         }
 
-        index = ui->tabWidget->indexOf(ui->tabLaunch);
-        if(index < 0) {
-            ui->tabWidget->insertTab(0, ui->tabLaunch, tr("Launch"));
-        }
-
         ui->tabWidget->setCurrentWidget(ui->tabLaunch);
         break;
+
+      case Type_SampleMultiple:
+        ui->grpSampleMultiple->setEnabled(true);
+      case Type_Sample:
+        ui->tabAttach->setEnabled(false);
+        ui->tabLaunch->setEnabled(false);
+        ui->tabRemote->setEnabled(false);
+        ui->tabTopology->setEnabled(false);
+        ui->tabAdvanced->setEnabled(false);
+
+        ui->lblRunTime->setEnabled(true);
+        ui->txtRunTime->setEnabled(true);
+
+        index = ui->tabWidget->indexOf(ui->tabAttach);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabLaunch);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabRemote);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabTopology);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        index = ui->tabWidget->indexOf(ui->tabAdvanced);
+        if(index >= 0) {
+            ui->tabWidget->removeTab(index);
+        }
+
+        ui->tabWidget->setCurrentWidget(ui->tabSample);
+
+        break;
+
     }
 }
 
@@ -259,7 +289,7 @@ void JobControlDialog::accept()
         m_Options = NULL;
     }
 
-    QString errorStyleSheet = "background-color: #FFEEEE;";
+    static const QString errorStyleSheet = "background-color: #FFEEEE;";
 
     bool convertedOkay;
     uint errorsFound = 0;
@@ -287,7 +317,7 @@ void JobControlDialog::accept()
 
         options = attachOptions;
 
-    } else {
+    } else if(m_Type == Type_Launch) {
         IAdapter::LaunchOptions *launchOptions = new IAdapter::LaunchOptions();
 
         if(ui->txtLaunchString->text().isEmpty() || ui->txtLaunchString->text().split(" ", QString::SkipEmptyParts).count() <= 1) {
@@ -302,6 +332,34 @@ void JobControlDialog::accept()
         }
 
         options = launchOptions;
+
+    } else if(m_Type == Type_Sample || m_Type == Type_SampleMultiple) {
+        IAdapter::Options *sampleOptions = new IAdapter::Options();
+
+        int sampleType = ui->cmbSampleType->itemData(ui->cmbSampleType->currentIndex()).toInt(&convertedOkay);
+        if(convertedOkay) {
+            sampleOptions->sampleType = (IAdapter::SampleType)sampleType;
+        } else {
+            sampleOptions->sampleType = IAdapter::Sample_FunctionNameOnly;
+        }
+
+        sampleOptions->withThreads = ui->chkWithThreads->isChecked();
+
+        sampleOptions->retryCount = ui->txtRetries->value();
+
+        sampleOptions->retryFrequency = ui->txtRetryFrequency->value();
+
+        sampleOptions->clearOnSample = ui->chkClearOnSample->isChecked();
+
+        sampleOptions->traceCount = ui->txtTraceCount->value();
+
+        sampleOptions->traceFrequency = ui->txtTraceFrequency->value();
+
+        sampleOptions->runTimeBeforeSample = ui->txtRunTime->value();
+
+        m_Options = sampleOptions;
+        QDialog::accept();
+        return;
     }
 
 
@@ -397,13 +455,13 @@ void JobControlDialog::accept()
 
     options->retryFrequency = ui->txtRetryFrequency->value();
 
-    //options->clearOnSample = ;
+    options->clearOnSample = ui->chkClearOnSample->isChecked();
 
-    //options->traceCount = ;
+    options->traceCount = ui->txtTraceCount->value();
 
-    //options->traceFrequency = ;
+    options->traceFrequency = ui->txtTraceFrequency->value();
 
-    //options->runTimeBeforeSample = ;
+    options->runTimeBeforeSample = ui->txtRunTime->value();
 
 
     if(ui->cmbRemoteShell->currentText().isEmpty()) {
@@ -437,7 +495,7 @@ void JobControlDialog::accept()
     QDialog::accept();
 }
 
-int JobControlDialog::exec(Types type)
+int JobControlDialog::exec(const Types &type)
 {
     if(m_Options) {
         delete m_Options;
@@ -448,7 +506,7 @@ int JobControlDialog::exec(Types type)
     return QDialog::exec();
 }
 
-IAdapter::Options *JobControlDialog::getOptions()
+IAdapter::Options *JobControlDialog::options()
 {
     return m_Options;
 }

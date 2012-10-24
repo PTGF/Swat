@@ -59,10 +59,21 @@ public slots:
     void launchJob();
 
 protected:
+
+    enum StateType {
+        State_Unknown = 0,
+        State_Detached,
+        State_Paused,
+        State_Running
+    };
+
     void tabInserted(int index);
     void tabRemoved(int index);
     void checkAdapterProgress(IAdapter *adapter);
     bool searchProcesses();
+
+    StateType state(const QUuid &id);
+    void setState(const QUuid &id, const StateType &state);
 
     virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event);
@@ -82,10 +93,25 @@ protected slots:
 
     void sampled(QString filename, QUuid id);
 
+    void sampling(QUuid id);
+    void detaching(QUuid id);
+    void pausing(QUuid id);
+    void resuming(QUuid id);
+    void canceling(QUuid id);
+
+    void doReattach();
+    void doDetach();
+    void doPause();
+    void doResume();
+    void doSample();
+    void doSampleMultiple();
+
     void loadTraceFile();
     void loadTraceFromFile(QString filename);
 
     void closeJob(int index = -1);
+
+    void indexChanged(int index);
 
 private:
     Ui::SWATMainWidget *ui;
@@ -95,10 +121,20 @@ private:
     QAction *m_LoadFile;
     QAction *m_CloseJob;
 
+    QAction *m_Reattach;
+    QAction *m_Detach;
+    QAction *m_Pause;
+    QAction *m_Resume;
+    QAction *m_Sample;
+    QAction *m_SampleMultiple;
+
     QToolBar *m_ToolBar;
+    QToolBar *m_CommandsToolBar;
 
     QString m_StyleSheet;
     QList<QProgressDialog*> m_ProgressDialogs;
+
+    QHash<QUuid, StateType> m_FrontEndStates;
 
 };
 

@@ -46,7 +46,7 @@ public:
     ~SWATWidget();
 
     virtual void setContent(const QByteArray &content);
-    virtual DirectedGraphScene *scene();
+    virtual DirectedGraphScene *scene() const;
 
     void loadGraphLib(const QString filename);
 

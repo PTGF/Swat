@@ -68,22 +68,22 @@ public:
     explicit CompiledAdapter(QObject *parent = 0);
     ~CompiledAdapter();
 
-    QUuid launch(LaunchOptions options);
-    QUuid attach(AttachOptions options);
-    void reAttach(QUuid id);
-    void detach(QUuid id);
-    void pause(QUuid id);
-    void resume(QUuid id);
-    void sample(SampleOptions options, QUuid id);
-    void sampleMultiple(SampleOptions options, QUuid id);
+    QUuid launch(const LaunchOptions &options);
+    QUuid attach(const AttachOptions &options);
+    void reAttach(const QUuid &id);
+    void detach(const QUuid &id);
+    void pause(const QUuid &id);
+    void resume(const QUuid &id);
+    void sample(const SampleOptions &options, const QUuid &id);
+    void sampleMultiple(const SampleOptions &options, const QUuid &id);
 
-    const QString defaultFilterPath() const;
-    const QString defaultToolDaemonPath() const;
-    const QString installPath() const;
-    const QString outputPath() const;
+    const QString &defaultFilterPath() const;
+    const QString &defaultToolDaemonPath() const;
+    const QString &installPath() const;
+    const QString &outputPath() const;
 
 public slots:
-    void cancel(QUuid id);
+    void cancel(const QUuid &id);
 
 protected:
     struct OperationProgress {
@@ -92,28 +92,28 @@ protected:
         float scale;
     };
 
-    void launch(LaunchOptions options, QUuid id);
-    void attach(AttachOptions options, QUuid id);
-    STAT_FrontEnd *setupFrontEnd(Options options, QUuid id);
-    void launchMRNet(TopologyOptions options, QUuid id);
+    void launch(const LaunchOptions &options, const QUuid &id);
+    void attach(const AttachOptions &options, const QUuid &id);
+    STAT_FrontEnd *setupFrontEnd(const Options &options, const QUuid &id);
+    void launchMRNet(const TopologyOptions &options, const QUuid &id);
 
-    void attachApplication(QUuid id);
+    void attachApplication(const QUuid &id);
 
-    void sample(SampleOptions options, QUuid id, OperationProgress &operationProgress);
-    void sampleMultiple(SampleOptions options, QUuid id, OperationProgress &operationProgress);
+    void sample(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress);
+    void sampleMultiple(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress);
 
-    void preSampleRunWait(quint64 runTimeWait, QUuid id, OperationProgress &operationProgress);
-    void sampleOne(SampleOptions options, QUuid id, OperationProgress &operationProgress);
+    void preSampleRunWait(const quint64 &runTimeWait, const QUuid &id, OperationProgress &operationProgress);
+    void sampleOne(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress);
 
 
     StatError_t waitAck(STAT_FrontEnd *frontEnd);
 
-    STAT_FrontEnd *getFrontEnd(QUuid id = QUuid());
+    STAT_FrontEnd *getFrontEnd(const QUuid &id = QUuid());
 
     QString errorToString(StatError_t error);
 
-    bool isAttached(QUuid id) { return m_attached.contains(id); }
-    bool isRunning(QUuid id)
+    bool isAttached(const QUuid &id) { return m_attached.contains(id); }
+    bool isRunning(const QUuid &id)
     {
         if(!m_frontEnds.contains(id)) {
             return false;

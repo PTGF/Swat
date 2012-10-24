@@ -62,7 +62,7 @@ SWATWidget::~SWATWidget()
 
 
 
-DirectedGraphScene *SWATWidget::scene()
+DirectedGraphScene *SWATWidget::scene() const
 {
     return m_SWATScene;
 }

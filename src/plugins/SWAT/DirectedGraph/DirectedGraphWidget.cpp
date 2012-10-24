@@ -77,7 +77,7 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
             filter->setShortcut(QKeySequence::Find);
             connect(filter, SIGNAL(triggered()), this, SLOT(filter()));
 
-            m_EditToolBar = new QToolBar("Edit", this);
+            m_EditToolBar = new QToolBar(tr("Edit"), this);
             m_EditToolBar->setObjectName("EditToolBar");
             m_EditToolBar->setIconSize(QSize(16,16));
             m_EditToolBar->addAction(undo);
@@ -105,9 +105,7 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
                 action->menu()->addAction(filter);
                 action->menu()->addSeparator()->setProperty("swatWidget_menuitem", m_Id.toString());
             }
-        }
-
-        if(action->text() == tr("Tools")) {
+        } else if(action->text() == tr("Tools")) {
             QAction *zoomIn = new QAction(QIcon(":/SWAT/zoom-in.svg"), tr("Zoom In"), this);
             zoomIn->setProperty("swatWidget_menuitem", m_Id.toString());
             zoomIn->setShortcut(QKeySequence::ZoomIn);
@@ -149,6 +147,8 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
             mainWindow.addToolBar(Qt::TopToolBarArea, m_ViewToolBar);
             m_ViewToolBar->hide();
 
+
+
             //! \todo We really need to rely on the ActionManager to do this.
             QAction *before = NULL;
             foreach(QAction *item, action->menu()->actions()) {
@@ -164,7 +164,6 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
                 action->menu()->insertAction(before, refresh);
                 action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", m_Id.toString());
                 action->menu()->insertAction(before, m_ExpandAll);
-                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", m_Id.toString());
             } else {
                 action->menu()->addSeparator()->setProperty("swatWidget_menuitem", m_Id.toString());
                 action->menu()->addAction(zoomIn);
@@ -205,9 +204,10 @@ void DirectedGraphWidget::setContent(const QByteArray &content)
 QGraphVizView *DirectedGraphWidget::view()
 {
     if(!m_View) {
-        m_View = new QGraphVizView(scene(), this);
+        QGraphicsScene *scene = this->scene();
+        m_View = new QGraphVizView(scene, this);
         m_View->setHandlesKeyboardEvents(false);
-        scene()->setParent(this);
+        scene->setParent(this);
     }
     return m_View;
 }

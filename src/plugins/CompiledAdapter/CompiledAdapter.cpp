@@ -95,14 +95,14 @@ CompiledAdapter::~CompiledAdapter()
     qDeleteAll(m_frontEnds);
 }
 
-QUuid CompiledAdapter::launch(LaunchOptions options)
+QUuid CompiledAdapter::launch(const LaunchOptions &options)
 {
     QUuid id = QUuid::createUuid();
     launch(options, id);
     return id;
 }
 
-void CompiledAdapter::launch(LaunchOptions options, QUuid id)
+void CompiledAdapter::launch(const LaunchOptions &options, const QUuid &id)
 {
     StatError_t statError;
 
@@ -152,10 +152,12 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
     attachApplication(id);
     emit progress(20, id);
 
-    options.traceCount = 1;
-    options.traceFrequency = 1;
+    LaunchOptions launchOptions = options;
+    launchOptions.traceCount = 1;
+    launchOptions.traceFrequency = 1;
+
     OperationProgress operationProgress(30, 0.7);
-    sample(options, id, operationProgress);
+    sample(launchOptions, id, operationProgress);
     emit progress(100, id);
 
     m_attached.append(id);
@@ -163,14 +165,14 @@ void CompiledAdapter::launch(LaunchOptions options, QUuid id)
     emit launched(id);
 }
 
-QUuid CompiledAdapter::attach(AttachOptions options)
+QUuid CompiledAdapter::attach(const AttachOptions &options)
 {
     QUuid id = QUuid::createUuid();
     attach(options, id);
     return id;
 }
 
-void CompiledAdapter::attach(AttachOptions options, QUuid id)
+void CompiledAdapter::attach(const AttachOptions &options, const QUuid &id)
 {
     StatError_t statError;
 
@@ -199,17 +201,19 @@ void CompiledAdapter::attach(AttachOptions options, QUuid id)
     attachApplication(id);
     emit progress(20, id);
 
-    options.traceCount = 1;
-    options.traceFrequency = 1;
+    AttachOptions attachOptions = options;
+    attachOptions.traceCount = 1;
+    attachOptions.traceFrequency = 1;
+
     OperationProgress operationProgress(30, 0.7);
-    sample(options, id, operationProgress);
+    sample(attachOptions, id, operationProgress);
     emit progress(100, id);
 
     m_attached.append(id);
     emit attached(id);
 }
 
-STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
+STAT_FrontEnd *CompiledAdapter::setupFrontEnd(const Options &options, const QUuid &id)
 {
     StatError_t statError;
     STAT_FrontEnd *frontEnd = getFrontEnd(id);
@@ -261,7 +265,7 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(Options options, QUuid id)
     return frontEnd;
 }
 
-void CompiledAdapter::reAttach(QUuid id)
+void CompiledAdapter::reAttach(const QUuid &id)
 {
     if(!isAttached(id)) {
         throw tr("Unable to reattach; already attached!");
@@ -287,7 +291,7 @@ void CompiledAdapter::reAttach(QUuid id)
     throw tr("Unable to reattach; valid options not found in cache.");
 }
 
-void CompiledAdapter::detach(QUuid id)
+void CompiledAdapter::detach(const QUuid &id)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::resume() frontEnd was null! This is not a valid value.");
@@ -320,7 +324,7 @@ void CompiledAdapter::detach(QUuid id)
     emit detached(id);
 }
 
-void CompiledAdapter::pause(QUuid id)
+void CompiledAdapter::pause(const QUuid &id)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::pause() frontEnd was null! This is not a valid value.");
@@ -349,7 +353,7 @@ void CompiledAdapter::pause(QUuid id)
     emit paused(id);
 }
 
-void CompiledAdapter::resume(QUuid id)
+void CompiledAdapter::resume(const QUuid &id)
 {
     //TODO: Should we just reattach if possible?
     if(!m_frontEnds.contains(id)) {
@@ -379,13 +383,13 @@ void CompiledAdapter::resume(QUuid id)
     emit resumed(id);
 }
 
-void CompiledAdapter::sample(SampleOptions options, QUuid id)
+void CompiledAdapter::sample(const SampleOptions &options, const QUuid &id)
 {
     OperationProgress operationProgress;
     sample(options, id, operationProgress);
 }
 
-void CompiledAdapter::sample(SampleOptions options, QUuid id, OperationProgress &operationProgress)
+void CompiledAdapter::sample(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::sample() frontEnd was null! This is not a valid value.");
@@ -402,18 +406,20 @@ void CompiledAdapter::sample(SampleOptions options, QUuid id, OperationProgress 
     // Rescale the progress for the following operations
     operationProgress.scale = 0.85 * operationProgressScale;
 
-    options.traceCount = 1;
-    options.traceFrequency = 1;
-    sampleOne(options, id, operationProgress);
+    SampleOptions sampleOneOptions = options;
+    sampleOneOptions.traceCount = 1;
+    sampleOneOptions.traceFrequency = 1;
+
+    sampleOne(sampleOneOptions, id, operationProgress);
 }
 
-void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id)
+void CompiledAdapter::sampleMultiple(const SampleOptions &options, const QUuid &id)
 {
     OperationProgress operationProgress;
     sampleMultiple(options, id, operationProgress);
 }
 
-void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationProgress &operationProgress)
+void CompiledAdapter::sampleMultiple(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::sampleMultiple() frontEnd was null! This is not a valid value.");
@@ -471,7 +477,7 @@ void CompiledAdapter::sampleMultiple(SampleOptions options, QUuid id, OperationP
     \param runTimeWait time in seconds to run the application before returning
     \param operationProgress
  */
-void CompiledAdapter::preSampleRunWait(quint64 runTimeWait, QUuid id, OperationProgress &operationProgress)
+void CompiledAdapter::preSampleRunWait(const quint64 &runTimeWait, const QUuid &id, OperationProgress &operationProgress)
 {
     float operationProgressValue = operationProgress.value;
 
@@ -504,7 +510,7 @@ void CompiledAdapter::preSampleRunWait(quint64 runTimeWait, QUuid id, OperationP
     emit progress(operationProgress.value, id);
 }
 
-void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgress &operationProgress)
+void CompiledAdapter::sampleOne(const SampleOptions &options, const QUuid &id, OperationProgress &operationProgress)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::sampleOne() frontEnd was null! This is not a valid value.");
@@ -603,7 +609,7 @@ void CompiledAdapter::sampleOne(SampleOptions options, QUuid id, OperationProgre
     \param options Topology options
     \param id Unique ID associated with SWAT FrontEnd
  */
-void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
+void CompiledAdapter::launchMRNet(const TopologyOptions &options, const QUuid &id) {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::launchMRNet() frontEnd was null! This is not a valid value.");
     }
@@ -653,7 +659,7 @@ void CompiledAdapter::launchMRNet(TopologyOptions options, QUuid id) {
 /*! \fn CompiledAdapter::attachApplication()
     \param id Unique ID associated with SWAT FrontEnd
  */
-void CompiledAdapter::attachApplication(QUuid id)
+void CompiledAdapter::attachApplication(const QUuid &id)
 {
     if(!m_frontEnds.contains(id)) {
         throw tr("CompiledAdapter::attachApplication() frontEnd was null! This is not a valid value.");
@@ -695,7 +701,7 @@ StatError_t CompiledAdapter::waitAck(STAT_FrontEnd *frontEnd)
     \param id Unique ID
     \returns STAT_FrontEnd object associated with unique ID
  */
-STAT_FrontEnd *CompiledAdapter::getFrontEnd(QUuid id)
+STAT_FrontEnd *CompiledAdapter::getFrontEnd(const QUuid &id)
 {
     if(id.isNull()) {
         throw tr("CompiledAdapter::getFrontEnd() ID not valid");
@@ -811,25 +817,25 @@ QString CompiledAdapter::errorToString(StatError_t error)
     }
 }
 
-const QString CompiledAdapter::defaultFilterPath() const
+const QString &CompiledAdapter::defaultFilterPath() const
 {
     return m_DefaultFilterPath;
 }
 
-const QString CompiledAdapter::defaultToolDaemonPath() const
+const QString &CompiledAdapter::defaultToolDaemonPath() const
 {
     return m_DefaultToolDaemonPath;
 }
-const QString CompiledAdapter::installPath() const
+const QString &CompiledAdapter::installPath() const
 {
     return m_InstallPath;
 }
-const QString CompiledAdapter::outputPath() const
+const QString &CompiledAdapter::outputPath() const
 {
     return m_OutputPath;
 }
 
-void CompiledAdapter::cancel(QUuid id)
+void CompiledAdapter::cancel(const QUuid &id)
 {
     emit canceling(id);
     emit progressMessage(tr("Canceling"), id);

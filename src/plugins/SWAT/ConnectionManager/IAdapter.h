@@ -90,6 +90,7 @@ public:
         Topology_Auto   = 3
     };
 
+
     /*******************************/
     /*! \brief Options required for sample, launch, and attach operations
         \sa IAdapter::launch() IAdapter::attach() IAdapter::sample()
@@ -165,59 +166,59 @@ public:
         \brief Launch a job and attach to it
         \returns Unique ID associated with FrontEnd
      */
-    virtual QUuid launch(LaunchOptions options) = 0;
+    virtual QUuid launch(const LaunchOptions &options) = 0;
 
     /*! \fn CompiledAdapter::attach()
         \brief Attach to an already running job process
         \returns Unique ID associated with FrontEnd
      */
-    virtual QUuid attach(AttachOptions options) = 0;
+    virtual QUuid attach(const AttachOptions &options) = 0;
 
     /*! \fn CompiledAdapter::reAttach()
         \brief
         \returns
      */
-    virtual void reAttach(QUuid id) = 0;
+    virtual void reAttach(const QUuid &id) = 0;
 
     /*! \fn CompiledAdapter::detach()
         \brief
         \returns
      */
-    virtual void detach(QUuid id) = 0;
+    virtual void detach(const QUuid &id) = 0;
 
     /*! \fn CompiledAdapter::pause()
         \brief
         \returns
      */
-    virtual void pause(QUuid id) = 0;
+    virtual void pause(const QUuid &id) = 0;
 
     /*! \fn CompiledAdapter::resume()
         \brief
         \returns
      */
-    virtual void resume(QUuid id) = 0;
+    virtual void resume(const QUuid &id) = 0;
 
     /*! \fn CompiledAdapter::sample()
         \brief
         \returns
      */
-    virtual void sample(SampleOptions options, QUuid id) = 0;
+    virtual void sample(const SampleOptions &options, const QUuid &id) = 0;
 
     /*! \fn CompiledAdapter::sampleMultiple()
         \brief
         \returns
      */
-    virtual void sampleMultiple(SampleOptions options, QUuid id) = 0;
+    virtual void sampleMultiple(const SampleOptions &options, const QUuid &id) = 0;
 
 
 
-    virtual const QString defaultFilterPath() const = 0;
-    virtual const QString defaultToolDaemonPath() const = 0;
-    virtual const QString installPath() const = 0;
-    virtual const QString outputPath() const = 0;
+    virtual const QString &defaultFilterPath() const = 0;
+    virtual const QString &defaultToolDaemonPath() const = 0;
+    virtual const QString &installPath() const = 0;
+    virtual const QString &outputPath() const = 0;
 
 public slots:
-    virtual void cancel(QUuid id) = 0;
+    virtual void cancel(const QUuid &id) = 0;
 
 signals:
     /*! \fn CompiledAdapter::progress()

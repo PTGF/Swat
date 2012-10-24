@@ -51,7 +51,8 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
     m_LaunchJob(NULL),
     m_LoadFile(NULL),
     m_CloseJob(NULL),
-    m_ToolBar(NULL)
+    m_ToolBar(NULL),
+    m_CommandsToolBar(NULL)
 {
     ui->setupUi(this);
 
@@ -62,6 +63,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
     setWindowIcon(QIcon(":/SWAT/app.gif"));
 
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeJob(int)));
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(indexChanged(int)));
 
     using namespace Core::MainWindow;
     MainWindow &mainWindow = MainWindow::instance();
@@ -142,6 +144,84 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
             }
 
 
+        } else if(action->text() == tr("Tools")) {
+            m_Reattach = new QAction(QIcon(":/SWAT/reattach.svg"), tr("Re-Attach"), this);
+            m_Reattach->setToolTip(tr("Attach to the last application STAT detached from"));
+            m_Reattach->setProperty("swatWidget_menuitem",QVariant(1));
+            m_Reattach->setEnabled(false);
+            connect(m_Reattach, SIGNAL(triggered()), this, SLOT(doReattach()));
+
+            m_Detach = new QAction(QIcon(":/SWAT/detach.svg"), tr("Detach"), this);
+            m_Detach->setToolTip(tr("Detach from the application"));
+            m_Detach->setProperty("swatWidget_menuitem",QVariant(1));
+            m_Detach->setEnabled(false);
+            connect(m_Detach, SIGNAL(triggered()), this, SLOT(doDetach()));
+
+            m_Pause = new QAction(QIcon(":/SWAT/pause.svg"), tr("Pause"), this);
+            m_Pause->setToolTip(tr("Pause the application"));
+            m_Pause->setProperty("swatWidget_menuitem",QVariant(1));
+            m_Pause->setEnabled(false);
+            connect(m_Pause, SIGNAL(triggered()), this, SLOT(doPause()));
+
+            m_Resume = new QAction(QIcon(":/SWAT/resume.svg"), tr("Resume"), this);
+            m_Resume->setToolTip(tr("Resume the application"));
+            m_Resume->setProperty("swatWidget_menuitem",QVariant(1));
+            m_Resume->setEnabled(false);
+            connect(m_Resume, SIGNAL(triggered()), this, SLOT(doResume()));
+
+            m_Sample = new QAction(QIcon(":/SWAT/sample.svg"), tr("Sample"), this);
+            m_Sample->setToolTip(tr("Gather a stack trace sample from the application"));
+            m_Sample->setProperty("swatWidget_menuitem",QVariant(1));
+            m_Sample->setEnabled(false);
+            connect(m_Sample, SIGNAL(triggered()), this, SLOT(doSample()));
+
+            m_SampleMultiple = new QAction(QIcon(":/SWAT/sampleMultiple.svg"), tr("Sample Multiple"), this);
+            m_SampleMultiple->setToolTip(tr("Gather the merged stack traces accumulated over time"));
+            m_SampleMultiple->setProperty("swatWidget_menuitem", QVariant(1));
+            m_SampleMultiple->setEnabled(false);
+            connect(m_SampleMultiple, SIGNAL(triggered()), this, SLOT(doSampleMultiple()));
+
+
+            m_CommandsToolBar = new QToolBar(tr("Process Control"), this);
+            m_CommandsToolBar->setObjectName("ProcessControlToolBar");
+            m_CommandsToolBar->setIconSize(QSize(16,16));
+            m_CommandsToolBar->addAction(m_Reattach);
+            m_CommandsToolBar->addAction(m_Detach);
+            m_CommandsToolBar->addAction(m_Pause);
+            m_CommandsToolBar->addAction(m_Resume);
+            m_CommandsToolBar->addAction(m_Sample);
+            m_CommandsToolBar->addAction(m_SampleMultiple);
+            mainWindow.addToolBar(Qt::TopToolBarArea, m_CommandsToolBar);
+            m_CommandsToolBar->hide();
+
+
+            //! \todo We really need to rely on the ActionManager to do this.
+            QAction *before = NULL;
+            foreach(QAction *item, action->menu()->actions()) {
+                if(item->priority() == QAction::LowPriority) {
+                    before = item;
+                }
+            }
+
+            if(before) {
+                action->menu()->insertAction(before, m_Reattach);
+                action->menu()->insertAction(before, m_Detach);
+                action->menu()->insertAction(before, m_Pause);
+                action->menu()->insertAction(before, m_Resume);
+                action->menu()->insertAction(before, m_Sample);
+                action->menu()->insertAction(before, m_SampleMultiple);
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", QVariant(1));
+            } else {
+                action->menu()->addAction(m_Reattach);
+                action->menu()->addAction(m_Detach);
+                action->menu()->addAction(m_Pause);
+                action->menu()->addAction(m_Resume);
+                action->menu()->addAction(m_Sample);
+                action->menu()->addAction(m_SampleMultiple);
+                action->menu()->addSeparator()->setProperty("swatWidget_menuitem", QVariant(1));
+            }
+
+
         }
     }
 
@@ -190,6 +270,52 @@ void SWATMainWidget::tabTitleChanged()
         MainWindow::instance().notify(tr("Failed to change tab name."), NotificationWidget::Critical);
     }
 }
+
+
+SWATMainWidget::StateType SWATMainWidget::state(const QUuid &id)
+{
+    return m_FrontEndStates.value(id, State_Unknown);
+}
+
+void SWATMainWidget::setState(const QUuid &id, const StateType &state)
+{
+    m_FrontEndStates[id] = state;
+
+    QWidget *widget = currentWidget();
+    if(!widget) {
+        return;
+    }
+
+    if(widget->property("id").toString() == id) {
+        m_Reattach->setEnabled(false);
+        m_Detach->setEnabled(false);
+        m_Pause->setEnabled(false);
+        m_Resume->setEnabled(false);
+        m_Sample->setEnabled(false);
+        m_SampleMultiple->setEnabled(false);
+
+        switch(state) {
+          case State_Detached:
+            m_Reattach->setEnabled(true);
+            break;
+          case State_Paused:
+            m_Resume->setEnabled(true);
+            m_Detach->setEnabled(true);
+            m_Sample->setEnabled(true);
+            m_SampleMultiple->setEnabled(true);
+            break;
+          case State_Running:
+            m_Pause->setEnabled(true);
+            m_Detach->setEnabled(true);
+            m_Sample->setEnabled(true);
+            m_SampleMultiple->setEnabled(true);
+            break;
+          case State_Unknown:
+            break;
+        }
+    }
+}
+
 
 bool SWATMainWidget::searchProcesses()
 {
@@ -252,17 +378,16 @@ void SWATMainWidget::attachJob()
     JobControlDialog *dialog = new JobControlDialog(this);
 
     if(dialog->exec(JobControlDialog::Type_Attach) == QDialog::Accepted &&
-            dialog->getOptions() != NULL) {
+            dialog->options() != NULL) {
         IAdapter *adapter = ConnectionManager::currentAdapter();
 
         if(!adapter) {
-            //TODO: display error
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while attaching: No adapter!"), NotificationWidget::Critical);
             return;
         }
 
-        IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->getOptions();
-
-        connect(adapter, SIGNAL(attaching(QUuid)), this, SLOT(attaching(QUuid)));
+        IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->options();
 
         if(options) {
             try {
@@ -292,15 +417,16 @@ void SWATMainWidget::launchJob()
     JobControlDialog *dialog = new JobControlDialog(this);
 
     if(dialog->exec(JobControlDialog::Type_Launch) == QDialog::Accepted &&
-            dialog->getOptions() != NULL) {
+            dialog->options() != NULL) {
         IAdapter *adapter = ConnectionManager::currentAdapter();
 
         if(!adapter) {
-            //TODO: display error
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while launching: No adapter!"), NotificationWidget::Critical);
             return;
         }
 
-        IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->getOptions();
+        IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->options();
 
         if(options) {
             try {
@@ -333,6 +459,11 @@ void SWATMainWidget::CurrentAdapterChanged(IAdapter* from, IAdapter* to)
         connect(to, SIGNAL(progressMessage(QString,QUuid)),     this, SLOT(progressMessage(QString,QUuid)));
         connect(to, SIGNAL(sampled(QString,QUuid)),             this, SLOT(sampled(QString,QUuid)));
 
+        connect(to, SIGNAL(sampling(QUuid)),                    this, SLOT(sampling(QUuid)));
+        connect(to, SIGNAL(detaching(QUuid)),                   this, SLOT(detaching(QUuid)));
+        connect(to, SIGNAL(pausing(QUuid)),                     this, SLOT(pausing(QUuid)));
+        connect(to, SIGNAL(resuming(QUuid)),                    this, SLOT(resuming(QUuid)));
+        connect(to, SIGNAL(canceling(QUuid)),                   this, SLOT(canceling(QUuid)));
 
         // Check for any running jobs that we can attach to
         static bool searchedProcesses = false;
@@ -380,10 +511,23 @@ void SWATMainWidget::checkAdapterProgress(IAdapter *adapter)
     disconnect(adapter, SIGNAL(launched(QUuid)),                this, SLOT(attached(QUuid)));
     disconnect(adapter, SIGNAL(progress(int,QUuid)),            this, SLOT(progress(int,QUuid)));
     disconnect(adapter, SIGNAL(progressMessage(QString,QUuid)), this, SLOT(progressMessage(QString,QUuid)));
+
+    disconnect(adapter, SIGNAL(sampling(QUuid)),                this, SLOT(sampling(QUuid)));
+    disconnect(adapter, SIGNAL(detaching(QUuid)),               this, SLOT(detaching(QUuid)));
+    disconnect(adapter, SIGNAL(pausing(QUuid)),                 this, SLOT(pausing(QUuid)));
+    disconnect(adapter, SIGNAL(resuming(QUuid)),                this, SLOT(resuming(QUuid)));
+    disconnect(adapter, SIGNAL(canceling(QUuid)),               this, SLOT(canceling(QUuid)));
+
 }
 
 void SWATMainWidget::attaching(QUuid id)
 {
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Unknown);
+
     QProgressDialog *dlg = new QProgressDialog(this, Qt::Dialog);
     dlg->setProperty("id", QVariant(id.toString()));
     dlg->setProperty("adapter", qVariantFromValue(ConnectionManager::currentAdapter()));
@@ -393,11 +537,17 @@ void SWATMainWidget::attaching(QUuid id)
 
     m_ProgressDialogs.append(dlg);
 
-    connect(dlg, SIGNAL(canceled()), this, SLOT(cancelAttach()));
+    connect(dlg, SIGNAL(canceling()), this, SLOT(cancelAttach()));
 }
 
 void SWATMainWidget::attached(QUuid id)
 {
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Paused);
+
     for(quint16 i = 0; i < m_ProgressDialogs.count(); ++i) {
         QProgressDialog *dlg = m_ProgressDialogs.at(i);
         if(dlg->property("id").toString() != id) {
@@ -409,8 +559,6 @@ void SWATMainWidget::attached(QUuid id)
         m_ProgressDialogs.removeAt(i);
         dlg->deleteLater();
         checkAdapterProgress(progressAdapter);
-
-        break;
     }
 }
 
@@ -473,6 +621,7 @@ void SWATMainWidget::showEvent(QShowEvent *event)
     }
 
     m_ToolBar->show();
+    m_CommandsToolBar->show();
 
     TabWidget::showEvent(event);
 }
@@ -490,16 +639,257 @@ void SWATMainWidget::hideEvent(QHideEvent *event)
     }
 
     m_ToolBar->hide();
+    m_CommandsToolBar->hide();
 
     TabWidget::hideEvent(event);
 }
 
 
+
 void SWATMainWidget::sampled(QString filename, QUuid id)
 {
-    Q_UNUSED(id)
-    loadTraceFromFile(filename);
+    try {
+
+        loadTraceFromFile(filename);
+
+        // Store the ID for later process control
+        this->widget(currentIndex())->setProperty("id", QVariant(id.toString()));
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to open sample: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Failed to open sample."), NotificationWidget::Critical);
+    }
+
 }
+
+void SWATMainWidget::sampling(QUuid id)
+{
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Paused);
+}
+
+
+
+void SWATMainWidget::detaching(QUuid id)
+{
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Detached);
+}
+
+void SWATMainWidget::pausing(QUuid id)
+{
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Paused);
+}
+
+void SWATMainWidget::resuming(QUuid id)
+{
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Running);
+}
+
+void SWATMainWidget::canceling(QUuid id)
+{
+    if(id.isNull()) {
+        return;
+    }
+
+    setState(id, State_Detached);
+}
+
+
+void SWATMainWidget::doReattach()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    IAdapter *adapter = ConnectionManager::currentAdapter();
+    if(!adapter) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while reattaching: No adapter!"), NotificationWidget::Critical);
+        return;
+    }
+
+    try {
+        adapter->reAttach(QUuid(varId.toString()));
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while reattaching: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while reattaching"), NotificationWidget::Critical);
+    }
+}
+
+void SWATMainWidget::doDetach()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    IAdapter *adapter = ConnectionManager::currentAdapter();
+    if(!adapter) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while detaching: No adapter!"), NotificationWidget::Critical);
+        return;
+    }
+
+    try {
+        adapter->detach(QUuid(varId.toString()));
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while detaching: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while detaching"), NotificationWidget::Critical);
+    }
+}
+
+void SWATMainWidget::doPause()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    IAdapter *adapter = ConnectionManager::currentAdapter();
+    if(!adapter) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while pausing: No adapter!"), NotificationWidget::Critical);
+        return;
+    }
+
+    try {
+        adapter->pause(QUuid(varId.toString()));
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while pausing: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while pausing"), NotificationWidget::Critical);
+    }
+}
+
+void SWATMainWidget::doResume()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    IAdapter *adapter = ConnectionManager::currentAdapter();
+    if(!adapter) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while resuming: No adapter!"), NotificationWidget::Critical);
+        return;
+    }
+
+    try {
+        adapter->resume(QUuid(varId.toString()));
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while resuming: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while resuming"), NotificationWidget::Critical);
+    }
+}
+
+void SWATMainWidget::doSample()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    //Prompt user for sample preferences
+    JobControlDialog *dialog = new JobControlDialog(this);
+
+    if(dialog->exec(JobControlDialog::Type_Sample) == QDialog::Accepted &&
+            dialog->options() != NULL) {
+        IAdapter *adapter = ConnectionManager::currentAdapter();
+
+        if(!adapter) {
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while sampling: No adapter!"), NotificationWidget::Critical);
+            return;
+        }
+
+        IAdapter::SampleOptions *options = (IAdapter::SampleOptions*)dialog->options();
+
+        if(options) {
+            try {
+                adapter->sample(*options, QUuid(varId.toString()));
+            } catch(QString err) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while sampling: %1").arg(err), NotificationWidget::Critical);
+            } catch(...) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while sampling"), NotificationWidget::Critical);
+            }
+        }
+    }
+
+    dialog->deleteLater();
+}
+
+void SWATMainWidget::doSampleMultiple()
+{
+    QVariant varId = this->currentWidget()->property("id");
+    if(!varId.isValid()) {
+        return;
+    }
+
+    //Prompt user for multiple sample preferences
+    JobControlDialog *dialog = new JobControlDialog(this);
+
+    if(dialog->exec(JobControlDialog::Type_SampleMultiple) == QDialog::Accepted &&
+            dialog->options() != NULL) {
+        IAdapter *adapter = ConnectionManager::currentAdapter();
+
+        if(!adapter) {
+            using namespace Core::MainWindow;
+            MainWindow::instance().notify(tr("Error while multi-sampling: No adapter!"), NotificationWidget::Critical);
+            return;
+        }
+
+        IAdapter::SampleOptions *options = (IAdapter::SampleOptions*)dialog->options();
+
+        if(options) {
+            try {
+                adapter->sampleMultiple(*options, QUuid(varId.toString()));
+            } catch(QString err) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while multi-sampling: %1").arg(err), NotificationWidget::Critical);
+            } catch(...) {
+                using namespace Core::MainWindow;
+                MainWindow::instance().notify(tr("Error while multi-sampling"), NotificationWidget::Critical);
+            }
+        }
+    }
+
+    dialog->deleteLater();
+}
+
+
 
 void SWATMainWidget::closeJob(int index)
 {
@@ -511,6 +901,16 @@ void SWATMainWidget::closeJob(int index)
 
 
         QWidget *widget = this->widget(index);
+
+        QVariant varId = widget->property("id");
+        if(varId.isValid()) {
+            QUuid id = QUuid(varId.toString());
+            if(state(id) != State_Detached) {
+                doDetach();
+            }
+            m_FrontEndStates.remove(id);
+        }
+
         widget->close();
         removeTab(index);
         widget->deleteLater();
@@ -523,6 +923,16 @@ void SWATMainWidget::closeJob(int index)
         MainWindow::instance().notify(tr("Failed to close job."), NotificationWidget::Critical);
     }
 }
+
+void SWATMainWidget::indexChanged(int index)
+{
+    QVariant varId = widget(index)->property("id");
+    if(varId.isValid()) {
+        QUuid id = QUuid(varId.toString());
+        setState(id, state(id));
+    }
+}
+
 
 void SWATMainWidget::loadTraceFile()
 {
