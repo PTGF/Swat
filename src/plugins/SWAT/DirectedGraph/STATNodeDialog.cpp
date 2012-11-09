@@ -71,6 +71,12 @@ void STATNodeDialog::setNode(STATNode *node)
         return;
     }
 
+    if(!m_Node->functionName().isEmpty()) {
+        setWindowTitle(m_Node->functionName());
+    } else {
+        setWindowTitle(m_Node->shortLabel());
+    }
+
     ui->btnCollapse->setChecked(m_Node->isCollapsed());
 
     ui->txtStackFrame->setText(m_Node->label());

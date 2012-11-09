@@ -54,7 +54,7 @@ STATWidget::STATWidget(QWidget *parent) :
         if(action->text() == tr("Tools")) {
             m_HideMPI = new QAction(tr("Hide MPI Functions"), this);
             m_HideMPI->setToolTip(tr("Collapse all MPI functions in the current stack trace"));
-            m_HideMPI->setIcon(QIcon(":/SWAT/app.gif"));
+            m_HideMPI->setIcon(QIcon(":/SWAT/hideMPI.svg"));
             m_HideMPI->setIconVisibleInMenu(true);
             m_HideMPI->setVisible(false);
             m_HideMPI->setProperty("swatWidget_menuitem", id().toString());
@@ -62,7 +62,7 @@ STATWidget::STATWidget(QWidget *parent) :
 
             m_HideNonBranching = new QAction(tr("Hide Non-Branching Functions"), this);
             m_HideNonBranching->setToolTip(tr("Collapse all Non-Branching functions in the current stack trace"));
-            m_HideNonBranching->setIcon(QIcon(":/SWAT/app.gif"));
+            m_HideNonBranching->setIcon(QIcon(":/SWAT/hideNonBranching.svg"));
             m_HideNonBranching->setIconVisibleInMenu(true);
             m_HideNonBranching->setVisible(false);
             m_HideNonBranching->setProperty("swatWidget_menuitem", id().toString());

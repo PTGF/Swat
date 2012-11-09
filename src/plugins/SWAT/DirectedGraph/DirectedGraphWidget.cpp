@@ -79,7 +79,7 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
 
             m_EditToolBar = new QToolBar(tr("Edit"), this);
             m_EditToolBar->setObjectName("EditToolBar");
-            m_EditToolBar->setIconSize(QSize(16,16));
+//            m_EditToolBar->setIconSize(QSize(16,16));
             m_EditToolBar->addAction(undo);
             m_EditToolBar->addAction(redo);
             m_EditToolBar->addAction(filter);
@@ -129,7 +129,7 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
 
             m_ExpandAll = new QAction(tr("Expand All"), this);
             m_ExpandAll->setToolTip(tr("Expand all functions in the current stack trace"));
-            m_ExpandAll->setIcon(QIcon(":/SWAT/app.gif"));
+            m_ExpandAll->setIcon(QIcon(":/SWAT/expandAll.svg"));
             m_ExpandAll->setIconVisibleInMenu(true);
             m_ExpandAll->setVisible(false);
             m_ExpandAll->setProperty("swatWidget_menuitem", m_Id.toString());
@@ -137,7 +137,7 @@ DirectedGraphWidget::DirectedGraphWidget(QWidget *parent) :
 
             m_ViewToolBar = new QToolBar("View", this);
             m_ViewToolBar->setObjectName("ViewToolBar");
-            m_ViewToolBar->setIconSize(QSize(16,16));
+//            m_ViewToolBar->setIconSize(QSize(16,16));
             m_ViewToolBar->addAction(zoomIn);
             m_ViewToolBar->addAction(zoomOut);
             m_ViewToolBar->addAction(zoomFit);

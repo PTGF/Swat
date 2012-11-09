@@ -110,7 +110,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
 
             m_ToolBar = new QToolBar(tr("SWAT"), this);
             m_ToolBar->setObjectName("SwatToolBar");
-            m_ToolBar->setIconSize(QSize(16,16));
+//            m_ToolBar->setIconSize(QSize(16,16));
             m_ToolBar->setFloatable(false);
             m_ToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
             m_ToolBar->addAction(m_AttachJob);
@@ -184,7 +184,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
 
             m_CommandsToolBar = new QToolBar(tr("Process Control"), this);
             m_CommandsToolBar->setObjectName("ProcessControlToolBar");
-            m_CommandsToolBar->setIconSize(QSize(16,16));
+//            m_CommandsToolBar->setIconSize(QSize(16,16));
             m_CommandsToolBar->addAction(m_Reattach);
             m_CommandsToolBar->addAction(m_Detach);
             m_CommandsToolBar->addAction(m_Pause);
@@ -204,6 +204,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
             }
 
             if(before) {
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", QVariant(1));
                 action->menu()->insertAction(before, m_Reattach);
                 action->menu()->insertAction(before, m_Detach);
                 action->menu()->insertAction(before, m_Pause);
@@ -212,6 +213,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
                 action->menu()->insertAction(before, m_SampleMultiple);
                 action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", QVariant(1));
             } else {
+                action->menu()->insertSeparator(before)->setProperty("swatWidget_menuitem", QVariant(1));
                 action->menu()->addAction(m_Reattach);
                 action->menu()->addAction(m_Detach);
                 action->menu()->addAction(m_Pause);
@@ -282,9 +284,12 @@ void SWATMainWidget::setState(const QUuid &id, const StateType &state)
     m_FrontEndStates[id] = state;
 
     QWidget *widget = currentWidget();
-    if(!widget) {
+    if(!widget || !widget->property("id").isValid()) {
+        m_CommandsToolBar->hide();
         return;
     }
+
+    m_CommandsToolBar->show();
 
     if(widget->property("id").toString() == id) {
         m_Reattach->setEnabled(false);
@@ -621,7 +626,10 @@ void SWATMainWidget::showEvent(QShowEvent *event)
     }
 
     m_ToolBar->show();
-    m_CommandsToolBar->show();
+
+    if(currentWidget() && currentWidget()->property("id").isValid()) {
+        m_CommandsToolBar->show();
+    }
 
     TabWidget::showEvent(event);
 }
