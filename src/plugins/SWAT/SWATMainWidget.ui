@@ -14,13 +14,13 @@
    <string>SWAT</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/swat/app.gif</normaloff>:/swat/app.gif</iconset>
+   <iconset resource="Resources/SWAT.qrc">
+    <normaloff>:/SWAT/app.svg</normaloff>:/SWAT/app.svg</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QStackedWidget {
   background-color: rgba(0,0,0, 5%);
-  background-image: url(\&quot;:/SWAT/logo_150.gif\&quot;);
+  background-image: url(\&quot;:/SWAT/logo.svg\&quot;);
   background-repeat: none;
   background-position: center center;
   border-radius: 5px;
@@ -36,6 +36,8 @@
    <bool>true</bool>
   </property>
  </widget>
- <resources/>
+ <resources>
+  <include location="Resources/SWAT.qrc"/>
+ </resources>
  <connections/>
 </ui>

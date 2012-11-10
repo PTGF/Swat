@@ -105,7 +105,7 @@ bool SWATPlugin::initialize(QStringList &args, QString *err)
             if(action->text() == tr("Help")) {
                 m_AboutPage.setText(tr("About SWAT"));
                 m_AboutPage.setToolTip(tr("Displays the SWAT about dialog"));
-                m_AboutPage.setIcon(QIcon(":/SWAT/app.gif"));
+                m_AboutPage.setIcon(QIcon(":/SWAT/app.svg"));
                 m_AboutPage.setIconVisibleInMenu(true);
                 connect(&m_AboutPage, SIGNAL(triggered()), this, SLOT(aboutDialog()));
                 action->menu()->addAction(&m_AboutPage);
@@ -201,7 +201,7 @@ void SWATPlugin::writeSettings()
 /* BEGIN ISettingPageFactory */
 QIcon SWATPlugin::settingPageIcon()
 {
-    return QIcon(":/SWAT/app.gif");
+    return QIcon(":/SWAT/app.svg");
 }
 
 QString SWATPlugin::settingPageName()

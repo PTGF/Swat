@@ -32,10 +32,13 @@
 #include <string>
 
 #include <graphlib.h>
+
+#ifdef GRAPHRENDERORDER
 #include <graphlib_internals.h>
 #include <boost/graph/graph_traits.hpp>
 #include <graphlib_graph_traits.h>
 #include <GraphRenderOrder.h>
+#endif
 
 namespace Plugins {
 namespace DirectedGraph {
@@ -81,7 +84,7 @@ graphlib_graph_p GraphLibAdapter::graph(const QUuid &graphId) const
 QUuid GraphLibAdapter::createGraph(const QString &filename)
 {
     graphlib_graph_p graph;
-    if(GRL_IS_FATALERROR(graphlib_loadGraph(filename.toLocal8Bit().data(), &graph))) {
+    if(GRL_IS_FATALERROR(graphlib_loadGraph(filename.toLocal8Bit().data(), &graph, NULL))) {
         throw QString("Failed to open GraphLib native format from file: %1").arg(filename);
     }
 
@@ -129,10 +132,10 @@ QByteArray GraphLibAdapter::exportDotContent(const QUuid &graphId)
     return content;
 }
 
-
 void GraphLibAdapter::processAttributes(const QUuid &graphId)
 {
 
+#ifdef GRAPHRENDERORDER
     graphlib_graph_p graph = this->graph(graphId);
 
     {
@@ -177,10 +180,10 @@ void GraphLibAdapter::processAttributes(const QUuid &graphId)
         }
         m_Edges.insert(graphId, edges);
     }
+#endif
 
 
 }
-
 
 const QList<GraphLibNode *> &GraphLibAdapter::nodes(QUuid graphId) const
 {

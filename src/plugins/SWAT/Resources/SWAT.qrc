@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/SWAT">
-        <file alias="app.gif">Logo_70.gif</file>
-        <file alias="logo_150.gif">Logo_150.gif</file>
         <file alias="cancel.svg">dialog-cancel-5.svg</file>
         <file alias="okay.svg">dialog-ok-apply-5.svg</file>
         <file alias="find.svg">edit-find-7.svg</file>
@@ -34,5 +32,7 @@
         <file alias="hideMPI.svg">action-hideMPI.svg</file>
         <file alias="hideNonBranching.svg">action-hideNonBranching.svg</file>
         <file alias="filter.svg">action-filter.svg</file>
+        <file alias="app.svg">swat-logo.svg</file>
+        <file alias="logo.svg">swat-logo-lg.svg</file>
     </qresource>
 </RCC>

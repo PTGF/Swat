@@ -60,7 +60,7 @@ SWATMainWidget::SWATMainWidget(QWidget *parent) :
     m_StyleSheet = styleSheet();
 
     setWindowTitle(QString("SWAT%1").arg(QChar(0x2122))); //Trademark
-    setWindowIcon(QIcon(":/SWAT/app.gif"));
+    setWindowIcon(QIcon(":/SWAT/app.svg"));
 
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeJob(int)));
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(indexChanged(int)));
@@ -379,35 +379,34 @@ void SWATMainWidget::attachJob()
     QString currentStyleSheet = this->styleSheet();
     setStyleSheet(QString());
 
-    //Prompt user for finding and attaching to a running job
-    JobControlDialog *dialog = new JobControlDialog(this);
+    try {
+        //Prompt user for finding and attaching to a running job
+        JobControlDialog *dialog = new JobControlDialog(this);
 
-    if(dialog->exec(JobControlDialog::Type_Attach) == QDialog::Accepted &&
-            dialog->options() != NULL) {
-        IAdapter *adapter = ConnectionManager::currentAdapter();
+        if(dialog->exec(JobControlDialog::Type_Attach) == QDialog::Accepted &&
+                dialog->options() != NULL) {
 
-        if(!adapter) {
-            using namespace Core::MainWindow;
-            MainWindow::instance().notify(tr("Error while attaching: No adapter!"), NotificationWidget::Critical);
-            return;
-        }
+            IAdapter *adapter = ConnectionManager::currentAdapter();
+            if(!adapter) {
+                throw tr("No adapter!");
+            }
 
-        IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->options();
+            IAdapter::AttachOptions *options = (IAdapter::AttachOptions*)dialog->options();
 
-        if(options) {
-            try {
+            if(options) {
                 adapter->attach(*options);
-            } catch(QString err) {
-                using namespace Core::MainWindow;
-                MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), NotificationWidget::Critical);
-            } catch(...) {
-                using namespace Core::MainWindow;
-                MainWindow::instance().notify(tr("Error while attaching"), NotificationWidget::Critical);
             }
         }
-    }
 
-    dialog->deleteLater();
+        dialog->deleteLater();
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while attaching: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while attaching"), NotificationWidget::Critical);
+    }
 
     setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
@@ -418,35 +417,35 @@ void SWATMainWidget::launchJob()
     QString currentStyleSheet = this->styleSheet();
     setStyleSheet(QString());
 
-    //Prompt user for launching and attaching to a new job
-    JobControlDialog *dialog = new JobControlDialog(this);
+    try {
 
-    if(dialog->exec(JobControlDialog::Type_Launch) == QDialog::Accepted &&
-            dialog->options() != NULL) {
-        IAdapter *adapter = ConnectionManager::currentAdapter();
+        //Prompt user for launching and attaching to a new job
+        JobControlDialog *dialog = new JobControlDialog(this);
 
-        if(!adapter) {
-            using namespace Core::MainWindow;
-            MainWindow::instance().notify(tr("Error while launching: No adapter!"), NotificationWidget::Critical);
-            return;
-        }
+        if(dialog->exec(JobControlDialog::Type_Launch) == QDialog::Accepted &&
+                dialog->options() != NULL) {
 
-        IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->options();
+            IAdapter *adapter = ConnectionManager::currentAdapter();
+            if(!adapter) {
+                throw tr("No adapter!");
+            }
 
-        if(options) {
-            try {
+            IAdapter::LaunchOptions *options = (IAdapter::LaunchOptions*)dialog->options();
+
+            if(options) {
                 adapter->launch(*options);
-            } catch(QString err) {
-                using namespace Core::MainWindow;
-                MainWindow::instance().notify(tr("Error while launching: %1").arg(err), NotificationWidget::Critical);
-            } catch(...) {
-                using namespace Core::MainWindow;
-                MainWindow::instance().notify(tr("Error while launching"), NotificationWidget::Critical);
             }
         }
-    }
 
-    dialog->deleteLater();
+        dialog->deleteLater();
+
+    } catch(QString err) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while launching: %1").arg(err), NotificationWidget::Critical);
+    } catch(...) {
+        using namespace Core::MainWindow;
+        MainWindow::instance().notify(tr("Error while launching."), NotificationWidget::Critical);
+    }
 
     setStyleSheet(currentStyleSheet);  // Reset the stylesheet
 }
