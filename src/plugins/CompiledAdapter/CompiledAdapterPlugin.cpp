@@ -59,8 +59,8 @@ CompiledAdapterPlugin::CompiledAdapterPlugin(QObject *parent) :
     QObject(parent)
 {
     m_Name = "CompiledAdapter";
-    m_Version = "0.1.dev";
-    m_Dependencies.append( Core::PluginManager::Dependency("SWAT", "^0\\.1.*$") );
+    m_Version = QString("%1.%2.%3").arg(VER_MAJ).arg(VER_MIN).arg(VER_PAT);
+    m_Dependencies.append( Core::PluginManager::Dependency("SWAT", QString("^%1\\.%2.*$").arg(VER_MAJ).arg(VER_MIN)) );
 
     /*! \note This feels like a total hack, but it's apparently the only way to do this.  The MRNet library needs to
               be reflagged as global, otherwise the MRNet filter plugins will not be able to see the necessary

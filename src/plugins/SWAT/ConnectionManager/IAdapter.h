@@ -327,6 +327,11 @@ signals:
 //! We do this so that we can use the pointer in a QVariant
 Q_DECLARE_METATYPE(Plugins::SWAT::IAdapter *)
 
-Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, "org.krellinst.swat.IAdapter/0.1")
+#ifndef STRINGIFY
+#define STRINGIFY(X) # X
+#endif
+
+#define IADAPTER_VERSION "org.krellinst.swat.IAdapter/" STRINGIFY(VER_MAJ) "." STRINGIFY(VER_MIN)
+Q_DECLARE_INTERFACE(Plugins::SWAT::IAdapter, IADAPTER_VERSION)
 
 #endif // PLUGINS_SWAT_IADAPTER_H
