@@ -49,18 +49,18 @@ CompiledAdapter::CompiledAdapter(QObject *parent) :
 {
     setObjectName("CompiledAdapter");
 
-//    setenv("prefix", "/opt/stat", true);
-//    setenv("exec_prefix", "/opt/stat", true);
-//    setenv("PATH", "$PATH:/usr/bin", true);
-//    setenv("STAT_LMON_REMOTE_LOGIN", "/usr/bin/rsh", true);
-//    setenv("STAT_XPLAT_RSH", "/usr/bin/rsh", true);
-//    setenv("STAT_MRNET_COMM_PATH", "/opt/stat/bin/mrnet_commnode", true);
-//    setenv("STAT_LMON_LAUNCHMON_ENGINE_PATH", "/opt/stat/bin/launchmon", true);
-//    setenv("STAT_MRNET_DEBUG_LOG_DIRECTORY", "/dev/null", true);
-//    setenv("STAT_CONNECT_TIMEOUT", "600", true);
-//    setenv("LMON_FE_ENGINE_TIMEOUT", "600", true);
+//    qputenv("prefix", "/opt/stat");
+//    qputenv("exec_prefix", "/opt/stat");
+//    qputenv("PATH", "$PATH:/usr/bin");
+//    qputenv("STAT_LMON_REMOTE_LOGIN", "/usr/bin/rsh");
+//    qputenv("STAT_XPLAT_RSH", "/usr/bin/rsh");
+//    qputenv("STAT_MRNET_COMM_PATH", "/opt/stat/bin/mrnet_commnode");
+//    qputenv("STAT_LMON_LAUNCHMON_ENGINE_PATH", "/opt/stat/bin/launchmon");
+//    qputenv("STAT_MRNET_DEBUG_LOG_DIRECTORY", "/dev/null");
+//    qputenv("STAT_CONNECT_TIMEOUT", "600");
+//    qputenv("LMON_FE_ENGINE_TIMEOUT", "600");
 
-//    setenv("MRNET_DEBUG_LEVEL", "5", true);
+//    qputenv("MRNET_DEBUG_LEVEL", "5");
 
     // Get default values from the FrontEnd and cache them in this object
     STAT_FrontEnd *frontEnd = new STAT_FrontEnd();
@@ -255,9 +255,11 @@ STAT_FrontEnd *CompiledAdapter::setupFrontEnd(const Options &options, const QUui
     }
 
     if(options.debugFlags & Debug_BackEnd) {
-        setenv("LMON_DEBUG_BES", "1", true);
+        qputenv("LMON_DEBUG_BES", "1");
     } else {
-        unsetenv("LMON_DEBUG_BES");
+        // Clear the environment variable (unsetenv is not compatible with MinGW or MSVC)
+        //NOTE: this _may_ fail on some systems (AIX?)
+        qputenv("LMON_DEBUG_BES", QByteArray());
     }
 
     frontEnd->setProcsPerNode(options.processesPerNode);
